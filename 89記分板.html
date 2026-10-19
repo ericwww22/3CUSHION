@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED 撞球計分板 - 超大數字版 (LED Billiards Scoreboard)</title>
+    <!-- Google Fonts: Orbitron for LED Digital Display & Noto Sans TC for Chinese typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'monospace'],
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        ledRed: '#ff2233',
+                        ledCyan: '#00ffcc',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Modern reset and layout defaults */
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: #08080c;
+            background-image: radial-gradient(circle at center, #181824 0%, #050508 100%);
+            color: #ffffff;
+            font-family: 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* LED Score Text Glow Styles with Adaptive Responsive Font Sizes */
+        .score-text-p1 {
+            font-family: 'Orbitron', monospace;
+            color: #ff2233;
+            /* Adaptive maximum score display using clamp for distant viewing */
+            font-size: clamp(7.5rem, 22vw, 15rem);
+            line-height: 0.9;
+            font-weight: 900;
+            text-shadow: 
+                0 0 15px rgba(255, 34, 51, 0.9),
+                0 0 35px rgba(255, 34, 51, 0.6),
+                0 0 60px rgba(255, 34, 51, 0.3);
+            letter-spacing: -0.02em;
+        }
+
+        .score-text-p2 {
+            font-family: 'Orbitron', monospace;
+            color: #00ffcc;
+            /* Adaptive maximum score display using clamp for distant viewing */
+            font-size: clamp(7.5rem, 22vw, 15rem);
+            line-height: 0.9;
+            font-weight: 900;
+            text-shadow: 
+                0 0 15px rgba(0, 255, 204, 0.9),
+                0 0 35px rgba(0, 255, 204, 0.6),
+                0 0 60px rgba(0, 255, 204, 0.3);
+            letter-spacing: -0.02em;
+        }
+
+        /* Metallic Dark Digital Panel Glass Effect */
+        .led-panel {
+            background: linear-gradient(180deg, #030306 0%, #0a0a12 100%);
+            border: 2px solid #222235;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.95), 0 10px 30px rgba(0, 0, 0, 0.7);
+            position: relative;
+        }
+
+        /* Panel Glass Scanlines Mesh Texture Overlay */
+        .led-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                rgba(255, 255, 255, 0.03) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        /* Active break ball glowing border indicator */
+        .break-active-p1 {
+            border-color: #ff2233 !important;
+            box-shadow: 0 0 15px rgba(255, 34, 51, 0.5) !important;
+        }
+
+        .break-active-p2 {
+            border-color: #00ffcc !important;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.5) !important;
+        }
+
+        /* Ball Tracker Styles */
+        .ball-item {
+            width: clamp(32px, 4vw, 44px);
+            height: clamp(32px, 4vw, 44px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.95rem;
+            color: #000;
+            cursor: pointer;
+            opacity: 0.25;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 3px 6px rgba(0,0,0,0.6);
+        }
+
+        .ball-item.pocketed {
+            opacity: 1;
+            transform: scale(1.12);
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Official Pool Ball Color Standards */
+        .ball-1 { background: #ffd700; }
+        .ball-2 { background: #0066ff; color: #fff; }
+        .ball-3 { background: #ff3333; color: #fff; }
+        .ball-4 { background: #9933ff; color: #fff; }
+        .ball-5 { background: #ff9900; }
+        .ball-6 { background: #00cc44; color: #fff; }
+        .ball-7 { background: #8B4513; color: #fff; }
+        .ball-8 { background: #111111; color: #fff; border: 1px solid #555; }
+        .ball-9 { background: #ffd700; border: 3.5px solid #ff3333; }
+
+        /* Modal Animation */
+        @keyframes modalScale {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-modal {
+            animation: modalScale 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6 justify-between max-w-[1600px] mx-auto w-full">
+
+    <!-- Top Navigation Header / Game Controls -->
+    <header class="bg-slate-900/80 border border-slate-800 backdrop-blur-md rounded-2xl p-3 sm:p-4 mb-3 sm:mb-5 flex flex-wrap items-center justify-between gap-3 shadow-2xl">
+        
+        <!-- Game Mode Toggle Buttons -->
+        <div class="flex items-center gap-2">
+            <div class="bg-slate-950 p-1 rounded-xl border border-slate-800 flex gap-1">
+                <button id="btn-mode-8" onclick="setGameMode('8')" class="px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base transition-all bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/30">
+                    8 號球
+                </button>
+                <button id="btn-mode-9" onclick="setGameMode('9')" class="px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base text-slate-400 hover:text-white transition-all">
+                    9 號球
+                </button>
+            </div>
+        </div>
+
+        <!-- Target Score Setting (Race To / 搶局數) -->
+        <div class="flex items-center gap-2 bg-slate-950 px-3 sm:px-4 py-2 rounded-xl border border-slate-800">
+            <span class="text-amber-400 font-orbitron font-bold text-xs sm:text-sm tracking-wider">RACE TO</span>
+            <input type="number" id="race-target" value="7" min="1" max="99" onchange="updateTargetScore()" 
+                   class="w-12 sm:w-14 bg-black border border-amber-500/50 text-amber-400 font-orbitron font-bold text-center text-lg sm:text-xl rounded-md focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
+            <span class="text-slate-400 font-bold text-xs sm:text-sm">局</span>
+        </div>
+
+        <!-- Action Controls: Swap Players & Reset -->
+        <div class="flex items-center gap-2">
+            <button onclick="swapPlayers()" title="對調選手資訊" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1 active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                <span class="hidden sm:inline">對調</span>
+            </button>
+            <button onclick="confirmReset()" class="px-3 sm:px-4 py-2 bg-rose-950/80 hover:bg-rose-900 border border-rose-600/80 text-rose-300 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg shadow-rose-950/50 active:scale-95">
+                重置比賽
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Scoreboard Section -->
+    <main class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 flex-grow items-stretch my-auto">
+        
+        <!-- PLAYER 1 SCORE CARD -->
+        <section id="card-p1" class="bg-slate-900/60 border-2 border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col justify-between items-center transition-all duration-300 relative group shadow-2xl">
+            
+            <!-- Player Name & Break Indicator -->
+            <div class="w-full flex items-center justify-between gap-2 mb-2">
+                <button id="break-p1" onclick="toggleBreak(1)" title="切換開球權" class="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all">
+                    <span class="w-2 h-2 rounded-full bg-slate-600 inline-block" id="dot-p1"></span>
+                    <span>BREAK</span>
+                </button>
+                <input type="text" id="name-p1" value="PLAYER 1" class="bg-black/40 border border-slate-800 hover:border-slate-700 focus:border-rose-500 text-center font-bold text-slate-200 text-lg sm:text-2xl rounded-xl px-3 py-1.5 w-full focus:outline-none transition-all">
+            </div>
+
+            <!-- LED Score Display Window (Ultra Large Responsive) -->
+            <div class="led-panel rounded-2xl sm:rounded-3xl w-full my-2 sm:my-3 py-4 sm:py-8 flex items-center justify-center cursor-pointer select-none" onclick="addScore(1, 1)">
+                <div id="score-p1" class="score-text-p1 transition-transform duration-100 active:scale-95">0</div>
+            </div>
+
+            <!-- Score Control Plus / Minus Buttons -->
+            <div class="w-full grid grid-cols-2 gap-3 mt-1">
+                <button onclick="addScore(1, -1)" class="py-3 sm:py-4 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/80 text-slate-300 font-black text-xl sm:text-2xl rounded-xl sm:rounded-2xl shadow-md active:scale-95 transition-all">
+                    -1
+                </button>
+                <button onclick="addScore(1, 1)" class="py-3 sm:py-4 bg-rose-600 hover:bg-rose-500 text-white font-black text-xl sm:text-2xl rounded-xl sm:rounded-2xl shadow-lg shadow-rose-600/40 active:scale-95 transition-all">
+                    +1
+                </button>
+            </div>
+        </section>
+
+        <!-- PLAYER 2 SCORE CARD -->
+        <section id="card-p2" class="bg-slate-900/60 border-2 border-slate-800/80 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col justify-between items-center transition-all duration-300 relative group shadow-2xl">
+            
+            <!-- Player Name & Break Indicator -->
+            <div class="w-full flex items-center justify-between gap-2 mb-2">
+                <button id="break-p2" onclick="toggleBreak(2)" title="切換開球權" class="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all">
+                    <span class="w-2 h-2 rounded-full bg-slate-600 inline-block" id="dot-p2"></span>
+                    <span>BREAK</span>
+                </button>
+                <input type="text" id="name-p2" value="PLAYER 2" class="bg-black/40 border border-slate-800 hover:border-slate-700 focus:border-emerald-500 text-center font-bold text-slate-200 text-lg sm:text-2xl rounded-xl px-3 py-1.5 w-full focus:outline-none transition-all">
+            </div>
+
+            <!-- LED Score Display Window (Ultra Large Responsive) -->
+            <div class="led-panel rounded-2xl sm:rounded-3xl w-full my-2 sm:my-3 py-4 sm:py-8 flex items-center justify-center cursor-pointer select-none" onclick="addScore(2, 1)">
+                <div id="score-p2" class="score-text-p2 transition-transform duration-100 active:scale-95">0</div>
+            </div>
+
+            <!-- Score Control Plus / Minus Buttons -->
+            <div class="w-full grid grid-cols-2 gap-3 mt-1">
+                <button onclick="addScore(2, -1)" class="py-3 sm:py-4 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/80 text-slate-300 font-black text-xl sm:text-2xl rounded-xl sm:rounded-2xl shadow-md active:scale-95 transition-all">
+                    -1
+                </button>
+                <button onclick="addScore(2, 1)" class="py-3 sm:py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xl sm:text-2xl rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-500/40 active:scale-95 transition-all">
+                    +1
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 9-Ball Ball Tracker Bar (Shown dynamically in 9-ball mode) -->
+    <footer id="ball-tracker-section" class="mt-3 sm:mt-5 bg-slate-900/80 border border-slate-800 backdrop-blur-md rounded-2xl p-2.5 sm:p-4 flex flex-col items-center justify-center gap-2 shadow-xl hidden">
+        <div class="flex items-center justify-between w-full max-w-xl px-2">
+            <span class="text-xs font-bold text-amber-400/90 tracking-wider font-orbitron">9-BALL POCKET TRACKER</span>
+            <button onclick="resetBalls()" class="text-xs text-slate-400 hover:text-slate-200 underline">重置球號</button>
+        </div>
+        <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+            <div class="ball-item ball-1" onclick="toggleBall(this)">1</div>
+            <div class="ball-item ball-2" onclick="toggleBall(this)">2</div>
+            <div class="ball-item ball-3" onclick="toggleBall(this)">3</div>
+            <div class="ball-item ball-4" onclick="toggleBall(this)">4</div>
+            <div class="ball-item ball-5" onclick="toggleBall(this)">5</div>
+            <div class="ball-item ball-6" onclick="toggleBall(this)">6</div>
+            <div class="ball-item ball-7" onclick="toggleBall(this)">7</div>
+            <div class="ball-item ball-8" onclick="toggleBall(this)">8</div>
+            <div class="ball-item ball-9" onclick="toggleBall(this)">9</div>
+        </div>
+    </footer>
+
+    <!-- Fullscreen Victory Celebration LED Modal -->
+    <div id="winner-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden overflow-y-auto">
+        <div class="bg-slate-900 border-2 border-amber-400/80 rounded-3xl p-5 sm:p-8 max-w-lg w-full text-center shadow-2xl shadow-amber-500/20 animate-modal relative overflow-hidden my-auto max-h-[90vh] flex flex-col items-center">
+            <!-- Neon background accent -->
+            <div class="absolute -top-16 -left-16 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -right-16 w-32 h-32 bg-rose-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="font-orbitron font-extrabold text-amber-400 text-lg sm:text-xl tracking-widest mb-1">
+                🏆 VICTORY MATCH RESULT 🏆
+            </div>
+
+            <!-- Preview Canvas Container -->
+            <div class="w-full my-3 overflow-hidden rounded-xl border border-slate-700 bg-black/60 shadow-inner flex justify-center">
+                <canvas id="victory-card-canvas" class="w-full h-auto max-w-full rounded-lg object-contain"></canvas>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mt-2">
+                <button onclick="downloadMatchCard()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg shadow-amber-500/25 transition-all active:scale-95 flex items-center justify-center gap-1.5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    下載獲勝比分圖
+                </button>
+                <button onclick="copyMatchSummaryText()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-sm sm:text-base rounded-xl transition-all active:scale-95 flex items-center justify-center gap-1.5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                    複製文字比分
+                </button>
+            </div>
+
+            <div class="flex gap-2 w-full mt-2.5">
+                <button onclick="closeWinnerModal()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm rounded-xl transition-all">
+                    關閉視窗
+                </button>
+                <button onclick="confirmReset(); closeWinnerModal();" class="w-1/2 py-2.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-700/80 text-rose-200 font-bold text-xs sm:text-sm rounded-xl transition-all">
+                    重新開始下一場
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Controller Logic -->
+    <script>
+        // Scoreboard State Management
+        let scores = { 1: 0, 2: 0 };
+        let activeBreak = 0; // 0: None, 1: Player 1, 2: Player 2
+        let raceTarget = 7;
+        let currentGameMode = '8';
+        let matchEnded = false;
+
+        // Score Modifier Function
+        function addScore(player, delta) {
+            if (matchEnded && delta > 0) return;
+
+            scores[player] = Math.max(0, scores[player] + delta);
+            document.getElementById(`score-p${player}`).innerText = scores[player];
+
+            // Auto-switch break on score increase (Optional tournament standard)
+            if (delta > 0 && activeBreak !== 0) {
+                activeBreak = activeBreak === 1 ? 2 : 1;
+                updateBreakUI();
+            }
+
+            // Reset ball tracker on new frame score
+            if (delta > 0 && currentGameMode === '9') {
+                resetBalls();
+            }
+
+            checkMatchWinner(player);
+        }
+
+        // Target Score Management
+        function updateTargetScore() {
+            const input = document.getElementById('race-target');
+            raceTarget = Math.max(1, parseInt(input.value) || 1);
+            input.value = raceTarget;
+        }
+
+        // Check Winner Condition
+        function checkMatchWinner(player) {
+            if (scores[player] >= raceTarget && !matchEnded) {
+                matchEnded = true;
+                const winnerName = document.getElementById(`name-p${player}`).value || `PLAYER ${player}`;
+                showWinnerModal(player, winnerName);
+            }
+        }
+
+        // Winner Modal & Victory Graphic Canvas Generation
+        function showWinnerModal(winnerPlayerNum, name) {
+            generateVictoryCard(winnerPlayerNum);
+            document.getElementById('winner-modal').classList.remove('hidden');
+        }
+
+        function generateVictoryCard(winnerNum) {
+            const canvas = document.getElementById('victory-card-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // High resolution render size
+            canvas.width = 1200;
+            canvas.height = 675;
+
+            const name1 = document.getElementById('name-p1').value.trim() || 'PLAYER 1';
+            const name2 = document.getElementById('name-p2').value.trim() || 'PLAYER 2';
+            const winnerName = winnerNum === 1 ? name1 : name2;
+            const modeText = currentGameMode === '8' ? '8 號球賽事' : '9 號球賽事';
+
+            // Background Gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, 1200, 675);
+            bgGrad.addColorStop(0, '#0a0a14');
+            bgGrad.addColorStop(0.5, '#121225');
+            bgGrad.addColorStop(1, '#05050a');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 1200, 675);
+
+            // Mesh Pattern Lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 1200; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, 675);
+                ctx.stroke();
+            }
+
+            // Outer Glowing Border
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(20, 20, 1160, 635);
+
+            // Corner Accents
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(15, 15, 30, 30);
+            ctx.fillRect(1155, 15, 30, 30);
+            ctx.fillRect(15, 630, 30, 30);
+            ctx.fillRect(1155, 630, 30, 30);
+
+            // Title Header
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 36px "Noto Sans TC", sans-serif';
+            ctx.fillText(`🏆 BILLIARDS MATCH RESULT • ${modeText} 🏆`, 600, 85);
+
+            // Subtitle - Target Score
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 24px Orbitron, sans-serif';
+            ctx.fillText(`RACE TO ${raceTarget} GALE MATCH`, 600, 125);
+
+            // Winner Highlight Banner
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(250, 155, 700, 80, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 42px "Noto Sans TC", sans-serif';
+            ctx.fillText(`WINNER: ${winnerName.toUpperCase()}`, 600, 210);
+
+            // Player 1 Card Panel
+            drawPlayerCard(ctx, 80, 265, 490, 290, name1, scores[1], winnerNum === 1, '#ff2233', 'P1');
+
+            // Player 2 Card Panel
+            drawPlayerCard(ctx, 630, 265, 490, 290, name2, scores[2], winnerNum === 2, '#00ffcc', 'P2');
+
+            // Footer Timestamp
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'bold 20px Orbitron, sans-serif';
+            ctx.fillText(`TIMESTAMP: ${timeStr} | LED BILLIARDS SCOREBOARD`, 600, 605);
+        }
+
+        function drawPlayerCard(ctx, x, y, w, h, name, score, isWinner, mainColor, label) {
+            // Card Background
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.strokeStyle = isWinner ? mainColor : '#334155';
+            ctx.lineWidth = isWinner ? 5 : 2;
+            ctx.beginPath();
+            ctx.roundRect(x, y, w, h, 20);
+            ctx.fill();
+            ctx.stroke();
+
+            // Winner badge on card
+            if (isWinner) {
+                ctx.fillStyle = mainColor;
+                ctx.beginPath();
+                ctx.roundRect(x + w - 120, y + 15, 105, 32, 10);
+                ctx.fill();
+
+                ctx.fillStyle = '#000000';
+                ctx.font = '900 16px "Noto Sans TC", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('勝 利 👑', x + w - 67, y + 37);
+            }
+
+            // Player Name
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = 'bold 32px "Noto Sans TC", sans-serif';
+            ctx.fillText(name, x + w / 2, y + 60);
+
+            // Score Box Window
+            ctx.fillStyle = '#030308';
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(x + 40, y + 85, w - 80, 170, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            // LED Score Text Display
+            ctx.fillStyle = mainColor;
+            ctx.font = '900 120px Orbitron, monospace';
+            ctx.shadowColor = mainColor;
+            ctx.shadowBlur = isWinner ? 25 : 10;
+            ctx.fillText(score.toString(), x + w / 2, y + 212);
+
+            // Reset Shadow
+            ctx.shadowBlur = 0;
+        }
+
+        // Download Victory Match Card
+        function downloadMatchCard() {
+            const canvas = document.getElementById('victory-card-canvas');
+            const link = document.createElement('a');
+            const name1 = document.getElementById('name-p1').value.trim() || 'P1';
+            const name2 = document.getElementById('name-p2').value.trim() || 'P2';
+            
+            link.download = `Billiards_Result_${name1}_vs_${name2}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Copy Text Summary to Clipboard
+        function copyMatchSummaryText() {
+            const name1 = document.getElementById('name-p1').value.trim() || 'PLAYER 1';
+            const name2 = document.getElementById('name-p2').value.trim() || 'PLAYER 2';
+            const mode = currentGameMode === '8' ? '8號球' : '9號球';
+            const winner = scores[1] >= raceTarget ? name1 : name2;
+            const text = `🎱【撞球比賽結果 Notification】\n• 項目：${mode} (搶 ${raceTarget} 局)\n• 對決：${name1} vs ${name2}\n• 比分：${scores[1]} - ${scores[2]}\n• 🏆 最終獲勝者：${winner}\n• 時間：${new Date().toLocaleString('zh-TW')}`;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            alert('已複製比賽結果文字至剪貼簿！');
+        }
+
+        function closeWinnerModal() {
+            document.getElementById('winner-modal').classList.add('hidden');
+        }
+
+        // Break Indicator Toggle
+        function toggleBreak(player) {
+            activeBreak = (activeBreak === player) ? 0 : player;
+            updateBreakUI();
+        }
+
+        function updateBreakUI() {
+            const btnP1 = document.getElementById('break-p1');
+            const btnP2 = document.getElementById('break-p2');
+            const dotP1 = document.getElementById('dot-p1');
+            const dotP2 = document.getElementById('dot-p2');
+
+            // Reset default button states
+            btnP1.className = "px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all";
+            btnP2.className = "px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all";
+            dotP1.className = "w-2 h-2 rounded-full bg-slate-600 inline-block";
+            dotP2.className = "w-2 h-2 rounded-full bg-slate-600 inline-block";
+
+            if (activeBreak === 1) {
+                btnP1.className = "px-2.5 py-1 rounded-lg bg-rose-950/80 border border-rose-500 text-rose-300 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-md shadow-rose-950";
+                dotP1.className = "w-2 h-2 rounded-full bg-rose-500 inline-block animate-pulse";
+            } else if (activeBreak === 2) {
+                btnP2.className = "px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500 text-emerald-300 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-md shadow-emerald-950";
+                dotP2.className = "w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse";
+            }
+        }
+
+        // Game Mode Switcher (8-Ball / 9-Ball)
+        function setGameMode(mode) {
+            currentGameMode = mode;
+            const btn8 = document.getElementById('btn-mode-8');
+            const btn9 = document.getElementById('btn-mode-9');
+            const ballTracker = document.getElementById('ball-tracker-section');
+
+            if (mode === '8') {
+                btn8.className = "px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base transition-all bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/30";
+                btn9.className = "px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base text-slate-400 hover:text-white transition-all";
+                ballTracker.classList.add('hidden');
+            } else {
+                btn9.className = "px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base transition-all bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/30";
+                btn8.className = "px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base text-slate-400 hover:text-white transition-all";
+                ballTracker.classList.remove('hidden');
+            }
+            resetBalls();
+        }
+
+        // 9-Ball Pocket Status Toggle
+        function toggleBall(el) {
+            el.classList.toggle('pocketed');
+        }
+
+        function resetBalls() {
+            const balls = document.querySelectorAll('.ball-item');
+            balls.forEach(b => b.classList.remove('pocketed'));
+        }
+
+        // Swap Player Names & Scores
+        function swapPlayers() {
+            const name1 = document.getElementById('name-p1').value;
+            const name2 = document.getElementById('name-p2').value;
+
+            document.getElementById('name-p1').value = name2;
+            document.getElementById('name-p2').value = name1;
+
+            const tempScore = scores[1];
+            scores[1] = scores[2];
+            scores[2] = tempScore;
+
+            document.getElementById('score-p1').innerText = scores[1];
+            document.getElementById('score-p2').innerText = scores[2];
+        }
+
+        // Reset Full Match
+        function confirmReset() {
+            scores = { 1: 0, 2: 0 };
+            activeBreak = 0;
+            matchEnded = false;
+
+            document.getElementById('score-p1').innerText = '0';
+            document.getElementById('score-p2').innerText = '0';
+
+            updateBreakUI();
+            resetBalls();
+            closeWinnerModal();
+        }
+    </script>
+</body>
+</html>
