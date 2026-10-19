@@ -24,7 +24,7 @@
     .inactive-player { cursor: pointer; opacity: 0.85; border: 3px solid transparent; transition: all 0.2s; }
     .inactive-player:hover { opacity: 1; border-color: rgba(232, 188, 112, 0.5); }
     
-    .led-score { font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 12px rgba(255,255,255,0.6); }
+    .led-score { font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 12px rgba(255,255,255,0.6); cursor: pointer; user-select: none; }
     .led-yellow { color: #ffe066 !important; text-shadow: 0 0 12px rgba(255, 224, 102, 0.7); }
     .led-white { color: #ffffff !important; }
     .btn-action { transition: all 0.15s ease; }
@@ -93,14 +93,14 @@
       <!-- 主記分板 -->
       <main class="grid grid-cols-1 md:grid-cols-[1fr_240px_1fr] gap-4 mb-6">
 
-        <!-- Player 1 (點擊卡片直接換人至選手一) -->
+        <!-- Player 1 -->
         <article id="player-card-0" onclick="handleCardClick(0)" class="glass p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
           <div class="flex justify-between items-center mb-2">
             <span id="name-display-0" class="text-lg sm:text-xl font-bold gold-text">選手一 (白球)</span>
             <span id="turn-tag-0" class="text-xs px-2.5 py-1 rounded-full bg-amber-400 text-black font-bold">● 擊球中</span>
           </div>
           <div class="my-4 text-center">
-            <div id="score-0" class="led-score display-font text-7xl sm:text-9xl font-black led-white">0</div>
+            <div id="score-0" ondblclick="handleScoreDblClick(event, 0)" class="led-score display-font text-7xl sm:text-9xl font-black led-white">0</div>
           </div>
           <div class="grid grid-cols-3 gap-2 text-center text-xs text-emerald-100/70 mb-4 bg-white/5 p-2 rounded-xl">
             <div>Inning<br><strong id="inning-0" class="text-lg text-white font-bold">0</strong></div>
@@ -140,14 +140,14 @@
           <p class="text-[10px] text-emerald-100/50 mt-2">黑馬三顆星 ‧ 就是這樣中！</p>
         </section>
 
-        <!-- Player 2 (點擊卡片直接換人至選手二) -->
+        <!-- Player 2 -->
         <article id="player-card-1" onclick="handleCardClick(1)" class="glass p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
           <div class="flex justify-between items-center mb-2">
             <span id="name-display-1" class="text-lg sm:text-xl font-bold gold-text">選手二 (黃球)</span>
             <span id="turn-tag-1" class="text-xs px-2.5 py-1 rounded-full bg-amber-400 text-black font-bold hidden">● 擊球中</span>
           </div>
           <div class="my-4 text-center">
-            <div id="score-1" class="led-score display-font text-7xl sm:text-9xl font-black led-yellow">0</div>
+            <div id="score-1" ondblclick="handleScoreDblClick(event, 1)" class="led-score display-font text-7xl sm:text-9xl font-black led-yellow">0</div>
           </div>
           <div class="grid grid-cols-3 gap-2 text-center text-xs text-emerald-100/70 mb-4 bg-white/5 p-2 rounded-xl">
             <div>Inning<br><strong id="inning-1" class="text-lg text-white font-bold">0</strong></div>
@@ -217,13 +217,12 @@
             <div class="flex flex-col gap-2 sm:flex-row sm:justify-center">
               <a href="https://www.youtube.com/@taiwan3cushion/podcasts" target="_blank" rel="noopener noreferrer"
                  class="w-full sm:w-auto btn-action bg-red-600 hover:bg-red-500 text-white font-extrabold px-5 py-2.5 rounded-xl">
-                🎧 開啟 Podcasts 分頁
-              </a>
-              <a href="https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU" target="_blank" rel="noopener noreferrer"
-                 class="w-full sm:w-auto btn-action bg-white/10 hover:bg-white/20 text-white font-extrabold px-5 py-2.5 rounded-xl">
-                ▶️ 播放 Podcast 影片
-              </a>
-            </div>
+              🎧 開啟 Podcasts 分頁
+            </a>
+            <a href="https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU" target="_blank" rel="noopener noreferrer"
+               class="w-full sm:w-auto btn-action bg-white/10 hover:bg-white/20 text-white font-extrabold px-5 py-2.5 rounded-xl">
+              ▶️ 播放 Podcast 影片
+            </a>
           </div>
         </div>
       </section>
@@ -386,7 +385,7 @@
     let timer = null, matchClockTimer = null, totalElapsedSeconds = 0;
     let audioCtx = null;
     let currentZoom = 1.0;
-    let isTimeoutPrompt = false; // 是否處於詢問延長狀態
+    let isTimeoutPrompt = false;
 
     checkSubscriptionLock(); 
     onBallColorChange(); 
@@ -477,7 +476,6 @@
         card.classList.toggle('inactive-player', !isActive);
         document.getElementById(`turn-tag-${i}`).classList.toggle('hidden', !isActive);
         
-        // 分數按鈕只允許在「當前擊球選手」且比賽未結束時操作
         document.getElementById(`btn-plus-${i}`).disabled = !(activePlayer === i && phase !== 'finished');
         document.getElementById(`btn-minus-${i}`).disabled = !(activePlayer === i && phase !== 'finished' && scores[i] > 0);
         document.getElementById(`btn-timeout-${i}`).disabled = !(activePlayer === i && phase === 'running' && timeouts[i] > 0);
@@ -562,7 +560,6 @@
         if(remaining <= ws && remaining > 0) triggerWarning(remaining);
         
         if(remaining <= 0){
-          // 時間到：不切換選手，改為顯示是否延長，並自動暫停計時讓使用者決定
           isTimeoutPrompt = true;
           triggerWarning(0);
           render();
@@ -615,16 +612,32 @@
     function handleCardClick(targetPlayerIndex){
       if(phase === 'finished') return;
       if(activePlayer !== targetPlayerIndex){
-        // 結算當前選手的局數與歸零當前連續得分
         innings[activePlayer]++;
         currentRuns[activePlayer] = 0;
         
-        // 換人
         activePlayer = targetPlayerIndex;
         remaining = duration;
         isTimeoutPrompt = false;
         render();
       }
+    }
+
+    // 在分數方塊內連點兩下：直接加 1 分（若球權不在該選手，會先切換球權再加 1 分）
+    function handleScoreDblClick(event, playerIndex) {
+      event.stopPropagation(); // 阻止事件冒泡到卡片點擊
+      if(phase === 'finished') return;
+
+      // 如果當前球權不是該選手，先切換球權
+      if(activePlayer !== playerIndex) {
+        innings[activePlayer]++;
+        currentRuns[activePlayer] = 0;
+        activePlayer = playerIndex;
+        remaining = duration;
+        isTimeoutPrompt = false;
+      }
+
+      // 直接加 1 分
+      addScore(playerIndex, 1);
     }
 
     function addScore(i, d){
