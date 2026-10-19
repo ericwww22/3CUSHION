@@ -24,6 +24,7 @@
             padding: 12px;
             background-image: radial-gradient(circle at center, #181824 0%, #050508 100%);
             overflow-x: hidden;
+            position: relative;
         }
         
         /* 頂部控制列 */
@@ -37,7 +38,7 @@
             border-radius: 14px;
             margin-bottom: 12px;
             backdrop-filter: blur(10px);
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
         }
         .header-group {
@@ -55,6 +56,29 @@
             gap: 6px;
             letter-spacing: 1px;
         }
+
+        /* 頂部 YouTube 訂閱按鈕 */
+        .yt-sub-top-btn {
+            background: #cc0000;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 900;
+            padding: 6px 12px;
+            border-radius: 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 10px rgba(204, 0, 0, 0.5);
+            transition: 0.2s;
+            border: 1px solid #ff4d4d;
+        }
+        .yt-sub-top-btn:hover {
+            background: #ff0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+            transform: scale(1.03);
+        }
+
         .mode-selector button {
             background: #1a1a26;
             color: #8888a0;
@@ -263,6 +287,64 @@
         .b-8 { background: #1a1a1a; color: #fff; border: 1px solid #666; }
         .b-9 { background: #ffd700; border: 3px solid #ff3333; }
 
+        /* 最下方嵌入播放清單區塊 */
+        .bottom-playlist-section {
+            margin-top: 15px;
+            background: rgba(18, 18, 28, 0.9);
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+        .playlist-header {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: #ffcc00;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .playlist-iframe-container {
+            width: 100%;
+            height: 220px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+        .playlist-iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 浮動 YouTube 音樂播放器樣式 */
+        .floating-player {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            width: 220px;
+            height: 124px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 85, 0, 0.3);
+            border: 2px solid rgba(255, 204, 0, 0.5);
+            z-index: 900;
+            background: #000;
+        }
+        .floating-player iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 橫螢幕時自動隱藏浮動播放器以確保最大計分視野 */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .hide-on-landscape {
+                display: none !important;
+            }
+        }
+
         /* 勝利 Modal 與 比分圖 Modal */
         .modal-overlay {
             display: none;
@@ -409,6 +491,7 @@
             .header { justify-content: center; }
             .player-card { padding: 10px; }
             .led-panel { min-height: 140px; }
+            .floating-player { width: 170px; height: 96px; bottom: 10px; right: 10px; }
         }
     </style>
 </head>
@@ -435,6 +518,13 @@
     <div class="header">
         <div class="header-group">
             <div class="app-title">🐴 黑馬撞球 LED 計分板</div>
+            
+            <!-- YouTube 訂閱按鈕 -->
+            <a href="https://www.youtube.com/@taiwan3cushion" target="_blank" rel="noopener noreferrer" class="yt-sub-top-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <span>YouTube 訂閱頻道</span>
+            </a>
+
             <div class="mode-selector">
                 <button id="mode-8" class="active" onclick="switchGameMode('8')">8 號球</button>
                 <button id="mode-9" onclick="switchGameMode('9')">9 號球</button>
@@ -484,6 +574,23 @@
         <div class="ball b-7" onclick="toggleBall(this)">7</div>
         <div class="ball b-8" onclick="toggleBall(this)">8</div>
         <div class="ball b-9" onclick="toggleBall(this)">9</div>
+    </div>
+
+    <!-- 最下方 YouTube 頻道播放清單區塊 -->
+    <div class="bottom-playlist-section">
+        <div class="playlist-header">
+            <span>📺 黑馬音樂頻道 Playlists 影音播放專區</span>
+            <a href="https://www.youtube.com/@taiwan3cushion/playlists" target="_blank" rel="noopener noreferrer" style="color: #ffcc00; text-decoration: underline; font-size: 0.8rem;">開啟 YouTube 瀏覽列表 ➔</a>
+        </div>
+        <div class="playlist-iframe-container">
+            <iframe src="https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU" title="YouTube Playlists" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- 浮動播放器 HTML 區塊 -->
+    <div class="floating-player hide-on-landscape">
+        <iframe src="https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+        </iframe>
     </div>
 
     <!-- 勝利與獲勝比分圖 Modal -->
