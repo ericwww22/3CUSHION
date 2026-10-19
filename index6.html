@@ -11,7 +11,6 @@
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--dark-bg); color: #edf5eb; font-family: 'Work Sans', sans-serif; min-height: 100vh; }
     
-    /* 支援手動縮放的容器包裝 */
     #zoom-container {
       transform-origin: top center;
       transition: transform 0.1s ease-out;
@@ -21,7 +20,10 @@
     .glass { background: var(--surface); border: 1px solid rgba(192, 231, 209, 0.15); border-radius: 20px; backdrop-filter: blur(12px); }
     .display-font { font-family: 'Fraunces', serif; }
     .gold-text { color: var(--gold); }
-    .active-player { border: 3px solid var(--gold); box-shadow: 0 0 30px rgba(232, 188, 112, 0.4); }
+    .active-player { border: 3px solid var(--gold); box-shadow: 0 0 30px rgba(232, 188, 112, 0.4); cursor: pointer; }
+    .inactive-player { cursor: pointer; opacity: 0.85; border: 3px solid transparent; transition: all 0.2s; }
+    .inactive-player:hover { opacity: 1; border-color: rgba(232, 188, 112, 0.5); }
+    
     .led-score { font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 12px rgba(255,255,255,0.6); }
     .led-yellow { color: #ffe066 !important; text-shadow: 0 0 12px rgba(255, 224, 102, 0.7); }
     .led-white { color: #ffffff !important; }
@@ -44,13 +46,11 @@
     .history-item:hover { border-color: var(--gold); background: rgba(232,188,112,0.1); }
     .history-item .winner { color: var(--gold); font-weight: bold; }
 
-    /* 防止手機橫向捲動 */
     .overflow-x-hidden { overflow-x: hidden; }
   </style>
 </head>
 <body class="p-3 sm:p-6 pb-28 overflow-x-hidden">
 
-  <!-- 整個主要內容包在 zoom-container 內，以支援縮放 -->
   <div id="zoom-container">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
@@ -78,7 +78,7 @@
           </button>
           <span id="match-status" class="px-3 py-1.5 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
           
-          <!-- 縮放按鈕群組（新增於全螢幕旁） -->
+          <!-- 縮放按鈕群組 -->
           <div class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
             <button onclick="adjustZoom(-0.1)" class="px-2.5 py-1.5 text-xs font-bold hover:bg-white/20 text-white transition" title="縮小">-</button>
             <span id="zoom-level-display" class="px-2 text-xs font-mono text-amber-300">100%</span>
@@ -93,8 +93,8 @@
       <!-- 主記分板 -->
       <main class="grid grid-cols-1 md:grid-cols-[1fr_240px_1fr] gap-4 mb-6">
 
-        <!-- Player 1 -->
-        <article id="player-card-0" class="glass p-5 flex flex-col justify-between bg-black/60 transition-all duration-300">
+        <!-- Player 1 (點擊卡片直接換人至選手一) -->
+        <article id="player-card-0" onclick="handleCardClick(0)" class="glass p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
           <div class="flex justify-between items-center mb-2">
             <span id="name-display-0" class="text-lg sm:text-xl font-bold gold-text">選手一 (白球)</span>
             <span id="turn-tag-0" class="text-xs px-2.5 py-1 rounded-full bg-amber-400 text-black font-bold">● 擊球中</span>
@@ -111,7 +111,7 @@
             <span class="text-emerald-200/60">延長牌</span>
             <span id="timeout-count-0" class="font-bold text-amber-300">剩餘 2 次</span>
           </div>
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-3 gap-2" onclick="event.stopPropagation()">
             <button onclick="addScore(0,-1)" id="btn-minus-0" class="btn-action bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-base">-1</button>
             <button onclick="useTimeout(0)" id="btn-timeout-0" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-xs">⏱ 延長</button>
             <button onclick="addScore(0,1)" id="btn-plus-0" class="btn-action bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 rounded-xl text-2xl">+1</button>
@@ -131,7 +131,7 @@
             <span id="elapsed-time" class="text-lg font-bold text-amber-300 font-mono">00:00</span>
           </div>
           <div class="w-full my-1">
-            <span class="text-[11px] text-emerald-200/60 block mb-0.5">Shot Clock</span>
+            <span id="timer-label" class="text-[11px] text-emerald-200/60 block mb-0.5">Shot Clock</span>
             <div id="timer" class="display-font text-5xl font-black led-score text-white my-1">40</div>
             <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden mt-1">
               <div id="timer-bar" class="bg-amber-400 h-full w-full transition-all duration-200"></div>
@@ -140,8 +140,8 @@
           <p class="text-[10px] text-emerald-100/50 mt-2">黑馬三顆星 ‧ 就是這樣中！</p>
         </section>
 
-        <!-- Player 2 -->
-        <article id="player-card-1" class="glass p-5 flex flex-col justify-between bg-black/60 transition-all duration-300">
+        <!-- Player 2 (點擊卡片直接換人至選手二) -->
+        <article id="player-card-1" onclick="handleCardClick(1)" class="glass p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
           <div class="flex justify-between items-center mb-2">
             <span id="name-display-1" class="text-lg sm:text-xl font-bold gold-text">選手二 (黃球)</span>
             <span id="turn-tag-1" class="text-xs px-2.5 py-1 rounded-full bg-amber-400 text-black font-bold hidden">● 擊球中</span>
@@ -158,7 +158,7 @@
             <span class="text-emerald-200/60">延長牌</span>
             <span id="timeout-count-1" class="font-bold text-amber-300">剩餘 2 次</span>
           </div>
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-3 gap-2" onclick="event.stopPropagation()">
             <button onclick="addScore(1,-1)" id="btn-minus-1" class="btn-action bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-base">-1</button>
             <button onclick="useTimeout(1)" id="btn-timeout-1" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-xs">⏱ 延長</button>
             <button onclick="addScore(1,1)" id="btn-plus-1" class="btn-action bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 rounded-xl text-2xl">+1</button>
@@ -178,7 +178,7 @@
         </div>
       </section>
 
-      <!-- 🎵 YouTube / Podcasts 整合區（最終版） -->
+      <!-- 🎵 YouTube / Podcasts 整合區 -->
       <section class="glass p-5 mb-6">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -191,7 +191,6 @@
           </div>
         </div>
 
-        <!-- 播放清單 embed -->
         <div id="media-playlist">
           <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio: 16/9;">
             <iframe class="absolute inset-0 w-full h-full"
@@ -210,7 +209,6 @@
           </div>
         </div>
 
-        <!-- Podcasts 卡片 -->
         <div id="media-podcasts" class="hidden">
           <div class="rounded-xl border border-white/10 bg-black/60 p-6 text-center">
             <div class="text-5xl mb-3">🎙️</div>
@@ -387,7 +385,8 @@
     let activePlayer = 0, phase = 'idle', targetScore = 15, duration = 40, remaining = 40;
     let timer = null, matchClockTimer = null, totalElapsedSeconds = 0;
     let audioCtx = null;
-    let currentZoom = 1.0; // 預設縮放比例
+    let currentZoom = 1.0;
+    let isTimeoutPrompt = false; // 是否處於詢問延長狀態
 
     checkSubscriptionLock(); 
     onBallColorChange(); 
@@ -407,7 +406,7 @@
 
     // ===== 頁面縮放控制函式 =====
     function adjustZoom(delta) {
-      currentZoom = Math.min(Math.max(0.6, currentZoom + delta), 1.6); // 限制在 60% 到 160% 之間
+      currentZoom = Math.min(Math.max(0.6, currentZoom + delta), 1.6);
       applyZoom();
     }
     function resetZoom() {
@@ -473,15 +472,26 @@
         document.getElementById(`timeout-count-${i}`).textContent = `剩餘 ${timeouts[i]} 次`;
         
         const isActive = activePlayer === i;
-        document.getElementById(`player-card-${i}`).classList.toggle('active-player', isActive);
+        const card = document.getElementById(`player-card-${i}`);
+        card.classList.toggle('active-player', isActive);
+        card.classList.toggle('inactive-player', !isActive);
         document.getElementById(`turn-tag-${i}`).classList.toggle('hidden', !isActive);
         
+        // 分數按鈕只允許在「當前擊球選手」且比賽未結束時操作
         document.getElementById(`btn-plus-${i}`).disabled = !(activePlayer === i && phase !== 'finished');
         document.getElementById(`btn-minus-${i}`).disabled = !(activePlayer === i && phase !== 'finished' && scores[i] > 0);
         document.getElementById(`btn-timeout-${i}`).disabled = !(activePlayer === i && phase === 'running' && timeouts[i] > 0);
       }
-      document.getElementById('timer').textContent = remaining;
-      document.getElementById('timer-bar'].style.width = `${Math.max(0, (remaining/duration)*100)}%`;
+      
+      if(isTimeoutPrompt){
+        document.getElementById('timer').textContent = "延長?";
+        document.getElementById('timer-label').textContent = "時間到：是否延長？";
+      } else {
+        document.getElementById('timer').textContent = remaining;
+        document.getElementById('timer-label').textContent = "Shot Clock";
+      }
+
+      document.getElementById('timer-bar').style.width = `${Math.max(0, (remaining/duration)*100)}%`;
       document.getElementById('elapsed-time').textContent = formatTime(totalElapsedSeconds);
       
       const maxInning = Math.max(innings[0], innings[1]);
@@ -496,6 +506,7 @@
       duration = parseInt(document.getElementById('shot-duration').value); 
       remaining = duration; 
       phase = 'running';
+      isTimeoutPrompt = false;
       
       document.getElementById('start-btn').disabled = true;
       document.getElementById('pause-btn').disabled = false;
@@ -534,7 +545,7 @@
     function resetMatch(){
       pauseMatch();
       scores = [0,0]; innings = [0,0]; currentRuns = [0,0]; highRuns = [0,0]; timeouts = [maxTimeouts, maxTimeouts];
-      activePlayer = 0; phase = 'idle'; remaining = duration; totalElapsedSeconds = 0;
+      activePlayer = 0; phase = 'idle'; remaining = duration; totalElapsedSeconds = 0; isTimeoutPrompt = false;
       document.getElementById('start-btn').disabled = false;
       document.getElementById('pause-btn').disabled = true;
       document.getElementById('resume-btn').classList.add('hidden');
@@ -545,12 +556,19 @@
     function startTimer(){
       clearInterval(timer);
       timer = setInterval(()=>{
-        if(phase !== 'running') return;
+        if(phase !== 'running' || isTimeoutPrompt) return;
         remaining--;
         const ws = parseInt(document.getElementById('warning-sec').value);
         if(remaining <= ws && remaining > 0) triggerWarning(remaining);
-        if(remaining <= 0) switchTurn();
-        render();
+        
+        if(remaining <= 0){
+          // 時間到：不切換選手，改為顯示是否延長，並自動暫停計時讓使用者決定
+          isTimeoutPrompt = true;
+          triggerWarning(0);
+          render();
+        } else {
+          render();
+        }
       }, 1000);
     }
 
@@ -569,7 +587,8 @@
       const mode = document.getElementById('warning-mode').value;
       if(mode === 'tts'){
         speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(String(sec)); 
+        const msgText = sec === 0 ? "時間到，請決定是否延長" : String(sec);
+        const msg = new SpeechSynthesisUtterance(msgText); 
         msg.lang = 'zh-TW'; 
         msg.rate = 1.2; 
         speechSynthesis.speak(msg);
@@ -588,7 +607,24 @@
       if(phase !== 'running' || activePlayer !== i || timeouts[i] <= 0) return;
       timeouts[i]--; 
       remaining += duration; 
+      isTimeoutPrompt = false;
       render();
+    }
+
+    // 點擊記分方塊：直接換人但不加分
+    function handleCardClick(targetPlayerIndex){
+      if(phase === 'finished') return;
+      if(activePlayer !== targetPlayerIndex){
+        // 結算當前選手的局數與歸零當前連續得分
+        innings[activePlayer]++;
+        currentRuns[activePlayer] = 0;
+        
+        // 換人
+        activePlayer = targetPlayerIndex;
+        remaining = duration;
+        isTimeoutPrompt = false;
+        render();
+      }
     }
 
     function addScore(i, d){
@@ -616,6 +652,7 @@
       
       activePlayer = 1 - activePlayer; 
       remaining = duration; 
+      isTimeoutPrompt = false;
       render();
     }
 
