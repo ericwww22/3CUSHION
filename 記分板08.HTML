@@ -225,7 +225,6 @@
         <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-6 py-2.5 rounded-xl">開始比賽</button>
         <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 px-6 py-2.5 rounded-xl" disabled>暫停</button>
         <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800/80 text-red-200 px-6 py-2.5 rounded-xl">重設比賽</button>
-        <button onclick="resetSubscriptionLock()" class="btn-action bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2.5 rounded-xl text-xs">🔒 重設訂閱鎖定</button>
         <button onclick="generateReport()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl ml-auto">📸 產生黑馬戰報圖</button>
       </div>
     </section>
@@ -236,24 +235,6 @@
     <iframe src="https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
     </iframe>
   </div>
-
-  <!-- 🔴 訂閱頻道解鎖彈窗 -->
-  <dialog id="subscribe-modal" class="p-6 text-center text-white glass border border-amber-400/50 rounded-3xl max-w-md w-full shadow-2xl">
-    <div class="text-5xl mb-3">🐴</div>
-    <h2 class="text-2xl font-black text-amber-300 mb-2">解鎖黑馬三顆星記分板</h2>
-    <p class="text-sm text-emerald-100/80 mb-6 leading-relaxed">
-      本記分板為免費開放工具！<br>請先訂閱<strong class="text-red-400 font-bold">「黑馬音樂頻道」</strong>即可免費解鎖並開始使用。
-    </p>
-    <div class="flex flex-col gap-3">
-      <a href="https://www.youtube.com/@taiwan3cushion?sub_confirmation=1" target="_blank" rel="noopener noreferrer" onclick="unlockApp()" class="btn-action bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 px-6 rounded-2xl text-base shadow-lg flex items-center justify-center gap-2">
-        <span>🔴</span>
-        <span>前往訂閱頻道並解鎖</span>
-      </a>
-      <button onclick="unlockApp()" class="text-xs text-gray-400 hover:text-white mt-1 underline">
-        我已訂閱，直接解鎖使用 ➔
-      </button>
-    </div>
-  </dialog>
 
   <!-- Winner Modal -->
   <dialog id="win-modal" class="p-6 text-center text-white glass border border-amber-400/40 rounded-3xl max-w-md w-full">
@@ -280,27 +261,6 @@
     // 比賽總計時（秒數）
     let totalElapsedSeconds = 0;
     let matchClockTimer = null;
-
-    // 🔴 檢查並管理訂閱鎖定狀態
-    function checkSubscriptionLock() {
-      const isSubscribed = localStorage.getItem('darkhorse_subscribed');
-      const modal = document.getElementById('subscribe-modal');
-      if (!isSubscribed) {
-        modal.showModal();
-      }
-    }
-
-    function unlockApp() {
-      localStorage.setItem('darkhorse_subscribed', 'true');
-      const modal = document.getElementById('subscribe-modal');
-      modal.close();
-    }
-
-    function resetSubscriptionLock() {
-      localStorage.removeItem('darkhorse_subscribed');
-      alert('已重設鎖定狀態！網頁將重新載入。');
-      location.reload();
-    }
 
     function formatTime(seconds) {
       const mins = Math.floor(seconds / 60);
@@ -560,14 +520,13 @@
       link.click();
     }
 
-    // Initialize display & Lock Check
+    // Initialize display
     onBallColorChange();
     updateTargetDisplay();
     render();
-    checkSubscriptionLock();
   </script>
 </body>
 </html>
 ```<ElicitationsGroup>
-  <Elicitation context="The user is finalizing their 3-cushion billiards web app with a subscription lock mechanism." intent="Ask if the user needs any additional features or help deploying the HTML file." options="['提供免費將 index.html 部署至 GitHub Pages 的步驟', '測試/調整懸浮播放器或彈窗樣式', '新增比賽結束時的勝負音效提示']"/>
+  <Elicitation context="The user is finalizing their custom 3-cushion billiards scoreboard web application." intent="Ask if the user needs any additional controls or features for the floating video player or scoreboard." options="['新增浮動播放器的最小化/關閉按鈕', '新增倒數計時最後10秒音效提示', '提供免費部署至 GitHub Pages 的教學']"/>
 </ElicitationsGroup>
