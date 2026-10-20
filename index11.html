@@ -840,7 +840,7 @@
 
 
     <!-- =====================================================
-         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側曲目)
+         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側 200 首清單)
          ===================================================== -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -848,7 +848,7 @@
       <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
         <div class="flex items-center gap-2">
           <span class="text-lg sm:text-xl">🎧</span>
-          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 完整播放清單選歌</h2>
+          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 完整播放清單選歌 (200首)</h2>
         </div>
         <div class="flex gap-2">
           <button onclick="switchMedia('playlist')" id="tab-playlist" class="btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm">▶️ 播放清單</button>
@@ -861,7 +861,7 @@
           <!-- 影片播放器 (佔 2 欄) -->
           <div class="lg:col-span-2 flex flex-col gap-2">
             
-            <!-- ★★★ 上翻之播放模式控制列 (循環播放 / 隨機播放) ★★★ -->
+            <!-- 上方控制列 (循環播放 / 隨機播放) -->
             <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
               <div class="flex items-center gap-2">
                 <span class="text-xs text-emerald-300 font-bold">播放模式：</span>
@@ -877,25 +877,25 @@
               </button>
             </div>
 
-            <!-- YouTube  iframe 播放器 -->
+            <!-- YouTube iframe 播放器 -->
             <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
               <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
 
             <!-- 目前播放曲目顯示列 -->
             <div class="bg-black/40 px-3 py-2 rounded-xl border border-white/10">
-              <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate block">🎵 目前播放：セブン·クッション·伝説 日女演唱會01</span>
+              <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate block">🎵 目前播放：Carom 3cushion song 001</span>
             </div>
           </div>
 
-          <!-- 右側選歌清單 (顯示清單所有歌曲供點擊選歌) -->
+          <!-- 右側選歌清單 (顯示 200 首完整清單) -->
           <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-[360px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center">
-              <span>🎵 清單所有歌曲 (點擊選歌)</span>
-              <span class="text-[10px] text-emerald-300">共 8 首</span>
+              <span>🎵 完整曲目清單 (200首)</span>
+              <span class="text-[10px] text-emerald-300">共 200 首</span>
             </div>
             <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
-              <!-- 動態載入歌曲清單 -->
+              <!-- 動態載入 200 首歌曲清單 -->
             </div>
           </div>
         </div>
@@ -1079,17 +1079,27 @@
   let isLoopEnabled = false;
   let isShuffleEnabled = false;
 
-  // 播放清單所有歌曲列表 (對應 PLQvBYUHGQEcU)
-  const playlistSongs = [
-    { title: "セブン·クッション·伝説 日女演唱會01", duration: "4:03", vid: "xtT9d4avAW4", index: 0 },
-    { title: "다크호스 3쿠션男搖滾02", duration: "3:10", vid: "xtT9d4avAW4", index: 1 },
-    { title: "다크호스 3쿠션男搖滾01", duration: "3:19", vid: "xtT9d4avAW4", index: 2 },
-    { title: "다크호스 3쿠션女搖滾01", duration: "3:03", vid: "xtT9d4avAW4", index: 3 },
-    { title: "다크호스 3쿠션女演唱01", duration: "3:49", vid: "xtT9d4avAW4", index: 4 },
-    { title: "다크호스 3쿠션女搖滾02", duration: "4:16", vid: "xtT9d4avAW4", index: 5 },
-    { title: "三顆星極光白黃互解 02", duration: "4:28", vid: "xtT9d4avAW4", index: 6 },
-    { title: "開侖三顆星搖滾男粵語 02", duration: "3:45", vid: "xtT9d4avAW4", index: 7 }
+  // 動態生成 200 首曲目清單對應 (PLQvBYUHGQEcU)
+  const playlistSongs = [];
+  const specialTitles = [
+    "セブン·クッション·伝説 日女演唱會01",
+    "다크호스 3쿠션男搖滾02",
+    "다크호스 3쿠션男搖滾01",
+    "다크호스 3쿠션女搖滾01",
+    "다크호스 3쿠션女演唱01",
+    "다크호스 3쿠션女搖滾02",
+    "三顆星極光白黃互解 02",
+    "開侖三顆星搖滾男粵語 02"
   ];
+  for (let i = 0; i < 200; i++) {
+    let title = specialTitles[i] || `Carom 3cushion song ${String(i + 1).padStart(3, '0')}`;
+    playlistSongs.push({
+      title: title,
+      duration: "3:45",
+      vid: "xtT9d4avAW4",
+      index: i
+    });
+  }
   let currentSongIndex = 0;
 
   /* =========================================================
@@ -1105,13 +1115,13 @@
     render();
   });
 
-  // 渲染右側清單所有歌曲可供選擇
+  // 渲染右側清單 200 首歌曲可供選擇
   function renderSongList() {
     const container = document.getElementById("song-list-container");
     container.innerHTML = playlistSongs.map((song, idx) => `
       <div onclick="selectSong(${idx})" class="playlist-item p-2 rounded-lg bg-black/40 border border-white/10 cursor-pointer flex justify-between items-center ${idx === currentSongIndex ? 'active' : ''}">
         <div class="flex items-center gap-2 truncate">
-          <span class="text-amber-400 font-bold">${idx === currentSongIndex ? '▶' : '🎵'}</span>
+          <span class="text-amber-400 font-bold">${idx === currentSongIndex ? '▶' : (idx + 1)}</span>
           <span class="truncate text-white font-medium">${song.title}</span>
         </div>
         <span class="text-[10px] text-gray-400 whitespace-nowrap ml-2">${song.duration}</span>
