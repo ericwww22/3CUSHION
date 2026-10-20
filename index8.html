@@ -11,10 +11,10 @@
       --dark-bg: #071b19; 
       --surface: rgba(19, 40, 37, 0.85); 
       --gold: #e8bc70; 
-      --zoom-factor: 1; /* 動態高度/元件縮放係數 */
+      --zoom-factor: 1;
     }
     * { box-sizing: border-box; touch-action: manipulation; }
-    body { margin: 0; background: var(--dark-bg); color: #edf5eb; font-family: 'Work Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    body { margin: 0; background: var(--dark-bg); color: #edf5eb; font-family: 'Work Sans', sans-serif; min-height: 100vh; overflow-x: hidden; overflow-y: auto !important; }
     
     #zoom-container { 
       transform-origin: top center; 
@@ -51,7 +51,7 @@
     .history-item:hover { border-color: var(--gold); background: rgba(232,188,112,0.1); }
     .history-item .winner { color: var(--gold); font-weight: bold; }
 
-    /* ========== 平板 / 手機 直向與橫向高度彈性控制 ========== */
+    /* ========== 響應式佈局 ========== */
     @media (max-width: 1024px) {
       main.grid { grid-template-columns: 1fr; gap: 1rem; }
       section.glass.center-panel { order: 3; }
@@ -68,9 +68,8 @@
       .led-score { font-size: calc(5rem * var(--zoom-factor)); }
     }
 
-    /* 手機/平板橫向 (Landscape) 高度自適應與縮放掌控 */
     @media (orientation: landscape) and (max-height: 600px) {
-      body { padding: 0.3rem !important; overflow-y: auto !important; }
+      body { padding: 0.3rem !important; }
       #zoom-container > .max-w-7xl { padding: 0; }
       
       header.glass { padding: 0.35rem 0.75rem; margin-bottom: 0.35rem; }
@@ -123,13 +122,23 @@
           </div>
         </div>
         
-        <!-- 頂部右側功能與賽事控制按鈕群組 -->
+        <!-- 頂部右側控制列 (加入手機版、平板版按鈕) -->
         <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end">
           <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-md">▶️ 開始比賽</button>
           <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
           <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
           <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm">🔄 重設</button>
           <button onclick="generateReport()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm">📸 戰報</button>
+
+          <span class="text-white/20">|</span>
+
+          <!-- 新增：手機版 / 平板版 快速視圖切換按鈕 -->
+          <button onclick="setDeviceMode('mobile')" class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-sky-600/30 text-sky-300 hover:bg-sky-600/50 border border-sky-500/40">
+            📱 手機版
+          </button>
+          <button onclick="setDeviceMode('tablet')" class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/40">
+            📋 平板版
+          </button>
 
           <span class="text-white/20">|</span>
 
@@ -145,8 +154,8 @@
           </button>
           <span id="match-status" class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
           
-          <!-- 上方 - / + 縮放控制（可控制上下高度與元件大小） -->
-          <div class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden" title="調整高度與元件比例">
+          <!-- 上方 - / + 縮放控制 -->
+          <div class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
             <button onclick="adjustZoom(-0.08)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">-</button>
             <span id="zoom-level-display" class="px-1 text-xs font-mono text-amber-300">100%</span>
             <button onclick="adjustZoom(0.08)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">+</button>
@@ -185,7 +194,7 @@
           </div>
         </article>
 
-        <!-- Center Panel (中間：中央控制區 - 目標分數、進程、換人、計時器) -->
+        <!-- Center Panel (中間：中央控制區) -->
         <section class="glass center-panel p-4 sm:p-5 flex flex-col justify-between text-center items-center">
           <div><div id="target-display" class="text-base sm:text-xl font-black text-amber-300 tracking-wide">目標 15 分</div></div>
           <div class="bg-black/40 border border-white/10 rounded-xl px-2 py-1 w-full text-center my-0.5 sm:my-1">
@@ -420,7 +429,7 @@
 
     function formatTime(s){ return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
 
-    // 高度與尺寸彈性縮放控制
+    // 縮放控制
     function adjustZoom(delta) {
       currentZoom = Math.min(Math.max(0.6, currentZoom + delta), 1.4);
       applyZoom();
@@ -440,6 +449,16 @@
         currentZoom = parseFloat(saved);
         applyZoom();
       }
+    }
+
+    // 快速裝置模式切換 (手機版 / 平板版)
+    function setDeviceMode(mode) {
+      if (mode === 'mobile') {
+        currentZoom = 0.85; // 手機版適合的緊湊縮放
+      } else if (mode === 'tablet') {
+        currentZoom = 1.0;  // 平板版標準比例
+      }
+      applyZoom();
     }
 
     function onBallColorChange(){
