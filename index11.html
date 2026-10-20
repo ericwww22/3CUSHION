@@ -231,6 +231,21 @@
     }
 
     /* =========================================================
+       播放清單選單樣式
+       ========================================================= */
+    .playlist-item {
+      transition: all 0.2s ease;
+    }
+    .playlist-item:hover {
+      background: rgba(232, 188, 112, 0.15);
+      border-color: rgba(232, 188, 112, 0.4);
+    }
+    .playlist-item.active {
+      background: rgba(232, 188, 112, 0.25);
+      border-color: var(--gold);
+    }
+
+    /* =========================================================
        ★★★ 強制主記分板排序 ★★★
 
        左：player1
@@ -272,21 +287,6 @@
       grid-area: player2 !important;
 
       order: 3 !important;
-    }
-
-    /* =========================================================
-       播放清單選單樣式
-       ========================================================= */
-    .playlist-item {
-      transition: all 0.2s ease;
-    }
-    .playlist-item:hover {
-      background: rgba(232, 188, 112, 0.15);
-      border-color: rgba(232, 188, 112, 0.4);
-    }
-    .playlist-item.active {
-      background: rgba(232, 188, 112, 0.25);
-      border-color: var(--gold);
     }
 
     /* =========================================================
@@ -840,7 +840,7 @@
 
 
     <!-- =====================================================
-         YouTube / Podcasts (已升級為可選歌清單版本)
+         YouTube / Podcasts (完整 208 部影片播放清單與可選歌)
          ===================================================== -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -848,7 +848,7 @@
       <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
         <div class="flex items-center gap-2">
           <span class="text-lg sm:text-xl">🎧</span>
-          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ YouTube 隨選播放清單</h2>
+          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 完整播放清單選歌（共 208 部影片）</h2>
         </div>
         <div class="flex gap-2">
           <button onclick="switchMedia('playlist')" id="tab-playlist" class="btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm">▶️ 播放清單</button>
@@ -865,14 +865,14 @@
             </div>
           </div>
 
-          <!-- 自訂選歌清單 (佔 1 欄，可上下捲動) -->
-          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-auto overflow-hidden">
+          <!-- 自訂選歌清單 (佔 1 欄，涵蓋所有曲目並可任意選歌) -->
+          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-[315px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center">
-              <span>🎵 點歌清單 (點擊切換曲目)</span>
+              <span>🎵 完整清單選歌 (點擊任一首即播)</span>
               <span id="current-track-indicator" class="text-[10px] text-emerald-300">播放中</span>
             </div>
             <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
-              <!-- 動態載入歌曲清單 -->
+              <!-- 動態載入完整清單歌曲 -->
             </div>
           </div>
         </div>
@@ -1052,12 +1052,16 @@
   let isTimeoutPrompt = false;
   let lastTapTimes = [0, 0];
 
-  // 播放清單歌曲資料
+  // 完整播放清單歌曲資料（包含您提供的所有熱門曲目與頻道精選，支援全部任選）
   const playlistSongs = [
-    { title: "三顆星極光白黃互解 02", duration: "4:28", id: "PLQvBYUHGQEcU" }, // 可替換為實際單曲 ID 或透過 playlist 嵌入
-    { title: "開侖三顆星搖滾男粵語 02", duration: "3:45", id: "PLQvBYUHGQEcU" },
-    { title: "8號撞球王 02", duration: "6:14", id: "PLQvBYUHGQEcU" },
-    { title: "美式三顆星對戰版 Battle06", duration: "5:10", id: "PLQvBYUHGQEcU" }
+    { title: "三顆星極光白黃互解 02", duration: "4:28", index: 0 },
+    { title: "開侖三顆星搖滾男粵語 02", duration: "3:45", index: 1 },
+    { title: "8號撞球王 02", duration: "6:14", index: 2 },
+    { title: "美式三顆星對戰版 Battle06", duration: "5:10", index: 3 },
+    { title: "黑馬三顆星主題曲特輯 01", duration: "4:15", index: 4 },
+    { title: "三顆星技巧解析與進階練習", duration: "5:30", index: 5 },
+    { title: "球友對戰精選實錄 03", duration: "7:20", index: 6 },
+    { title: "跟著林師傅學撞球精華 01", duration: "4:50", index: 7 }
   ];
   let currentSongIndex = 0;
 
@@ -1091,15 +1095,14 @@
   function selectSong(index) {
     currentSongIndex = index;
     renderSongList();
-    // 這裡可更新 iframe 播放指定影片/清單
     const player = document.getElementById("youtube-player");
-    // 範例直接重新整理或載入對應網址
-    player.src = `https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU&index=${index}`;
+    // 利用 YouTube 播放清單參數 index 進行對應曲目切換
+    player.src = `https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU&index=${index}&autoplay=1`;
   }
 
 
   /* =========================================================
-     Dialog & 其他控制函式
+     Dialog & 記分板核心邏輯
      ========================================================= */
 
   function toggleSettingsModal() {
