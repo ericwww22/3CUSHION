@@ -7,11 +7,20 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    :root { --dark-bg: #071b19; --surface: rgba(19, 40, 37, 0.85); --gold: #e8bc70; }
+    :root { 
+      --dark-bg: #071b19; 
+      --surface: rgba(19, 40, 37, 0.85); 
+      --gold: #e8bc70; 
+      --zoom-factor: 1; /* 動態高度/元件縮放係數 */
+    }
     * { box-sizing: border-box; touch-action: manipulation; }
     body { margin: 0; background: var(--dark-bg); color: #edf5eb; font-family: 'Work Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
     
-    #zoom-container { transform-origin: top center; transition: transform 0.1s ease-out; width: 100%; }
+    #zoom-container { 
+      transform-origin: top center; 
+      transition: transform 0.15s ease-out; 
+      width: 100%; 
+    }
 
     .glass { background: var(--surface); border: 1px solid rgba(192, 231, 209, 0.15); border-radius: 20px; backdrop-filter: blur(12px); }
     .display-font { font-family: 'Fraunces', serif; }
@@ -42,60 +51,57 @@
     .history-item:hover { border-color: var(--gold); background: rgba(232,188,112,0.1); }
     .history-item .winner { color: var(--gold); font-weight: bold; }
 
-    /* ========== 平板 / 手機 直向與橫向優化 ========== */
+    /* ========== 平板 / 手機 直向與橫向高度彈性控制 ========== */
     @media (max-width: 1024px) {
       main.grid { grid-template-columns: 1fr; gap: 1rem; }
       section.glass.center-panel { order: 3; }
     }
 
     @media (min-width: 640px) and (max-width: 1024px) {
-      /* 平板畫面：左選手一 | 中間控制區 | 右選手二 */
       main.grid { grid-template-columns: 1fr 220px 1fr; gap: 0.75rem; }
       section.glass.center-panel { order: 2; }
-      .led-score { font-size: 5.5rem; }
+      .led-score { font-size: calc(5.5rem * var(--zoom-factor)); }
     }
 
     @media (max-width: 639px) and (orientation: portrait) {
-      /* 手機直向 */
       main.grid { grid-template-columns: 1fr; gap: 0.75rem; }
-      .led-score { font-size: 5rem; }
+      .led-score { font-size: calc(5rem * var(--zoom-factor)); }
     }
 
-    /* 手機橫向 (Landscape) 優化：允許自然滑動 */
-    @media (orientation: landscape) and (max-height: 520px) {
-      body { padding: 0.5rem !important; overflow-y: auto !important; }
+    /* 手機/平板橫向 (Landscape) 高度自適應與縮放掌控 */
+    @media (orientation: landscape) and (max-height: 600px) {
+      body { padding: 0.3rem !important; overflow-y: auto !important; }
       #zoom-container > .max-w-7xl { padding: 0; }
       
-      header.glass { padding: 0.4rem 0.75rem; margin-bottom: 0.5rem; }
+      header.glass { padding: 0.35rem 0.75rem; margin-bottom: 0.35rem; }
       header.glass h1 { font-size: 0.95rem; }
       header.glass p, header.glass span.text-xs { display: none; }
       
       main.grid {
         display: grid !important;
-        grid-template-columns: 1fr 180px 1fr !important;
+        grid-template-columns: 1fr 190px 1fr !important;
         gap: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 0.35rem !important;
       }
       
-      article.glass { padding: 0.6rem !important; }
-      section.glass.center-panel { order: 2 !important; padding: 0.6rem !important; }
+      article.glass, section.glass.center-panel { 
+        padding: calc(0.5rem * var(--zoom-factor)) !important; 
+      }
+      section.glass.center-panel { order: 2 !important; }
       
-      .led-score { font-size: 4rem !important; }
+      .led-score { font-size: calc(3.8rem * var(--zoom-factor)) !important; }
       
-      /* 統計數據區域精簡 */
-      .stat-box { padding: 0.25rem !important; margin-bottom: 0.25rem !important; }
+      .stat-box { padding: calc(0.2rem * var(--zoom-factor)) !important; margin-bottom: 0.25rem !important; }
       .stat-box div { font-size: 0.65rem !important; }
       .stat-box strong { font-size: 0.85rem !important; }
       .timeout-box { padding: 0.2rem 0.5rem !important; margin-bottom: 0.25rem !important; font-size: 0.65rem !important; }
 
-      /* 按鈕大拇指熱區與高度控制 */
-      .action-btn-group button { padding: 0.4rem 0.25rem !important; font-size: 0.8rem !important; border-radius: 0.5rem !important; }
+      .action-btn-group button { padding: calc(0.35rem * var(--zoom-factor)) 0.25rem !important; font-size: 0.8rem !important; border-radius: 0.5rem !important; }
       .action-btn-group button.btn-plus { font-size: 1.25rem !important; font-weight: 900; }
       
-      /* 中間控制區精簡 */
       #target-display { font-size: 0.85rem !important; }
-      #switch-btn { padding: 0.4rem !important; font-size: 0.85rem !important; margin: 0.25rem 0 !important; }
-      #timer { font-size: 2.2rem !important; margin: 0 !important; }
+      #switch-btn { padding: calc(0.35rem * var(--zoom-factor)) !important; font-size: 0.85rem !important; margin: 0.2rem 0 !important; }
+      #timer { font-size: calc(2.2rem * var(--zoom-factor)) !important; margin: 0 !important; }
       #elapsed-time { font-size: 0.85rem !important; }
     }
   </style>
@@ -104,7 +110,7 @@
 
   <div id="zoom-container">
     <div class="max-w-7xl mx-auto">
-      <!-- Header (整合開始比賽等控制按鈕於最上方右側) -->
+      <!-- Header -->
       <header class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6">
         <div class="flex items-center gap-2.5">
           <div class="text-2xl sm:text-3xl">🐴</div>
@@ -139,10 +145,11 @@
           </button>
           <span id="match-status" class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
           
-          <div class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
-            <button onclick="adjustZoom(-0.1)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">-</button>
+          <!-- 上方 - / + 縮放控制（可控制上下高度與元件大小） -->
+          <div class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden" title="調整高度與元件比例">
+            <button onclick="adjustZoom(-0.08)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">-</button>
             <span id="zoom-level-display" class="px-1 text-xs font-mono text-amber-300">100%</span>
-            <button onclick="adjustZoom(0.1)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">+</button>
+            <button onclick="adjustZoom(0.08)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">+</button>
             <button onclick="resetZoom()" class="px-1.5 py-1 text-xs hover:bg-white/20 text-emerald-200 border-l border-white/10">↺</button>
           </div>
 
@@ -413,8 +420,9 @@
 
     function formatTime(s){ return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
 
+    // 高度與尺寸彈性縮放控制
     function adjustZoom(delta) {
-      currentZoom = Math.min(Math.max(0.6, currentZoom + delta), 1.5);
+      currentZoom = Math.min(Math.max(0.6, currentZoom + delta), 1.4);
       applyZoom();
     }
     function resetZoom() {
@@ -422,13 +430,12 @@
       applyZoom();
     }
     function applyZoom() {
-      const container = document.getElementById('zoom-container');
-      container.style.transform = `scale(${currentZoom})`;
+      document.documentElement.style.setProperty('--zoom-factor', currentZoom);
       document.getElementById('zoom-level-display').textContent = `${Math.round(currentZoom * 100)}%`;
-      localStorage.setItem('darkhorse_zoom', currentZoom);
+      localStorage.setItem('darkhorse_zoom_factor', currentZoom);
     }
     function loadZoomSetting() {
-      const saved = localStorage.getItem('darkhorse_zoom');
+      const saved = localStorage.getItem('darkhorse_zoom_factor');
       if (saved) {
         currentZoom = parseFloat(saved);
         applyZoom();
