@@ -840,7 +840,7 @@
 
 
     <!-- =====================================================
-         YouTube / Podcasts (播放清單 + 右側完整曲目 + 隨機播放)
+         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側曲目)
          ===================================================== -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -860,20 +860,36 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <!-- 影片播放器 (佔 2 欄) -->
           <div class="lg:col-span-2 flex flex-col gap-2">
+            
+            <!-- ★★★ 上翻之播放模式控制列 (循環播放 / 隨機播放) ★★★ -->
+            <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-emerald-300 font-bold">播放模式：</span>
+                <button id="btn-loop" onclick="toggleLoopMode()" class="btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
+                  <span>🔁</span> <span id="loop-text">單曲循環: 關</span>
+                </button>
+                <button id="btn-shuffle" onclick="toggleShuffleMode()" class="btn-action bg-white/10 hover:bg-white/25 text-white px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
+                  <span>🔀</span> <span id="shuffle-text">隨機播放: 關</span>
+                </button>
+              </div>
+              <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center gap-1 shrink-0">
+                <span>▶</span> 手動隨機跳轉
+              </button>
+            </div>
+
+            <!-- YouTube  iframe 播放器 -->
             <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
               <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
-            <!-- 控制列：隨機播放按鈕與曲目提示 -->
-            <div class="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/10">
-              <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate">🎵 目前播放：세븐·쿠션·伝説 日女演唱會01</span>
-              <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs flex items-center gap-1 shrink-0">
-                <span>🔀</span> 隨機播放
-              </button>
+
+            <!-- 目前播放曲目顯示列 -->
+            <div class="bg-black/40 px-3 py-2 rounded-xl border border-white/10">
+              <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate block">🎵 目前播放：セブン·クッション·伝説 日女演唱會01</span>
             </div>
           </div>
 
-          <!-- 右側選歌清單 (顯示清單內的所有歌曲供點擊選歌) -->
-          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-[315px] overflow-hidden">
+          <!-- 右側選歌清單 (顯示清單所有歌曲供點擊選歌) -->
+          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-[360px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center">
               <span>🎵 清單所有歌曲 (點擊選歌)</span>
               <span class="text-[10px] text-emerald-300">共 8 首</span>
@@ -1059,7 +1075,11 @@
   let isTimeoutPrompt = false;
   let lastTapTimes = [0, 0];
 
-  // 對應清單內所有歌曲與標題
+  // 播放模式開關狀態
+  let isLoopEnabled = false;
+  let isShuffleEnabled = false;
+
+  // 播放清單所有歌曲列表 (對應 PLQvBYUHGQEcU)
   const playlistSongs = [
     { title: "セブン·クッション·伝説 日女演唱會01", duration: "4:03", vid: "xtT9d4avAW4", index: 0 },
     { title: "다크호스 3쿠션男搖滾02", duration: "3:10", vid: "xtT9d4avAW4", index: 1 },
@@ -1104,11 +1124,44 @@
     renderSongList();
     const song = playlistSongs[index];
     const player = document.getElementById("youtube-player");
-    player.src = `https://www.youtube.com/embed/${song.vid}?list=PLQvBYUHGQEcU&index=${index}&autoplay=1`;
+    
+    // 如果開啟循環播放，帶入 loop 參數
+    let extraParams = isLoopEnabled ? "&loop=1&playlist=" + song.vid : "";
+    player.src = `https://www.youtube.com/embed/${song.vid}?list=PLQvBYUHGQEcU&index=${index}&autoplay=1${extraParams}`;
     document.getElementById("current-playing-title").textContent = `🎵 目前播放：${song.title}`;
   }
 
-  // 隨機播放功能
+  // 切換循環播放模式
+  function toggleLoopMode() {
+    isLoopEnabled = !isLoopEnabled;
+    const btn = document.getElementById("btn-loop");
+    const txt = document.getElementById("loop-text");
+    if (isLoopEnabled) {
+      btn.className = "btn-action bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow";
+      txt.textContent = "單曲循環: 開";
+    } else {
+      btn.className = "btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1";
+      txt.textContent = "單曲循環: 關";
+    }
+    selectSong(currentSongIndex);
+  }
+
+  // 切換隨機播放模式
+  function toggleShuffleMode() {
+    isShuffleEnabled = !isShuffleEnabled;
+    const btn = document.getElementById("btn-shuffle");
+    const txt = document.getElementById("shuffle-text");
+    if (isShuffleEnabled) {
+      btn.className = "btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow";
+      txt.textContent = "隨機播放: 開";
+      playRandomSong();
+    } else {
+      btn.className = "btn-action bg-white/10 hover:bg-white/25 text-white px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1";
+      txt.textContent = "隨機播放: 關";
+    }
+  }
+
+  // 隨機跳轉播放功能
   function playRandomSong() {
     if (playlistSongs.length === 0) return;
     let randomIndex;
