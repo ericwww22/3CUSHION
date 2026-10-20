@@ -1,813 +1,601 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
+<!doctype html>
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>黑馬撞球 LED 計分板</title>
-    <!-- 引入 Google Fonts 數位電子風格與中文字型 -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: #09090d;
-            color: #ffffff;
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: clamp(8px, 2vw, 16px);
-            background-image: radial-gradient(circle at center, #181824 0%, #050508 100%);
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* 頂部控制列 (手機/平板通用) */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(22, 22, 32, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 10px 14px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-            backdrop-filter: blur(10px);
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .header-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .app-title {
-            font-size: clamp(1rem, 2.5vw, 1.3rem);
-            font-weight: 900;
-            color: #ffcc00;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            letter-spacing: 1px;
-            white-space: nowrap;
-        }
-
-        /* YouTube 訂閱按鈕 */
-        .yt-sub-top-btn {
-            background: #cc0000;
-            color: #ffffff;
-            font-size: 0.85rem;
-            font-weight: 900;
-            padding: 8px 14px;
-            border-radius: 20px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 0 10px rgba(204, 0, 0, 0.5);
-            transition: 0.2s;
-            border: 1px solid #ff4d4d;
-            min-height: 40px;
-        }
-        .yt-sub-top-btn:active {
-            transform: scale(0.96);
-            background: #ff0000;
-        }
-
-        .mode-selector {
-            display: flex;
-            gap: 4px;
-        }
-        .mode-selector button {
-            background: #1a1a26;
-            color: #8888a0;
-            border: 1px solid #333348;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            min-height: 40px;
-        }
-        .mode-selector button.active {
-            background: #ff5500;
-            color: #fff;
-            border-color: #ff7733;
-            box-shadow: 0 0 12px rgba(255, 85, 0, 0.4);
-        }
-
-        /* 搶局數控制區 */
-        .race-control {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: #0d0d14;
-            padding: 4px 10px;
-            border-radius: 8px;
-            border: 1px solid #ffcc00;
-            box-shadow: 0 0 8px rgba(255, 204, 0, 0.2);
-            min-height: 40px;
-        }
-        .race-label {
-            font-size: 0.8rem;
-            color: #ffcc00;
-            font-weight: 900;
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 1px;
-        }
-        .race-input {
-            width: 48px;
-            background: #000;
-            border: 1px solid #ffcc00;
-            color: #ffcc00;
-            font-family: 'Orbitron', monospace;
-            font-size: 1.1rem;
-            font-weight: 900;
-            text-align: center;
-            border-radius: 4px;
-            padding: 2px;
-        }
-
-        .reset-btn {
-            background: #2a1215;
-            color: #ff4d4d;
-            border: 1px solid #ff4d4d;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.85rem;
-            min-height: 40px;
-            white-space: nowrap;
-        }
-        .reset-btn:active {
-            background: #ff4d4d;
-            color: #fff;
-        }
-
-        /* 主計分區 (手機直立1欄, 平板/橫螢幕2欄) */
-        .scoreboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: clamp(8px, 2vw, 16px);
-            flex-grow: 1;
-        }
-        .player-card {
-            background: linear-gradient(160deg, #181826, #0d0d14);
-            border-radius: 18px;
-            padding: clamp(10px, 2vw, 20px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            border: 2px solid #28283d;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-        }
-        .player-name {
-            font-size: clamp(1.1rem, 2.2vw, 1.6rem);
-            font-weight: 900;
-            color: #d0d0e6;
-            margin-bottom: 6px;
-            text-align: center;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid #33334d;
-            border-radius: 8px;
-            padding: 8px;
-        }
-
-        /* 超大 LED 數字區 (RWD 彈性字體) */
-        .led-panel {
-            background: #040407;
-            border: 3px inset #1e1e2d;
-            border-radius: 14px;
-            width: 100%;
-            padding: clamp(6px, 2vw, 16px) 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 8px 0;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
-            flex-grow: 1;
-            min-height: clamp(120px, 25vh, 260px);
-        }
-        .score-display {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(5.5rem, 18vw, 13rem);
-            font-weight: 900;
-            color: #ff3333;
-            text-shadow: 0 0 15px rgba(255, 51, 51, 0.8), 0 0 35px rgba(255, 51, 51, 0.4);
-            line-height: 0.9;
-            cursor: pointer;
-            letter-spacing: -2px;
-        }
-        .score-display.led-cyan {
-            color: #00ffcc;
-            text-shadow: 0 0 15px rgba(0, 255, 204, 0.8), 0 0 35px rgba(0, 255, 204, 0.4);
-        }
-
-        /* 按鈕區 (適合手機觸控) */
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            width: 100%;
-        }
-        .score-btn {
-            flex: 1;
-            padding: clamp(12px, 2.5vw, 18px) 0;
-            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-            font-weight: 900;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.1s;
-            min-height: 50px;
-        }
-        .btn-plus {
-            background: #ff5500;
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(255, 85, 0, 0.4);
-        }
-        .btn-minus {
-            background: #1c1c2b;
-            color: #aaaaa1;
-            border: 1px solid #383852;
-        }
-        .score-btn:active {
-            transform: scale(0.96);
-        }
-
-        /* 9號球顆數追蹤列 */
-        .ball-tracker {
-            display: flex;
-            gap: clamp(4px, 1vw, 8px);
-            margin-top: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            background: rgba(18, 18, 28, 0.8);
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .ball {
-            width: clamp(28px, 6vw, 40px);
-            height: clamp(28px, 6vw, 40px);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: clamp(0.75rem, 1.5vw, 1rem);
-            font-weight: 900;
-            color: #000;
-            cursor: pointer;
-            opacity: 0.25;
-            transition: 0.2s;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 2px 5px rgba(0,0,0,0.5);
-        }
-        .ball.pocketed {
-            opacity: 1;
-            transform: scale(1.1);
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 0 12px rgba(255, 255, 255, 0.7);
-        }
-        .b-1 { background: #ffd700; }
-        .b-2 { background: #0066ff; color: #fff; }
-        .b-3 { background: #ff3333; color: #fff; }
-        .b-4 { background: #9933ff; color: #fff; }
-        .b-5 { background: #ff9900; }
-        .b-6 { background: #00cc44; color: #fff; }
-        .b-7 { background: #8B4513; color: #fff; }
-        .b-8 { background: #1a1a1a; color: #fff; border: 1px solid #666; }
-        .b-9 { background: #ffd700; border: 3px solid #ff3333; }
-
-        /* 最下方嵌入播放清單區塊 */
-        .bottom-playlist-section {
-            margin-top: 15px;
-            background: rgba(18, 18, 28, 0.9);
-            border: 1px solid rgba(255, 204, 0, 0.3);
-            border-radius: 14px;
-            padding: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-        }
-        .playlist-header {
-            font-size: clamp(0.85rem, 2vw, 1.1rem);
-            font-weight: 900;
-            color: #ffcc00;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .playlist-iframe-container {
-            width: 100%;
-            height: clamp(160px, 30vh, 260px);
-            border-radius: 10px;
-            overflow: hidden;
-            background: #000;
-        }
-        .playlist-iframe-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* 浮動 YouTube 音樂播放器樣式 (手機/平板適用) */
-        .floating-player {
-            position: fixed;
-            bottom: 12px;
-            right: 12px;
-            width: clamp(160px, 22vw, 240px);
-            height: clamp(90px, 13vw, 135px);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 85, 0, 0.3);
-            border: 2px solid rgba(255, 204, 0, 0.5);
-            z-index: 900;
-            background: #000;
-        }
-        .floating-player iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* 橫螢幕時自動隱藏浮動播放器，確保比賽最大視線 */
-        @media (orientation: landscape) and (max-height: 600px) {
-            .hide-on-landscape {
-                display: none !important;
-            }
-            .led-panel {
-                min-height: 100px;
-            }
-        }
-
-        /* 勝利與獲勝比分圖 Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.88);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            animation: fadeIn 0.3s ease-out;
-        }
-        .modal-card {
-            background: #12121c;
-            border: 2px solid #ffcc00;
-            box-shadow: 0 0 40px rgba(255, 204, 0, 0.4);
-            padding: clamp(16px, 4vw, 28px);
-            border-radius: 20px;
-            text-align: center;
-            max-width: 95%;
-            width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .winner-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
-            color: #ffcc00;
-            letter-spacing: 2px;
-            margin-bottom: 4px;
-            font-weight: 900;
-        }
-        .winner-name {
-            font-size: clamp(1.8rem, 5vw, 2.4rem);
-            font-weight: 900;
-            color: #ffffff;
-            margin-bottom: 12px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-        }
-
-        /* 繪製的比分圖 Canvas 容器 */
-        .canvas-preview-box {
-            width: 100%;
-            margin: 10px 0 15px 0;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-        }
-        canvas {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .action-btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .btn-download {
-            background: #00cc66;
-            color: #000;
-            border: none;
-            padding: 14px;
-            font-size: 1rem;
-            font-weight: 900;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 204, 102, 0.4);
-            transition: 0.2s;
-            min-height: 48px;
-        }
-        .btn-copy {
-            background: #28283d;
-            color: #fff;
-            border: 1px solid #444466;
-            padding: 12px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            border-radius: 10px;
-            cursor: pointer;
-            min-height: 44px;
-        }
-        .close-modal-btn {
-            background: transparent;
-            color: #888;
-            border: none;
-            padding: 10px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        /* 訂閱頻道解鎖彈窗 */
-        dialog#subscribe-modal {
-            background: rgba(20, 20, 30, 0.96);
-            border: 1px solid rgba(251, 191, 36, 0.5);
-            border-radius: 20px;
-            padding: 24px;
-            max-width: 360px;
-            width: 90%;
-            color: white;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), 0 0 25px rgba(251, 191, 36, 0.3);
-            backdrop-filter: blur(12px);
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10000;
-        }
-        dialog::backdrop {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-        }
-        .sub-btn {
-            background: #dc2626;
-            color: white;
-            font-weight: 900;
-            padding: 14px 20px;
-            border-radius: 12px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5);
-            transition: 0.2s;
-            min-height: 48px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* 超小螢幕手機特別最佳化 */
-        @media (max-width: 480px) {
-            .header { justify-content: center; }
-            .scoreboard { grid-template-columns: 1fr 1fr; }
-            .player-name { font-size: 0.95rem; padding: 6px; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>旗艦撞球記分板 Pro - 14-1 / 8號球 / 9號球 (大小金)</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-bg: #071b19;
+      --surface: rgba(19, 40, 37, 0.85);
+      --gold: #e8bc70;
+    }
+    * { box-sizing: border-box; touch-action: manipulation; }
+    html, body { width: 100%; min-height: 100vh; margin: 0; background: var(--dark-bg); color: #edf5eb; font-family: "Work Sans", sans-serif; overflow-x: hidden; }
+    .glass { background: var(--surface); border: 1px solid rgba(192, 231, 209, 0.15); border-radius: 20px; backdrop-filter: blur(12px); }
+    .display-font { font-family: "Fraunces", serif; }
+    .gold-text { color: var(--gold); }
+    .active-player { border: 3px solid var(--gold); box-shadow: 0 0 30px rgba(232, 188, 112, 0.4); cursor: pointer; }
+    .inactive-player { cursor: pointer; opacity: 0.85; border: 3px solid transparent; transition: all 0.2s; }
+    .inactive-player:hover { opacity: 1; border-color: rgba(232, 188, 112, 0.5); }
+    .led-score { font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 12px rgba(255, 255, 255, 0.6); user-select: none; }
+    .btn-action { transition: all 0.15s ease; user-select: none; }
+    .btn-action:active { transform: scale(0.96); }
+    .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+    dialog::backdrop { background: rgba(0, 10, 10, 0.85); backdrop-filter: blur(8px); }
+    main.grid { display: grid !important; grid-template-columns: minmax(0, 1fr) 260px minmax(0, 1fr) !important; grid-template-areas: "player1 center player2" !important; gap: 1rem !important; align-items: stretch; width: 100%; }
+    #player-card-0 { grid-area: player1 !important; order: 1 !important; }
+    .center-panel { grid-area: center !important; order: 2 !important; }
+    #player-card-1 { grid-area: player2 !important; order: 3 !important; }
+  </style>
 </head>
-<body>
-
-    <!-- 🔴 訂閱頻道解鎖彈窗 -->
-    <dialog id="subscribe-modal">
-        <div style="font-size: 2.5rem; margin-bottom: 4px;">🐴</div>
-        <h2 style="font-size: 1.2rem; font-weight: 900; color: #fcd34d; margin-bottom: 6px;">解鎖黑馬三顆星記分板</h2>
-        <p style="font-size: 0.85rem; color: #d1fae5; opacity: 0.85; margin-bottom: 18px; line-height: 1.5;">
-            請訂閱<strong style="color: #f87171;">「黑馬音樂頻道」</strong>即可免費解鎖。
-        </p>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <a href="https://www.youtube.com/@taiwan3cushion?sub_confirmation=1" target="_blank" rel="noopener noreferrer" onclick="unlockApp()" class="sub-btn">
-                <span>🔴</span>
-                <span>訂閱頻道並解鎖</span>
-            </a>
-            <button onclick="unlockApp()" style="background: none; border: none; font-size: 0.8rem; color: #9ca3af; cursor: pointer; text-decoration: underline; padding: 6px;">
-                我已訂閱，直接解鎖 ➔
-            </button>
+<body class="p-2 sm:p-6 pb-16">
+<div id="zoom-container">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <header class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6">
+      <div class="flex items-center gap-2.5">
+        <div class="text-2xl sm:text-3xl">🎱</div>
+        <div>
+          <div class="flex items-baseline gap-2 flex-wrap">
+            <h1 class="text-lg sm:text-2xl font-extrabold tracking-wider text-amber-400 display-font">多功能撞球記分板 Pro</h1>
+            <span id="header-rule-badge" class="text-[10px] sm:text-xs font-semibold text-emerald-300/95 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-md">14-1 (14.1 Continuous)</span>
+          </div>
+          <p class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5">14-1 / 8BALL / 9BALL / 9BALL (BIG-SMALL GOLD)</p>
         </div>
-    </dialog>
+      </div>
+      <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end">
+        <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm">▶️ 開始比賽</button>
+        <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
+        <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
+        <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm">🔄 重設</button>
+        <button onclick="toggleSettingsModal()" class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40">⚙️ 賽制設定</button>
+        <span id="match-status" class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
+      </div>
+    </header>
 
-    <div class="header">
-        <div class="header-group">
-            <div class="app-title">🐴 黑馬撞球 LED 計分板</div>
+    <!-- Main Scoreboard -->
+    <main id="scoreboard-main" class="grid gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <!-- PLAYER 1 -->
+      <article id="player-card-0" onclick="handleCardClick(0)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
+        <div class="flex justify-between items-center mb-1">
+          <span id="name-display-0" class="text-base sm:text-xl font-bold gold-text">選手一</span>
+          <span id="turn-tag-0" class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-400 text-black font-bold">● 擊球中</span>
+        </div>
+        
+        <div class="my-2 sm:my-3 text-center">
+          <div id="score-0" class="led-score display-font text-6xl sm:text-8xl font-black text-white">0</div>
+          <div id="foul-status-0" class="text-xs text-red-400 font-bold mt-1">累積犯規: 0 次</div>
+        </div>
+
+        <!-- 14-1 專屬計分與扣分控制 -->
+        <div id="14-1-controls-0" class="grid grid-cols-2 gap-1.5 mb-3" onclick="event.stopPropagation()">
+          <button onclick="addScore(0, 1)" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs col-span-2">⚽ 進球 (+1 分)</button>
+          <button onclick="apply141Foul(0, -1)" class="btn-action bg-amber-700 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規 (-1 分)</button>
+          <button onclick="apply141Foul(0, -15)" class="btn-action bg-red-800 hover:bg-red-700 text-red-100 font-bold py-1.5 rounded-lg text-xs">⛔ 3連犯 (-15 分)</button>
+        </div>
+
+        <!-- 大小金專屬控制 -->
+        <div id="big-small-gold-controls-0" class="hidden grid grid-cols-2 gap-1.5 mb-3" onclick="event.stopPropagation()">
+          <button onclick="addGoldScore(0, 10, '大金')" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-1.5 rounded-lg text-xs">✨ 大金 (+10)</button>
+          <button onclick="addGoldScore(0, 7, '小金')" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs">⭐ 小金 (+7)</button>
+          <button onclick="addGoldScore(0, 4, '普勝')" class="btn-action bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-xs">🎯 普勝 (+4)</button>
+          <button onclick="handleFoul(0)" class="btn-action bg-red-800/80 hover:bg-red-700 text-red-200 font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規/罰分</button>
+        </div>
+
+        <!-- 一般微調分數 -->
+        <div class="action-btn-group grid grid-cols-2 gap-2" onclick="event.stopPropagation()">
+          <button onclick="addScore(0, -1)" id="btn-minus-0" class="btn-action bg-emerald-800/60 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs">-1 分</button>
+          <button onclick="addScore(0, 1)" id="btn-plus-0" class="btn-action bg-red-600/60 hover:bg-red-500 text-white font-extrabold py-2 rounded-xl text-xs">+1 分</button>
+        </div>
+      </article>
+
+      <!-- CENTER PANEL -->
+      <section class="glass center-panel p-4 sm:p-5 flex flex-col justify-between text-center items-center">
+        <div>
+          <div id="target-display" class="text-base sm:text-xl font-black text-amber-300 tracking-wide">目標搶分: 50 分</div>
+          <div id="rule-display" class="text-xs text-emerald-200/80 mt-1">規則：14-1 計分制</div>
+        </div>
+
+        <!-- 14-1 檯面剩餘球數與結算區 -->
+        <div id="14-1-center-box" class="w-full bg-black/40 border border-amber-400/30 p-2.5 rounded-xl my-2">
+          <span class="text-xs text-amber-300 font-bold block mb-1">本輪檯面球數</span>
+          <div class="flex justify-center items-center gap-2">
+            <span id="balls-left-count" class="text-2xl font-black text-amber-400">14</span>
+            <span class="text-xs text-emerald-200/60">/ 14 顆球</span>
+          </div>
+          <button onclick="finish141Rack()" class="btn-action w-full mt-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-1.5 rounded-lg text-xs shadow">
+            🔄 打完14顆，結算重排
+          </button>
+        </div>
+
+        <button id="switch-btn" onclick="switchTurn()" class="btn-action w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold py-2.5 rounded-xl text-sm my-1">⇦ 換人擊球</button>
+
+        <div class="bg-black/40 border border-white/10 rounded-xl px-2 py-1.5 w-full text-center">
+          <span class="text-[10px] text-emerald-200/60 block">比賽計時</span>
+          <span id="elapsed-time" class="text-base sm:text-lg font-bold text-amber-300 font-mono">00:00</span>
+        </div>
+      </section>
+
+      <!-- PLAYER 2 -->
+      <article id="player-card-1" onclick="handleCardClick(1)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
+        <div class="flex justify-between items-center mb-1">
+          <span id="name-display-1" class="text-base sm:text-xl font-bold gold-text">選手二</span>
+          <span id="turn-tag-1" class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-400 text-black font-bold hidden">● 擊球中</span>
+        </div>
+        
+        <div class="my-2 sm:my-3 text-center">
+          <div id="score-1" class="led-score display-font text-6xl sm:text-8xl font-black text-white">0</div>
+          <div id="foul-status-1" class="text-xs text-red-400 font-bold mt-1">累積犯規: 0 次</div>
+        </div>
+
+        <!-- 14-1 專屬計分與扣分控制 -->
+        <div id="14-1-controls-1" class="grid grid-cols-2 gap-1.5 mb-3" onclick="event.stopPropagation()">
+          <button onclick="addScore(1, 1)" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs col-span-2">⚽ 進球 (+1 分)</button>
+          <button onclick="apply141Foul(1, -1)" class="btn-action bg-amber-700 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規 (-1 分)</button>
+          <button onclick="apply141Foul(1, -15)" class="btn-action bg-red-800 hover:bg-red-700 text-red-100 font-bold py-1.5 rounded-lg text-xs">⛔ 3連犯 (-15 分)</button>
+        </div>
+
+        <!-- 大小金專屬控制 -->
+        <div id="big-small-gold-controls-1" class="hidden grid grid-cols-2 gap-1.5 mb-3" onclick="event.stopPropagation()">
+          <button onclick="addGoldScore(1, 10, '大金')" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-1.5 rounded-lg text-xs">✨ 大金 (+10)</button>
+          <button onclick="addGoldScore(1, 7, '小金')" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs">⭐ 小金 (+7)</button>
+          <button onclick="addGoldScore(1, 4, '普勝')" class="btn-action bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-xs">🎯 普勝 (+4)</button>
+          <button onclick="handleFoul(1)" class="btn-action bg-red-800/80 hover:bg-red-700 text-red-200 font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規/罰分</button>
+        </div>
+
+        <!-- 一般微調分數 -->
+        <div class="action-btn-group grid grid-cols-2 gap-2" onclick="event.stopPropagation()">
+          <button onclick="addScore(1, -1)" id="btn-minus-1" class="btn-action bg-emerald-800/60 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs">-1 分</button>
+          <button onclick="addScore(1, 1)" id="btn-plus-1" class="btn-action bg-red-600/60 hover:bg-red-500 text-white font-extrabold py-2 rounded-xl text-xs">+1 分</button>
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+<!-- 設定 Dialog -->
+<dialog id="settings-modal" class="p-6 text-white glass border border-amber-400/50 rounded-3xl max-w-lg w-full shadow-2xl">
+  <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-4">
+    <h2 class="text-xl font-bold text-amber-300">⚙️ 賽制與規則設定</h2>
+    <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+  </div>
+  <div class="space-y-4">
+    <div>
+      <label class="block text-xs text-emerald-300 mb-1 font-bold">選擇球局類型</label>
+      <select id="game-type" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2.5 text-sm font-bold text-amber-300" onchange="onGameTypeChange()">
+        <option value="14-1" selected>14-1 (14.1 Continuous)</option>
+        <option value="9ball">9號球 (標準制)</option>
+        <option value="8ball">8號球</option>
+        <option value="bigsmallgold">9號球 (大小金制)</option>
+      </select>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs text-emerald-300 mb-1 font-bold">預設搶分設定</label>
+        <select id="target-score" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2.5 text-sm" onchange="updateMatchSettings()">
+          <option value="50" selected>50 分 (14-1建議)</option>
+          <option value="100">100 分 (14-1建議)</option>
+          <option value="7">搶 7 分</option>
+          <option value="9">搶 9 分</option>
+          <option value="11">搶 11 分</option>
+          <option value="custom">自訂分數</option>
+        </select>
+      </div>
+      <div id="custom-score-box" class="hidden">
+        <label class="block text-xs text-emerald-300 mb-1 font-bold">自訂目標分</label>
+        <input id="custom-target-input" type="number" value="50" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm font-bold text-center" onchange="updateMatchSettings()">
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 pt-2">
+      <div>
+        <label class="block text-xs text-emerald-200/70 mb-1">選手一 姓名</label>
+        <input id="name-input-0" type="text" value="選手一" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm" onchange="updateNames()">
+      </div>
+      <div>
+        <label class="block text-xs text-emerald-200/70 mb-1">選手二 姓名</label>
+        <input id="name-input-1" type="text" value="選手二" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm" onchange="updateNames()">
+      </div>
+    </div>
+  </div>
+  <div class="mt-6 text-right">
+    <button onclick="toggleSettingsModal(); startMatch();" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-sm">儲存並開始</button>
+  </div>
+</dialog>
+
+<!-- 勝者 Dialog -->
+<dialog id="win-modal" class="p-6 text-center text-white glass border border-amber-400/40 rounded-3xl max-w-md w-full">
+  <div class="text-4xl mb-2">🏆</div>
+  <h2 class="text-2xl font-black text-amber-300 mb-2">比賽獲勝！</h2>
+  <p id="win-summary" class="text-lg font-bold text-white mb-4"></p>
+  <button onclick="document.getElementById('win-modal').close(); resetMatch();" class="bg-amber-400 text-slate-950 font-extrabold px-6 py-2.5 rounded-xl">重新開始新賽局</button>
+</dialog>
+
+<script>
+  let scores = [0, 0];
+  let foulCounts = [0, 0]; // 記錄連續犯規次數
+  let names = ["選手一", "選手二"];
+  let activePlayer = 0;
+  let phase = "idle";
+  let targetScore = 50;
+  let gameType = "14-1";
+  let matchClockTimer = null;
+  let totalElapsedSeconds = 0;
+  let ballsLeftInRack = 14; // 14-1 檯面剩餘球數
+
+  document.addEventListener("DOMContentLoaded", () => {
+    onGameTypeChange();
+  });
+
+  function toggleSettingsModal() {
+    const m = document.getElementById("settings-modal");
+    if (m.open) m.close(); else m.showModal();
+  }
+
+  function onGameTypeChange() {
+    gameType = document.getElementById("game-type").value;
+    const badge = document.getElementById("header-rule-badge");
+    const ruleDesc = document.getElementById("rule-display");
+    
+    // 介面切換
+    const is141 = (gameType === "14-1");
+    const isGold = (gameType === "bigsmallgold");
+
+    document.getElementById("14-1-controls-0").classList.toggle("hidden", !is141);
+    document.getElementById("14-1-controls-1").classList.toggle("hidden", !is141);
+    document.getElementById("14-1-center-box").classList.toggle("hidden", !is141);
+
+    document.getElementById("big-small-gold-controls-0").classList.toggle("hidden", !isGold);
+    document.getElementById("big-small-gold-controls-1").classList.toggle("hidden", !isGold);
+
+    if (is141) {
+      badge.textContent = "14-1 Continuous";
+      ruleDesc.textContent = "規則：進球+1分/犯規扣分/14顆結算";
+    } else if (gameType === "8ball") {
+      badge.textContent = "8號球賽制";
+      ruleDesc.textContent = "規則：標準 8 號球計分";
+    } else if (isGold) {
+      badge.textContent = "9號球 (大小金制)";
+      ruleDesc.textContent = "規則：大金10分 / 小金7分 / 普勝4分";
+    } else {
+      badge.textContent = "9號球 (標準制)";
+      ruleDesc.textContent = "規則：標準 9 號球搶分";
+    }
+    updateMatchSettings();
+  }
+
+  function updateMatchSettings() {
+    const targetSelect = document.getElementById("target-score").value;
+    const customBox = document.getElementById("custom-score-box");
+    
+    if (targetSelect === "custom") {
+      customBox.classList.remove("hidden");
+      targetScore = parseInt(document.getElementById("custom-target-input").value) || 50;
+    } else {
+      customBox.classList.add("hidden");
+      targetScore = parseInt(targetSelect);
+    }
+    document.getElementById("target-display").textContent = `目標搶分: ${targetScore} 分`;
+    render();
+  }
+
+  function updateNames() {
+    names[0] = document.getElementById("name-input-0").value || "選手一";
+    names[1] = document.getElementById("name-input-1").value || "選手二";
+    document.getElementById("name-display-0").textContent = names[0];
+    document.getElementById("name-display-1").textContent = names[1];
+  }
+
+  function render() {
+    for (let i = 0; i < 2; i++) {
+      document.getElementById(`score-${i}`).textContent = scores[i];
+      document.getElementById(`foul-status-${i}`).textContent = `累積犯規: ${foulCounts[i]} 次`;
+      
+      const isActive = activePlayer === i;
+      document.getElementById(`player-card-${i}`).classList.toggle("active-player", isActive);
+      document.getElementById(`player-card-${i}`).classList.toggle("inactive-player", !isActive);
+      document.getElementById(`turn-tag-${i}`).classList.toggle("hidden", !isActive);
+    }
+    
+    document.getElementById("balls-left-count").textContent = ballsLeftInRack;
+    document.getElementById("elapsed-time").textContent = formatTime(totalElapsedSeconds);
+    document.getElementById("switch-btn").textContent = activePlayer === 0 ? `⇦ ${names[0]} 打完，換 ${names[1]}` : `${names[1]} 打完，換 ${names[0]} ⇨`;
+  }
+
+  function formatTime(s) {
+    return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  }
+
+  function startMatch() {
+    phase = "running";
+    document.getElementById("start-btn").disabled = true;
+    document.getElementById("pause-btn").disabled = false;
+    document.getElementById("match-status").textContent = "比賽進行中";
+    startMatchClock();
+    render();
+  }
+
+  function pauseMatch() {
+    phase = "paused";
+    clearInterval(matchClockTimer);
+    document.getElementById("pause-btn").disabled = true;
+    document.getElementById("resume-btn").classList.remove("hidden");
+    document.getElementById("match-status").textContent = "暫停中";
+  }
+
+  function resumeMatch() {
+    phase = "running";
+    document.getElementById("pause-btn").disabled = false;
+    document.getElementById("resume-btn").classList.add("hidden");
+    document.getElementById("match-status").textContent = "比賽進行中";
+    startMatchClock();
+  }
+
+  function resetMatch() {
+    clearInterval(matchClockTimer);
+    scores = [0, 0];
+    foulCounts = [0, 0];
+    ballsLeftInRack = 14;
+    activePlayer = 0;
+    phase = "idle";
+    totalElapsedSeconds = 0;
+    document.getElementById("start-btn").disabled = false;
+    document.getElementById("pause-btn").disabled = true;
+    document.getElementById("resume-btn").classList.add("hidden");
+    document.getElementById("match-status").textContent = "準備中";
+    render();
+  }
+
+  function startMatchClock() {
+    clearInterval(matchClockTimer);
+    matchClockTimer = setInterval(() => {
+      if (phase === "running") {
+        totalElapsedSeconds++;
+        document.getElementById("elapsed-time").textContent = formatTime(totalElapsedSeconds);
+      }
+    }, 1000);
+  }
+
+  function handleCardClick(i) {
+    if (phase === "finished") return;
+    activePlayer = i;
+    render();
+  }
+
+  function switchTurn() {
+    if (phase === "finished") return;
+    activePlayer = 1 - activePlayer;
+    render();
+  }
+
+  // 進球或基本得分
+  function addScore(i, d) {
+    if (phase === "finished") return;
+    
+    if (gameType === "14-1" && d > 0) {
+      if (ballsLeftInRack > 0) {
+        ballsLeftInRack--;
+      }
+      foulCounts[i] = 0; // 進球重置連續犯規次數
+    }
+    
+    scores[i] += d;
+    render();
+    if (scores[i] >= targetScore) finishMatch(names[i]);
+  }
+
+  // 14-1 扣分與犯規處理
+  function apply141Foul(playerIdx, penalty) {
+    if (phase === "finished") return;
+
+    scores[playerIdx] += penalty; // penalty 為負數 (-1 或 -15)
+
+    if (penalty === -15) {
+      alert(`⛔ ${names[playerIdx]} 發生連續 3 次犯規！懲罰扣除 15 分！`);
+      foulCounts[playerIdx] = 0;
+    } else {
+      foulCounts[playerIdx]++;
+      alert(`⚠️ ${names[playerIdx]} 犯規！扣除 1 分 (累積連犯: ${foulCounts[playerIdx]} 次)`);
+    }
+
+    render();
+    if (scores[playerIdx] >= targetScore) finishMatch(names[playerIdx]);
+  }
+
+  // 14-1 打完 14 顆球結算
+  function finish141Rack() {
+    alert(`🎉 本輪 14 顆球已打完！\n請將桌上進的 14 顆球重新排三角框（保留第 15 顆球位置與母球），準備繼續打下一輪！`);
+    ballsLeftInRack = 14;
+    render();
+  }
+
+  // 大小金加分
+  function addGoldScore(playerIdx, points, typeName) {
+    if (phase === "finished") return;
+    scores[playerIdx] += points;
+    alert(`🎉 ${names[playerIdx]} 打出【${typeName}】獲得 +${points} 分！`);
+    render();
+    if (scores[playerIdx] >= targetScore) finishMatch(names[playerIdx]);
+  }
+
+  // 大小金犯規
+  function handleFoul(foulPlayerIdx) {
+    if (phase === "finished") return;
+    const opponentIdx = 1 - foulPlayerIdx;
+    foulCounts[foulPlayerIdx]++;
+
+    if (foulCounts[foulPlayerIdx] >= 3) {
+      scores[opponentIdx] += 2;
+      alert(`⚠️ ${names[foulPlayerIdx]} 累計達 3 次犯規！${names[opponentIdx]} 獲得 2 分，該局結束。`);
+      foulCounts = [0, 0];
+    } else {
+      scores[opponentIdx] += 1;
+      alert(`⚠️ ${names[foulPlayerIdx]} 發生犯規，${names[opponentIdx]} +1 分。`);
+    }
+    render();
+    if (scores[opponentIdx] >= targetScore) finishMatch(names[opponentIdx]);
+  }
+
+  function finishMatch(winnerName) {
+    phase = "finished";
+    clearInterval(matchClockTimer);
+    document.getElementById("match-status").textContent = "比賽結束";
+    document.getElementById("win-summary").textContent = `🏆 恭喜 ${winnerName} 獲得勝利！\n總耗時：${formatTime(totalElapsedSeconds)}`;
+    document.getElementById("win-modal").showModal();
+  }
+</script>
+   <!-- =====================================================
+         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側拉長 15 首清單)
+         ===================================================== -->
+
+    <section class="glass media-section p-4 sm:p-5 mb-6">
+
+      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg sm:text-xl">🎧</span>
+          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (15首)</h2>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="switchMedia('playlist')" id="tab-playlist" class="btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm">▶️ 播放清單</button>
+          <button onclick="switchMedia('podcasts')" id="tab-podcasts" class="btn-action px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm">🎙️ Podcasts</button>
+        </div>
+      </div>
+
+      <div id="media-playlist">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+          <!-- 影片播放器 (佔 2 欄) -->
+          <div class="lg:col-span-2 flex flex-col gap-2">
             
-            <!-- YouTube 訂閱按鈕 -->
-            <a href="https://www.youtube.com/@taiwan3cushion" target="_blank" rel="noopener noreferrer" class="yt-sub-top-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                <span>YouTube 訂閱頻道</span>
-            </a>
+            <!-- 上方控制列 (循環播放 / 隨機播放) -->
+            <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-emerald-300 font-bold">播放模式：</span>
+                <button id="btn-loop" onclick="toggleLoopMode()" class="btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
+                  <span>🔁</span> <span id="loop-text">單曲循環: 關</span>
+                </button>
+                <button id="btn-shuffle" onclick="toggleShuffleMode()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow">
+                  <span>🔀</span> <span id="shuffle-text">隨機播放: 開</span>
+                </button>
+              </div>
+              <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center gap-1 shrink-0">
+                <span>▶</span> 手動隨機跳轉
+              </button>
+            </div>
 
-            <div class="mode-selector">
-                <button id="mode-8" class="active" onclick="switchGameMode('8')">8 號球</button>
-                <button id="mode-9" onclick="switchGameMode('9')">9 號球</button>
+            <!-- YouTube iframe 播放器 -->
+            <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
+              <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
-            <div class="race-control">
-                <span class="race-label">RACE TO</span>
-                <input type="number" id="race-to" class="race-input" value="7" min="1" max="99" onchange="updateRaceTarget()">
+
+            <!-- 目前播放曲目顯示列 -->
+            <div class="bg-black/40 px-3 py-2 rounded-xl border border-white/10">
+              <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate block">🎵 目前播放：載入中...</span>
             </div>
+          </div>
+
+          <!-- 右側選歌清單 (拉長高度約可顯示 15 首) -->
+          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[340px] sm:h-[405px] lg:h-[455px] overflow-hidden">
+            <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center shrink-0">
+              <span>🎵 曲目清單 (顯示約15首)</span>
+              <span class="text-[10px] text-emerald-300">共 15 首</span>
+            </div>
+            <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
+              <!-- 動態載入 15 首歌曲清單 -->
+            </div>
+          </div>
         </div>
-        <button class="reset-btn" onclick="resetMatch()">歸零重置</button>
-    </div>
+      </div>
 
-    <div class="scoreboard">
-        <!-- 選手 1 -->
-        <div class="player-card" id="card-p1">
-            <input type="text" class="player-name" value="PLAYER 1" id="p1-name">
-            <div class="led-panel">
-                <div class="score-display" id="p1-score" onclick="changeScore(1, 1)">0</div>
-            </div>
-            <div class="btn-group">
-                <button class="score-btn btn-minus" onclick="changeScore(1, -1)">-1</button>
-                <button class="score-btn btn-plus" onclick="changeScore(1, 1)">+1</button>
-            </div>
+      <div id="media-podcasts" class="hidden">
+        <div class="rounded-xl border border-white/10 bg-black/60 p-6 text-center">
+          <div class="text-4xl mb-2">🎙️</div>
+          <h3 class="text-amber-300 font-bold text-base mb-1">黑馬 Podcasts 節目</h3>
+          <p class="text-emerald-100/70 text-xs mb-4">點擊下方按鈕前往收聽線上對談與精選音訊。</p>
+          <a href="https://www.youtube.com/@taiwan3cushion/podcasts" target="_blank" rel="noopener noreferrer" class="inline-block btn-action bg-red-600 hover:bg-red-500 text-white font-extrabold px-5 py-2 rounded-xl text-sm">🎧 開啟 Podcasts 頻道</a>
+        </div>
+      </div>
+
+    </section>
+
+   <!-- =====================================================
+         ★★★ YouTube 播放清單頻道嵌入區塊 (iframe)
+         ===================================================== -->
+   
+
+
+    <!-- =====================================================
+         ★★★ 廣告專區 (最下方 3-4 欄，帶有分割線)
+         ===================================================== -->
+    <section class="glass p-4 sm:p-6 mb-6 border-t-2 border-amber-400/40">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📢</span>
+          <h3 class="text-base sm:text-lg font-bold text-amber-400">廣告專區 & 合作推薦</h3>
+        </div>
+        <span class="text-[10px] sm:text-xs text-emerald-300/80 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-md">
+          SPONSORED LINKS
+        </span>
+      </div>
+
+      <!-- 4 欄網格版面 (手機 1-2 欄，平板/桌機 4 欄) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        
+        <!-- 欄位 1 -->
+        <div class="bg-black/40 border border-white/10 p-3.5 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="font-bold text-amber-300 text-sm mb-1">🎱 黑馬三顆星教學</div>
+            <p class="text-emerald-100/70 mb-3">專業開侖撞球教學、球技解析與系統化訓練，帶你快速突破盲點。</p>
+          </div>
+          <a href="https://www.youtube.com/@taiwan3cushion" target="_blank" rel="noopener noreferrer" class="block text-center bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 py-1.5 rounded-lg font-bold transition">
+            了解詳情 ▶
+          </a>
         </div>
 
-        <!-- 選手 2 -->
-        <div class="player-card" id="card-p2">
-            <input type="text" class="player-name" value="PLAYER 2" id="p2-name">
-            <div class="led-panel">
-                <div class="score-display led-cyan" id="p2-score" onclick="changeScore(2, 1)">0</div>
-            </div>
-            <div class="btn-group">
-                <button class="score-btn btn-minus" onclick="changeScore(2, -1)">-1</button>
-                <button class="score-btn btn-plus" onclick="changeScore(2, 1)">+1</button>
-            </div>
+        <!-- 欄位 2 -->
+        <div class="bg-black/40 border border-white/10 p-3.5 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="font-bold text-amber-300 text-sm mb-1">🧦 實體與網路健康襪</div>
+            <p class="text-emerald-100/70 mb-3">嚴選舒適彈性襪與健康服飾，實體通路與網路同步熱銷中。</p>
+          </div>
+          <a href="https://lin.ee/5J77WcJ" target="_blank" rel="noopener noreferrer" class="block text-center bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 py-1.5 rounded-lg font-bold transition">
+            立即選購 🛒
+          </a>
         </div>
-    </div>
 
-    <!-- 9 號球顆數紀錄列 -->
-    <div class="ball-tracker" id="ball-tracker" style="display: none;">
-        <div class="ball b-1" onclick="toggleBall(this)">1</div>
-        <div class="ball b-2" onclick="toggleBall(this)">2</div>
-        <div class="ball b-3" onclick="toggleBall(this)">3</div>
-        <div class="ball b-4" onclick="toggleBall(this)">4</div>
-        <div class="ball b-5" onclick="toggleBall(this)">5</div>
-        <div class="ball b-6" onclick="toggleBall(this)">6</div>
-        <div class="ball b-7" onclick="toggleBall(this)">7</div>
-        <div class="ball b-8" onclick="toggleBall(this)">8</div>
-        <div class="ball b-9" onclick="toggleBall(this)">9</div>
-    </div>
-
-    <!-- 最下方 YouTube 頻道播放清單區塊 -->
-    <div class="bottom-playlist-section">
-        <div class="playlist-header">
-            <span>📺 黑馬音樂頻道 Playlists 影音播放專區</span>
-            <a href="https://www.youtube.com/@taiwan3cushion/playlists" target="_blank" rel="noopener noreferrer" style="color: #ffcc00; text-decoration: underline; font-size: 0.8rem;">開啟 YouTube 瀏覽列表 ➔</a>
+        <!-- 欄位 3 -->
+        <div class="bg-black/40 border border-white/10 p-3.5 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="font-bold text-amber-300 text-sm mb-1">🎵 黑馬音樂創作</div>
+            <p class="text-emerald-100/70 mb-3">結合撞球靈感與獨特曲風，客製化 AI 音樂、品牌主題曲製作。</p>
+          </div>
+          <a href="https://www.youtube.com/@taiwan3cushion" target="_blank" rel="noopener noreferrer" class="block text-center bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/40 py-1.5 rounded-lg font-bold transition">
+            聆聽作品 🎧
+          </a>
         </div>
-        <div class="playlist-iframe-container">
-            <iframe src="https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU" title="YouTube Playlists" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        </div>
-    </div>
 
-    <!-- 浮動播放器 HTML 區塊 -->
-    <div class="floating-player hide-on-landscape">
-        <iframe src="https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
-        </iframe>
-    </div>
-
-    <!-- 勝利與獲勝比分圖 Modal -->
-    <div class="modal-overlay" id="winner-modal">
-        <div class="modal-card">
-            <div class="winner-title">🏆 VICTORY MATCH 🏆</div>
-            <div class="winner-name" id="winner-name">PLAYER 1</div>
-            
-            <div class="canvas-preview-box">
-                <canvas id="match-card-canvas" width="1200" height="675"></canvas>
+        <!-- 欄位 4 (LINE 專屬聯繫) -->
+        <div class="bg-black/50 border border-amber-400/30 p-3.5 rounded-xl flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="font-bold text-amber-300 text-sm mb-1">💬 與作者聯繫</div>
+            <p class="text-emerald-100/80 mb-2">想了解更多合作或交流？歡迎隨時加 LINE 洽詢！</p>
+            <div class="text-[11px] font-mono bg-black/60 px-2 py-1 rounded text-amber-200 border border-white/10 mb-2 text-center">
+              LINE ID: @556roprg
             </div>
-
-            <div class="action-btn-group">
-                <button class="btn-download" onclick="downloadMatchCard()">📥 下載獲勝比分圖 (PNG)</button>
-                <button class="btn-copy" onclick="copyMatchSummary()">📋 複製比賽文字紀錄</button>
-                <button class="close-modal-btn" onclick="closeWinnerModal()">關閉視窗 / 繼續比賽</button>
-            </div>
+          </div>
+          <a href="https://lin.ee/5J77WcJ" target="_blank" rel="noopener noreferrer" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-lg font-extrabold transition shadow">
+            加 LINE 好友 📲
+          </a>
         </div>
-    </div>
 
-    <script>
-        let scores = { 1: 0, 2: 0 };
-        let currentGameMode = '8';
-        let raceTo = 7;
-        let isGameOver = false;
+      </div>
+    </section>
 
-        // 檢查訂閱解鎖狀態
-        window.addEventListener('DOMContentLoaded', () => {
-            const unlocked = localStorage.getItem('heima_scoreboard_unlocked');
-            if (!unlocked) {
-                const subModal = document.getElementById('subscribe-modal');
-                if (subModal.showModal) {
-                    subModal.showModal();
-                } else {
-                    subModal.style.display = 'block';
-                }
-            }
-        });
+  </div>
 
-        function unlockApp() {
-            localStorage.setItem('heima_scoreboard_unlocked', 'true');
-            const subModal = document.getElementById('subscribe-modal');
-            if (subModal.close) {
-                subModal.close();
-            } else {
-                subModal.style.display = 'none';
-            }
-        }
+</div>
 
-        function changeScore(player, delta) {
-            if (isGameOver && delta > 0) return;
 
-            scores[player] = Math.max(0, scores[player] + delta);
-            document.getElementById(`p${player}-score`).innerText = String(scores[player]);
-
-            checkWinner(player);
-        }
-
-        function updateRaceTarget() {
-            const input = document.getElementById('race-to');
-            raceTo = Math.max(1, parseInt(input.value) || 1);
-            input.value = raceTo;
-        }
-
-        function checkWinner(player) {
-            if (scores[player] >= raceTo && !isGameOver) {
-                isGameOver = true;
-                const winnerName = document.getElementById(`p${player}-name`).value || `PLAYER ${player}`;
-                showWinnerModal(winnerName, player);
-            }
-        }
-
-        function showWinnerModal(winnerName, winnerPlayer) {
-            document.getElementById('winner-name').innerText = winnerName;
-            generateMatchCard(winnerName, winnerPlayer);
-            document.getElementById('winner-modal').style.display = 'flex';
-        }
-
-        function closeWinnerModal() {
-            document.getElementById('winner-modal').style.display = 'none';
-        }
-
-        function switchGameMode(mode) {
-            currentGameMode = mode;
-            document.getElementById('mode-8').classList.toggle('active', mode === '8');
-            document.getElementById('mode-9').classList.toggle('active', mode === '9');
-            
-            document.getElementById('ball-tracker').style.display = (mode === '9') ? 'flex' : 'none';
-            resetBalls();
-        }
-
-        function toggleBall(element) {
-            element.classList.toggle('pocketed');
-        }
-
-        function resetBalls() {
-            const balls = document.querySelectorAll('.ball');
-            balls.forEach(ball => ball.classList.remove('pocketed'));
-        }
-
-        function resetMatch() {
-            if (confirm("確定要將計分板全部歸零重置嗎？")) {
-                scores = { 1: 0, 2: 0 };
-                isGameOver = false;
-                document.getElementById('p1-score').innerText = '0';
-                document.getElementById('p2-score').innerText = '0';
-                resetBalls();
-                closeWinnerModal();
-            }
-        }
-
-        /* 繪製獲勝比分圖 (Canvas) */
-        function generateMatchCard(winnerName, winnerPlayer) {
-            const canvas = document.getElementById('match-card-canvas');
-            const ctx = canvas.getContext('2d');
-            const p1Name = document.getElementById('p1-name').value || 'PLAYER 1';
-            const p2Name = document.getElementById('p2-name').value || 'PLAYER 2';
-
-            // 背景漸層
-            const bgGrad = ctx.createLinearGradient(0, 0, 1200, 675);
-            bgGrad.addColorStop(0, '#0a0a12');
-            bgGrad.addColorStop(0.5, '#161626');
-            bgGrad.addColorStop(1, '#05050a');
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, 1200, 675);
-
-            // 邊框裝飾
-            ctx.strokeStyle = '#ffcc00';
-            ctx.lineWidth = 12;
-            ctx.strokeRect(20, 20, 1160, 635);
-
-            // 標題與賽制資訊
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = '900 40px "Noto Sans TC", sans-serif';
-            ctx.fillText(`🐴 黑馬撞球 - ${currentGameMode}號球賽事紀錄`, 600, 90);
-
-            ctx.fillStyle = '#8888a0';
-            ctx.font = '700 28px "Orbitron", sans-serif';
-            ctx.fillText(`RACE TO ${raceTo} 局`, 600, 135);
-
-            // 勝者皇冠與提示
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '900 50px "Noto Sans TC", sans-serif';
-            ctx.fillText(`👑 獲勝者：${winnerName}`, 600, 220);
-
-            // 選手一卡片
-            drawCardBox(ctx, 100, 270, 460, 280, winnerPlayer === 1);
-            ctx.fillStyle = '#a0a0c0';
-            ctx.font = '700 36px "Noto Sans TC", sans-serif';
-            ctx.fillText(p1Name, 330, 330);
-            
-            ctx.fillStyle = '#ff3333';
-            ctx.font = '900 130px "Orbitron", monospace';
-            ctx.fillText(scores[1], 330, 470);
-
-            // VS 標示
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = '900 48px "Orbitron", sans-serif';
-            ctx.fillText('VS', 600, 420);
-
-            // 選手二卡片
-            drawCardBox(ctx, 640, 270, 460, 280, winnerPlayer === 2);
-            ctx.fillStyle = '#a0a0c0';
-            ctx.font = '700 36px "Noto Sans TC", sans-serif';
-            ctx.fillText(p2Name, 870, 330);
-
-            ctx.fillStyle = '#00ffcc';
-            ctx.font = '900 130px "Orbitron", monospace';
-            ctx.fillText(scores[2], 870, 470);
-
-            // 底部日期與時間
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            ctx.fillStyle = '#666680';
-            ctx.font = '500 24px "Noto Sans TC", sans-serif';
-            ctx.fillText(`比賽時間：${dateStr} | 黑馬音樂頻道出品`, 600, 610);
-        }
-
-        function drawCardBox(ctx, x, y, width, height, isWinner) {
-            ctx.save();
-            ctx.fillStyle = '#0a0a10';
-            ctx.fillRect(x, y, width, height);
-            ctx.strokeStyle = isWinner ? '#ffcc00' : '#2a2a3f';
-            ctx.lineWidth = isWinner ? 6 : 2;
-            ctx.strokeRect(x, y, width, height);
-            ctx.restore();
-        }
-
-        /* 下載獲勝比分圖 */
-        function downloadMatchCard() {
-            const canvas = document.getElementById('match-card-canvas');
-            const link = document.createElement('a');
-            const p1Name = document.getElementById('p1-name').value || 'P1';
-            const p2Name = document.getElementById('p2-name').value || 'P2';
-            link.download = `撞球比賽戰報_${p1Name}_vs_${p2Name}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-
-        /* 複製文字比分 */
-        function copyMatchSummary() {
-            const p1Name = document.getElementById('p1-name').value || 'PLAYER 1';
-            const p2Name = document.getElementById('p2-name').value || 'PLAYER 2';
-            const summary = `【黑馬撞球戰報】\n項目：${currentGameMode}號球 (搶${raceTo}局)\n對陣：${p1Name} ${scores[1]} - ${scores[2]} ${p2Name}\n結果：🏆 恭喜 ${scores[1] >= raceTo ? p1Name : p2Name} 獲勝！`;
-            
-            navigator.clipboard.writeText(summary).then(() => {
-                alert('已成功複製戰報文字至剪貼簿！');
-            });
-        }
-    </script>
 </body>
 </html>
