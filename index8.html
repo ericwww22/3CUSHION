@@ -98,8 +98,8 @@
       #timer { font-size: 2.2rem !important; margin: 0 !important; }
       #elapsed-time { font-size: 0.85rem !important; }
       
-      /* 底欄與非核心媒體隱藏 */
-      .media-section, .bottom-control-bar { display: none !important; }
+      /* 非核心媒體區隱藏 */
+      .media-section { display: none !important; }
     }
   </style>
 </head>
@@ -107,8 +107,8 @@
 
   <div id="zoom-container">
     <div class="max-w-7xl mx-auto">
-      <!-- Header -->
-      <header class="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center glass p-3 sm:p-5 mb-4 sm:mb-6">
+      <!-- Header (整合開始比賽等控制按鈕於最上方右側) -->
+      <header class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6">
         <div class="flex items-center gap-2.5">
           <div class="text-2xl sm:text-3xl">🐴</div>
           <div>
@@ -119,18 +119,29 @@
             <p class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5">DARK HORSE 3-CUSHION MATCH SYSTEM</p>
           </div>
         </div>
-        <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center">
+        
+        <!-- 頂部右側功能與賽事控制按鈕群組 (包含開始比賽、暫停、重設、全螢幕右側) -->
+        <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end">
+          <!-- 比賽控制按鈕 -->
+          <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-lg text-xs sm:text-sm shadow-md">▶️ 開始比賽</button>
+          <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
+          <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
+          <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-3 py-1.5 rounded-lg text-xs sm:text-sm">🔄 重設</button>
+          <button onclick="generateReport()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs sm:text-sm">📸 戰報</button>
+
+          <span class="text-white/20">|</span>
+
           <a href="https://www.youtube.com/@taiwan3cushion" target="_blank" rel="noopener noreferrer"
-             class="btn-action flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white shadow-lg border border-red-400/40">
-            <span>🔴</span><span class="hidden sm:inline">訂閱</span><span>黑馬頻道</span>
+             class="btn-action flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white border border-red-400/40">
+            <span>🔴</span><span>頻道</span>
           </a>
-          <button onclick="toggleHistoryPanel()" class="btn-action px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-bold rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40">
+          <button onclick="toggleHistoryPanel()" class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40">
             📜 歷史
           </button>
-          <button onclick="toggleSettingsModal()" class="btn-action px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40">
+          <button onclick="toggleSettingsModal()" class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40">
             ⚙️ 設定
           </button>
-          <span id="match-status" class="px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
+          <span id="match-status" class="px-2.5 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
           
           <div class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
             <button onclick="adjustZoom(-0.1)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">-</button>
@@ -143,7 +154,7 @@
         </div>
       </header>
 
-      <!-- 主記分板 (順序：Player 1 -> Center Panel -> Player 2) -->
+      <!-- 主記分板 (左：選手一 | 中：中央控制區 | 右：選手二) -->
       <main class="grid grid-cols-1 md:grid-cols-[1fr_220px_1fr] gap-3 sm:gap-4 mb-4 sm:mb-6">
 
         <!-- Player 1 (左側) -->
@@ -219,17 +230,6 @@
         </article>
 
       </main>
-
-      <!-- 控制列 -->
-      <section class="glass bottom-control-bar p-3 sm:p-5 mb-4 sm:mb-6">
-        <div class="flex flex-wrap gap-2 sm:gap-3 items-center">
-          <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base shadow-lg">開始比賽</button>
-          <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base" disabled>暫停</button>
-          <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base hidden">繼續比賽</button>
-          <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800/80 text-red-200 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base">重設比賽</button>
-          <button onclick="generateReport()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl ml-auto text-sm sm:text-base">📸 戰報圖</button>
-        </div>
-      </section>
 
       <!-- 🎵 YouTube / Podcasts 整合區 -->
       <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -404,7 +404,6 @@
     let currentZoom = 1.0;
     let isTimeoutPrompt = false;
 
-    // 觸控雙擊防抖及歷史時間追蹤
     let lastTapTimes = [0, 0];
 
     onBallColorChange(); 
@@ -418,7 +417,6 @@
 
     function formatTime(s){ return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
 
-    // 縮放控制
     function adjustZoom(delta) {
       currentZoom = Math.min(Math.max(0.6, currentZoom + delta), 1.5);
       applyZoom();
@@ -477,19 +475,16 @@
       render();
     }
 
-    // 雙擊 (+1 分) 監聽器，相容桌面滑鼠 dblclick 與行動裝置 touchstart/touchend
     function setupDoubleTapHandlers() {
       [0, 1].forEach(index => {
         const scoreEl = document.getElementById(`score-${index}`);
         
-        // 滑鼠連點兩下
         scoreEl.addEventListener('dblclick', (e) => {
           e.preventDefault();
           e.stopPropagation();
           triggerScoreDoubleTap(index);
         });
 
-        // 觸控螢幕連點兩下
         scoreEl.addEventListener('touchend', (e) => {
           const currentTime = new Date().getTime();
           const tapLength = currentTime - lastTapTimes[index];
@@ -506,7 +501,6 @@
     function triggerScoreDoubleTap(playerIndex) {
       if (phase === 'finished') return;
 
-      // 若當前擊球權不在該選手，先切換球權
       if (activePlayer !== playerIndex) {
         innings[activePlayer]++;
         currentRuns[activePlayer] = 0;
@@ -515,7 +509,6 @@
         isTimeoutPrompt = false;
       }
 
-      // 加 1 分
       addScore(playerIndex, 1);
     }
 
