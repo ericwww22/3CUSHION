@@ -868,8 +868,8 @@
                 <button id="btn-loop" onclick="toggleLoopMode()" class="btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
                   <span>🔁</span> <span id="loop-text">單曲循環: 關</span>
                 </button>
-                <button id="btn-shuffle" onclick="toggleShuffleMode()" class="btn-action bg-white/10 hover:bg-white/25 text-white px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
-                  <span>🔀</span> <span id="shuffle-text">隨機播放: 關</span>
+                <button id="btn-shuffle" onclick="toggleShuffleMode()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow">
+                  <span>🔀</span> <span id="shuffle-text">隨機播放: 開</span>
                 </button>
               </div>
               <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center gap-1 shrink-0">
@@ -1075,9 +1075,9 @@
   let isTimeoutPrompt = false;
   let lastTapTimes = [0, 0];
 
-  // 播放模式開關狀態
+  // 播放模式開關狀態 (預設隨機播放為打開)
   let isLoopEnabled = false;
-  let isShuffleEnabled = false;
+  let isShuffleEnabled = true;
 
   // 設定清單精選 15 首曲目對應 (PLQvBYUHGQEcU)
   const playlistSongs = [];
@@ -1117,7 +1117,14 @@
     updateTargetDisplay();
     loadZoomSetting();
     setupDoubleTapHandlers();
+    
+    // 初始化時若隨機播放開啟，直接隨機選一首歌
+    if (isShuffleEnabled && playlistSongs.length > 0) {
+      currentSongIndex = Math.floor(Math.random() * playlistSongs.length);
+    }
+    
     renderSongList();
+    selectSong(currentSongIndex);
     render();
   });
 
