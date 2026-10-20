@@ -692,6 +692,15 @@
           |
         </span>
 
+        <!-- 新增切換到 8/9號/14-1 記分板按鈕 -->
+        <a
+          href="https://ericwww22.github.io/3CUSHION//89%E8%A8%98%E5%88%86%E6%9D%BF.html"
+          class="btn-action flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-purple-600/40 text-purple-200 hover:bg-purple-600/60 border border-purple-400/50"
+        >
+          <span>🎱</span>
+          <span>切換9號/8號/14-1/9號(大小金制)記分板</span>
+        </a>
+
         <a
           href="https://www.youtube.com/@taiwan3cushion"
           target="_blank"
@@ -830,6 +839,17 @@
             <div id="timer-bar" class="bg-amber-400 h-full w-full transition-all duration-200"></div>
           </div>
         </div>
+        
+        <!-- 撤回按鈕 (位於 Shot Clock 秒數下方) -->
+        <button
+          id="undo-btn"
+          onclick="undoLastAction()"
+          class="btn-action w-full bg-purple-600/80 hover:bg-purple-600 text-white font-extrabold py-2 rounded-xl text-sm shadow-md my-1"
+          disabled
+        >
+          ↩️ 撤回上一動
+        </button>
+
         <p class="text-[10px] text-emerald-100/50 mt-1 hidden sm:block">黑馬三顆星 ‧ 就是這樣中！</p>
       </section>
 
@@ -866,7 +886,7 @@
 
 
     <!-- =====================================================
-         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側拉長 15 首清單)
+         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 完整曲目清單)
          ===================================================== -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -874,7 +894,7 @@
       <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
         <div class="flex items-center gap-2">
           <span class="text-lg sm:text-xl">🎧</span>
-          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (15首)</h2>
+          <h2 id="playlist-header-title" class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (完整曲目)</h2>
         </div>
         <div class="flex gap-2">
           <button onclick="switchMedia('playlist')" id="tab-playlist" class="btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm">▶️ 播放清單</button>
@@ -905,7 +925,7 @@
 
             <!-- YouTube iframe 播放器 -->
             <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
-              <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
 
             <!-- 目前播放曲目顯示列 -->
@@ -914,14 +934,14 @@
             </div>
           </div>
 
-          <!-- 右側選歌清單 (拉長高度約可顯示 15 首) -->
+          <!-- 右側選歌清單 (顯示完整新增的所有歌曲) -->
           <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[340px] sm:h-[405px] lg:h-[455px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center shrink-0">
-              <span>🎵 曲目清單 (顯示約15首)</span>
-              <span class="text-[10px] text-emerald-300">共 15 首</span>
+              <span>🎵 完整曲目清單</span>
+              <span id="song-count-badge" class="text-[10px] text-emerald-300">共 0 首</span>
             </div>
             <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
-              <!-- 動態載入 15 首歌曲清單 -->
+              <!-- 動態載入所有歌曲清單 -->
             </div>
           </div>
         </div>
@@ -936,74 +956,6 @@
         </div>
       </div>
 
-    </section>
-
-
-    <!-- =====================================================
-         ★★★ 廣告專區 (最下方 3-4 欄，帶有分割線)
-         ===================================================== -->
-    <section class="glass p-4 sm:p-6 mb-6 border-t-2 border-amber-400/40">
-      <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">📢</span>
-          <h3 class="text-base sm:text-lg font-bold text-amber-400">廣告專區 & 合作推薦</h3>
-        </div>
-        <span class="text-[10px] sm:text-xs text-emerald-300/80 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-md">
-          SPONSORED LINKS
-        </span>
-      </div>
-
-      <!-- 4 欄網格版面 (手機 1-2 欄，平板/桌機 4 欄) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-        
-        <!-- 欄位 1 -->
-        <div class="bg-black/40 border border-white/10 p-3.5 rounded-xl flex flex-col justify-between">
-          <div>
-            <div class="font-bold text-amber-300 text-sm mb-1">🎱 黑馬三顆星教學</div>
-            <p class="text-emerald-100/70 mb-3">專業開侖撞球教學、球技解析與系統化訓練，帶你快速突破盲點。</p>
-          </div>
-          <a href="https://www.youtube.com/@taiwan3cushion" target="_blank" rel="noopener noreferrer" class="block text-center bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 py-1.5 rounded-lg font-bold transition">
-            了解詳情 ▶
-          </a>
-        </div>
-
-        <!-- 欄位 2 -->
-        <div class="bg-black/40 border border-white/10 p-3.5 rounded-xl flex flex-col justify-between">
-          <div>
-            <div class="font-bold text-amber-300 text-sm mb-1">🧦 實體與網路健康襪</div>
-            <p class="text-emerald-100/70 mb-3">嚴選舒適彈性襪與健康服飾，實體通路與網路同步熱銷中。</p>
-          </div>
-          <a href="https://lin.ee/5J77WcJ" target="_blank" rel="noopener noreferrer" class="block text-center bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 py-1.5 rounded-lg font-bold transition">
-            立即選購 🛒
-          </a>
-        </div>
-
-        <!-- 欄位 3 -->
-        <div class="bg-black/40 border border-white/10 p-3.5 rounded-xl flex flex-col justify-between">
-          <div>
-            <div class="font-bold text-amber-300 text-sm mb-1">🎵 黑馬音樂創作</div>
-            <p class="text-emerald-100/70 mb-3">結合撞球靈感與獨特曲風，客製化 AI 音樂、品牌主題曲製作。</p>
-          </div>
-          <a href="https://www.youtube.com/@taiwan3cushion" target="_blank" rel="noopener noreferrer" class="block text-center bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/40 py-1.5 rounded-lg font-bold transition">
-            聆聽作品 🎧
-          </a>
-        </div>
-
-        <!-- 欄位 4 (LINE 專屬聯繫) -->
-        <div class="bg-black/50 border border-amber-400/30 p-3.5 rounded-xl flex flex-col justify-between shadow-lg">
-          <div>
-            <div class="font-bold text-amber-300 text-sm mb-1">💬 與作者聯繫</div>
-            <p class="text-emerald-100/80 mb-2">想了解更多合作或交流？歡迎隨時加 LINE 洽詢！</p>
-            <div class="text-[11px] font-mono bg-black/60 px-2 py-1 rounded text-amber-200 border border-white/10 mb-2 text-center">
-              LINE ID: @556roprg
-            </div>
-          </div>
-          <a href="https://lin.ee/5J77WcJ" target="_blank" rel="noopener noreferrer" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-lg font-extrabold transition shadow">
-            加 LINE 好友 📲
-          </a>
-        </div>
-
-      </div>
     </section>
 
   </div>
@@ -1169,34 +1121,189 @@
   let isTimeoutPrompt = false;
   let lastTapTimes = [0, 0];
 
+  // 撤回歷史紀錄堆疊 (Undo History Stack)
+  let actionHistory = [];
+
   // 播放模式開關狀態 (預設隨機播放為打開)
   let isLoopEnabled = false;
   let isShuffleEnabled = true;
 
-  // 設定清單精選 15 首曲目對應 (PLQvBYUHGQEcU)
+  // 完整清單陣列（每首歌可以設定對應的 vid 影片 ID，若有多個不同的 YouTube 網址可在此填入各自的 vid）
   const playlistSongs = [];
-  const specialTitles = [
-    "セブン·クッション·伝説 日女演唱會01",
-    "다크호스 3쿠션男搖滾02",
-    "다크호스 3쿠션男搖滾01",
-    "다크호스 3쿠션女搖滾01",
-    "다크호스 3쿠션女演唱01",
-    "다크호스 3쿠션女搖滾02",
-    "三顆星極光白黃互解 02",
-    "開侖三顆星搖滾男粵語 02",
-    "8號撞球王 02",
-    "美式三顆星對戰版 Battle06",
-    "黑馬三顆星主題曲特輯 01",
-    "三顆星技巧解析與進階練習",
-    "球友對戰精選實錄 03",
-    "跟著林師傅學撞球精華 01",
-    "黑馬三顆星實戰對局 15"
+  const rawSongData = [
+    { title: "セブン・クッション・伝説 日女演唱會01", vid: "xtT9d4avAW4" },
+    { title: "다크호스 3쿠션男演唱02", vid: "xtT9d4avAW4" },
+    { title: "다크호스 3쿠션男演唱01", vid: "xtT9d4avAW4" },
+    { title: "다크호스 3쿠션男搖滾02", vid: "xtT9d4avAW4" },
+    { title: "다크호스 3쿠션男搖滾01", vid: "xtT9d4avAW4" },
+    { title: "다크호스 3쿠션女搖滾01", vid: "xtT9d4avAW4" },
+    { title: "다크호스 3쿠션女演唱01", vid: "xtT9d4avAW4" },
+    { title: "다크호스 3쿠션女搖滾02", vid: "xtT9d4avAW4" },
+    { title: "林師傅撞球哲學 04", vid: "xtT9d4avAW4" },
+    { title: "開侖三粒仔 台語01", vid: "xtT9d4avAW4" },
+    { title: "撞球台上的國王_03演唱會男01", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星.就是這樣中!", vid: "xtT9d4avAW4" },
+    { title: "撞球台上的國王_03演唱會女02", vid: "xtT9d4avAW4" },
+    { title: "セブン・クッション・伝説 日女演唱會02", vid: "xtT9d4avAW4" },
+    { title: "Carom 3cushion (Black Horse Carom) male04", vid: "xtT9d4avAW4" },
+    { title: "Carom 3cushion (Black Horse Carom) male03", vid: "xtT9d4avAW4" },
+    { title: "Carom 3cushion (Black Horse Carom) male01", vid: "xtT9d4avAW4" },
+    { title: "Carom 3cushion (Black Horse Carom) male02", vid: "xtT9d4avAW4" },
+    { title: "Carom3cushion (Black Horse Carom) female02", vid: "xtT9d4avAW4" },
+    { title: "Carom 3cushion (Black Horse Carom) female01", vid: "xtT9d4avAW4" },
+    { title: "跟著黑馬一起打三顆星.就是這樣中! MV齊唱律動版", vid: "xtT9d4avAW4" },
+    { title: "跟著黑馬一起打三顆星.就是這樣中! 01— R&B 齊唱律動版", vid: "xtT9d4avAW4" },
+    { title: "跟著黑馬一起打三顆星.就是這樣中! 02— R&B 齊唱律動版", vid: "xtT9d4avAW4" },
+    { title: "跟著黑馬一起唱開侖三顆星，就是這樣中！演唱會女版02", vid: "xtT9d4avAW4" },
+    { title: "跟著黑馬一起唱開侖三顆星，就是這樣中！演唱會女版01", vid: "xtT9d4avAW4" },
+    { title: "《開侖三顆星》— 星級進化版", vid: "xtT9d4avAW4" },
+    { title: "スリークッション・キャロム男搖滾02", vid: "xtT9d4avAW4" },
+    { title: "スリークッション・キャロム男搖滾01", vid: "xtT9d4avAW4" },
+    { title: "スリークッション・キャロム女搖滾01", vid: "xtT9d4avAW4" },
+    { title: "スリークッション・キャロム女搖滾02", vid: "xtT9d4avAW4" },
+    { title: "開侖三顆星搖滾男粵語01", vid: "xtT9d4avAW4" },
+    { title: "開侖三顆星男粵語02", vid: "xtT9d4avAW4" },
+    { title: "開侖三顆星搖滾女粵語01", vid: "xtT9d4avAW4" },
+    { title: "開侖三顆星搖滾女粵語02", vid: "xtT9d4avAW4" },
+    { title: "獨家狩獵_撩男專用_女唱01長版", vid: "xtT9d4avAW4" },
+    { title: "專利佔有_撩女專用_男唱01", vid: "xtT9d4avAW4" },
+    { title: "專利佔有_撩女專用_男唱02", vid: "xtT9d4avAW4" },
+    { title: "《Master Lin & Dark Horse》男", vid: "xtT9d4avAW4" },
+    { title: "Follow the Dark Horse女", vid: "xtT9d4avAW4" },
+    { title: "開侖星戰場-三顆星教科書", vid: "xtT9d4avAW4" },
+    { title: "8號撞球王01.mp4", vid: "xtT9d4avAW4" },
+    { title: "球間·8號封神02.mp4", vid: "xtT9d4avAW4" },
+    { title: "闪洞互解·三颗星到七颗星01.mp4", vid: "xtT9d4avAW4" },
+    { title: "開侖三顆星_我要驗球02", vid: "xtT9d4avAW4" },
+    { title: "開侖三顆星_我要驗球01", vid: "xtT9d4avAW4" },
+    { title: "騎馬的好處_晉大大馬場02.mp4", vid: "xtT9d4avAW4" },
+    { title: "騎馬的好處_晉大大馬場01.mp4", vid: "xtT9d4avAW4" },
+    { title: "闪洞互解·三颗星到七颗星02", vid: "xtT9d4avAW4" },
+    { title: "三颗星极光白黃互解02", vid: "xtT9d4avAW4" },
+    { title: "三颗星极光白黃互解01", vid: "xtT9d4avAW4" },
+    { title: "闪洞三到七星白黃互解01", vid: "xtT9d4avAW4" },
+    { title: "球間·8號封神01", vid: "xtT9d4avAW4" },
+    { title: "8號撞球王01", vid: "xtT9d4avAW4" },
+    { title: "8號撞球王02", vid: "xtT9d4avAW4" },
+    { title: "微醺雙人房02", vid: "xtT9d4avAW4" },
+    { title: "Paper Lantern Train10同節奏改英文歌02", vid: "xtT9d4avAW4" },
+    { title: "Paper Lantern Rain01", vid: "xtT9d4avAW4" },
+    { title: "微醺雙人房01", vid: "xtT9d4avAW4" },
+    { title: "清晨的太陽02", vid: "xtT9d4avAW4" },
+    { title: "Paper Lantern Rain02", vid: "xtT9d4avAW4" },
+    { title: "Paper Lantern Train10同節奏改英文歌01", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星,就是這樣中!撞球音樂頻道!(다크호스 3쿠션) (손가락 튕기는 소리)02~", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星,就是這樣中!撞球音樂頻道!(다크호스 3쿠션) (손가락 튕기는 소리)01~", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "每一步，都有 e'Best 陪著你03", vid: "xtT9d4avAW4" },
+    { title: "《Master Lin & Dark Horse》女", vid: "xtT9d4avAW4" },
+    { title: "歌曲:林師的傅撞球哲學", vid: "xtT9d4avAW4" },
+    { title: "每一步，都有 e'Best 陪著你02", vid: "xtT9d4avAW4" },
+    { title: "黑板與白板之間(東陽黑板企業社_嘉義)女_02", vid: "xtT9d4avAW4" },
+    { title: "黑板與白板之間(東陽黑板企業社_嘉義)男02", vid: "xtT9d4avAW4" },
+    { title: "每一步，都有 e'Best 陪著你04", vid: "xtT9d4avAW4" },
+    { title: "每一步，都有 e'Best 陪著你(貝絲特彈性襪03)", vid: "xtT9d4avAW4" },
+    { title: "每一步，都有 e'Best 陪著你(貝絲特彈性襪01)", vid: "xtT9d4avAW4" },
+    { title: "獨家狩獵_撩男專用_女唱02", vid: "xtT9d4avAW4" },
+    { title: "セブン・クッション・伝説 日男演唱會02", vid: "xtT9d4avAW4" },
+    { title: "セブン・クッション・伝説 日男演唱會01", vid: "xtT9d4avAW4" },
+    { title: "五顆星的榮耀01", vid: "xtT9d4avAW4" },
+    { title: "五顆星的榮耀02", vid: "xtT9d4avAW4" },
+    { title: "五顆星的榮耀03", vid: "xtT9d4avAW4" },
+    { title: "五顆星的榮耀04", vid: "xtT9d4avAW4" },
+    { title: "《五顆星的榮耀_連解中15》", vid: "xtT9d4avAW4" },
+    { title: "開侖三顆星,就是這樣中!（高雄5050_高手對決版 v2）", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星01_0831", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星03_0831", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星02_0831", vid: "xtT9d4avAW4" },
+    { title: "跟著林師傅一起打美式三顆星02", vid: "xtT9d4avAW4" },
+    { title: "跟著林師傅一起打美式三顆星01_0831", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星,就是這樣中06_0831", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星,就是這樣中05_0831", vid: "xtT9d4avAW4" },
+    { title: "黑馬三顆星,就是這樣中04_0831", vid: "xtT9d4avAW4" },
+    { title: "美式三顆星對戰版 Battle05.跟著林師傅打美式三顆星04", vid: "xtT9d4avAW4" },
+    { title: "美式三顆星對戰版 Battle06跟著林師傅打美式三顆星03.mp4", vid: "xtT9d4avAW4" },
+    { title: "Follow Master Lin01", vid: "xtT9d4avAW4" },
+    { title: "Follow Master Lin02", vid: "xtT9d4avAW4" },
+    { title: "西遊記三顆星0922乾坤風火~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "大鵬破空~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "方寸玄機~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "無底神鑽~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "西遊記三顆星01~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "# 《AI 智慧電商向前行02》", vid: "xtT9d4avAW4" },
+    { title: "《野蠻生長》｜不是成功學，是一個人把人生走出來的真實故事", vid: "xtT9d4avAW4" },
+    { title: "如果人生的起點不夠好，你還能不能走出自己的路？", vid: "xtT9d4avAW4" },
+    { title: "有人出生就擁有選擇，有人卻必須從最艱難的地方開始。", vid: "xtT9d4avAW4" },
+    { title: "三昧狂旋~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "# 《AI 智慧電商向前行01》", vid: "xtT9d4avAW4" },
+    { title: "天蓬神力~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "芭蕉神弧~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "金箍破局~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "大鬧天宮01~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "三顆星借東風01~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "大力牛魔~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "赤壁火攻三顆星~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "草船借箭·三庫神機~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "太極化勁三顆星~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "無雙鬼神三顆星~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "孔明借力~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "哪吒鬧海~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "風火旋輪~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "錦囊妙計·三庫神算~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "鬧海破乾坤~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "萬鈞三顆星~黑馬三顆星,就是這樣中!撞球音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "The Three-Cushion Line01 !黑馬音樂頻道!", vid: "xtT9d4avAW4" },
+    { title: "The Three-Cushion Line02 !黑馬音樂頻道!",
+    { title: "Bida 3 Băng越南_01 !黑馬音樂頻道!",
+    { title: "Bida 3 Băng_越南02!黑馬音樂頻道!",
+    { title: "Cơ Vàng Tiến Lên越南01 !黑馬音樂頻道!",
+    { title: "Cơ Vàng Tiến Lên越南02 !黑馬音樂頻道!",
+    { title: "Sunehri Gend – Palat De Jeet印度01 !黑馬音樂頻道!",
+    { title: "Sunehri Gend – Palat De Jeet印度02 !黑馬音樂頻道!",
+    { title: "황금 큐볼 역전승韓文02!黑馬音樂頻道!",
+    { title: "완벽한 라인韓文01!黑馬音樂頻道!",
+    { title: "완벽한 라인韓文02!黑馬音樂頻道!",
+    { title: "황금 큐볼 역전승韓文01 !黑馬音樂頻道!",
+    { title: "開侖三つ星・パーフェクトライン日語01!黑馬音樂頻道!",
+    { title: "黄金の手球日語02 !黑馬音樂頻道!",
+    { title: "開侖三つ星・パーフェクトライン日語02 !黑馬音樂頻道!",
+    { title: "黄金の手球日語03 !黑馬音樂頻道!",
+    { title: "黄金の手球日語04.mp4!黑馬音樂頻道!",
+    { title: "黄金の手球日語01 !黑馬音樂頻道!",
+    { title: "Golden Cue Ball02 !黑馬音樂頻道!",
+    { title: "Golden Cue Ball01 !黑馬音樂頻道!",
+    { title: "開侖三顆星_完美路線_粵語03!黑馬音樂頻道!",
+    { title: "開侖三顆星_完美路線_粵語04!黑馬音樂頻道!",
+    { title: "西遊記三顆星_粵語01 !黑馬音樂頻道!",
+    { title: "西遊記三顆星_粵語02 !黑馬音樂頻道!",
+    { title: "西遊記三顆星スリークッション日文_01 !黑馬音樂頻道!",
+    { title: "西遊記三顆星スリークッション日文_02 !黑馬音樂頻道!",
+    { title: "黃金母球・逆轉勝_粵語01 !黑馬音樂頻道!",
+    { title: "黃金母球・逆轉勝_粵語02 !黑馬音樂頻道!",
+    { title: "開侖三顆星・完美路線_粵語01 !黑馬音樂頻道!",
+    { title: "開侖三顆星・完美路線_粵語02 !黑馬音樂頻道!",
+    { title: "Golden Cue Ball02.mp4!黑馬音樂頻道!",
+    { title: "五顆星連解01!黑馬音樂頻道!",
+    { title: "《水滸三顆星・就是這樣中》（完整長版）!黑馬音樂頻道!",
+    { title: "7.《負荊請罪·廉頗老矣尚能飯》01 !黑馬音樂頻道!",
+    { title: "2.《荊軻刺秦·圖窮顆星現》!黑馬音樂頻道!",
+    { title: "3.《背水一戰·韓信點兵》!黑馬音樂頻道!",
+    { title: "檔案名稱5.《魚腹藏劍·專諸刺王僚》!黑馬音樂頻道!",
+    { title: "8.《商鞅變法·立木建信的精準線路》01.mp4!黑馬音樂頻道!",
+    { title: "6.《封狼居胥·霍去病的長驅直入》01!黑馬音樂頻道!",
+    { title: "9.《離騷屈原·汨羅江畔的弧線》01!黑馬音樂頻道!",
+    { title: "10.《奇貨可居·呂不韋的豪賭極限》01.mp4!黑馬音樂頻道!",
+    { title: "11.《秦皇掃六合·一顆星一統合》01.mp4!黑馬音樂頻道!",
+    { title: "12.《封狼居胥·霍去病的五顆星長驅直入》01 !黑馬音樂頻道!",
+    { title: "13.《奇貨可居·呂不韋的七顆星豪賭》01.mp4!黑馬音樂頻道!",
+    { title: "14.《史記·終章：千古顆星鑑》01.mp4!黑馬音樂頻道!"
   ];
-  for (let i = 0; i < 15; i++) {
+
+  for (let i = 0; i < rawSongData.length; i++) {
     playlistSongs.push({
-      title: specialTitles[i] || `Carom 3cushion song ${String(i + 1).padStart(3, '0')}`,
+      title: rawSongData[i].title,
       duration: "3:45",
-      vid: "xtT9d4avAW4",
+      vid: rawSongData[i].vid, // 每個曲目可以對應獨立的 YouTube ID
       index: i
     });
   }
@@ -1212,7 +1319,7 @@
     loadZoomSetting();
     setupDoubleTapHandlers();
     
-    // 初始化時若隨機播放開啟，直接隨機選一首歌
+    // 初始化時若隨機播放開啟，直接隨機選一首歌並自動播放
     if (isShuffleEnabled && playlistSongs.length > 0) {
       currentSongIndex = Math.floor(Math.random() * playlistSongs.length);
     }
@@ -1222,9 +1329,58 @@
     render();
   });
 
-  // 渲染右側清單 15 首歌曲可供選擇
+  // 儲存當前狀態至撤回堆疊
+  function saveStateSnapshot() {
+    const snapshot = {
+      scores: [...scores],
+      innings: [...innings],
+      currentRuns: [...currentRuns],
+      highRuns: [...highRuns],
+      timeouts: [...timeouts],
+      activePlayer,
+      phase,
+      remaining,
+      totalElapsedSeconds,
+      isTimeoutPrompt
+    };
+    actionHistory.push(snapshot);
+    if (actionHistory.length > 30) actionHistory.shift();
+  }
+
+  // 撤回上一動作
+  function undoLastAction() {
+    if (actionHistory.length === 0) return;
+    const lastState = actionHistory.pop();
+
+    scores = [...lastState.scores];
+    innings = [...lastState.innings];
+    currentRuns = [...lastState.currentRuns];
+    highRuns = [...lastState.highRuns];
+    timeouts = [...lastState.timeouts];
+    activePlayer = lastState.activePlayer;
+    phase = lastState.phase;
+    remaining = lastState.remaining;
+    totalElapsedSeconds = lastState.totalElapsedSeconds;
+    isTimeoutPrompt = lastState.isTimeoutPrompt;
+
+    if (phase === "running") {
+      document.getElementById("start-btn").disabled = true;
+      document.getElementById("pause-btn").disabled = false;
+      document.getElementById("resume-btn").classList.add("hidden");
+      document.getElementById("match-status").textContent = "比賽進行中";
+      startTimer();
+      startMatchClock();
+    }
+
+    render();
+  }
+
+  // 渲染右側清單所有歌曲可供選擇
   function renderSongList() {
     const container = document.getElementById("song-list-container");
+    const badge = document.getElementById("song-count-badge");
+    if (badge) badge.textContent = `共 ${playlistSongs.length} 首`;
+
     container.innerHTML = playlistSongs.map((song, idx) => `
       <div onclick="selectSong(${idx})" class="playlist-item p-2 rounded-lg bg-black/40 border border-white/10 cursor-pointer flex justify-between items-center ${idx === currentSongIndex ? 'active' : ''}">
         <div class="flex items-center gap-2 truncate">
@@ -1242,9 +1398,9 @@
     const song = playlistSongs[index];
     const player = document.getElementById("youtube-player");
     
-    // 如果開啟循環播放，帶入 loop 參數
+    // 確保點擊或隨機選擇時，會帶入對應歌曲的 vid 與正確的播放索引
     let extraParams = isLoopEnabled ? "&loop=1&playlist=" + song.vid : "";
-    player.src = `https://www.youtube.com/embed/${song.vid}?list=PLQvBYUHGQEcU&index=${index}&autoplay=1${extraParams}`;
+    player.src = `https://www.youtube.com/embed/${song.vid}?autoplay=1&enablejsapi=1${extraParams}`;
     document.getElementById("current-playing-title").textContent = `🎵 目前播放：${song.title}`;
   }
 
@@ -1428,6 +1584,7 @@
 
   function triggerScoreDoubleTap(playerIndex) {
     if (phase === "finished") return;
+    saveStateSnapshot();
     if (activePlayer !== playerIndex) {
       innings[activePlayer]++;
       currentRuns[activePlayer] = 0;
@@ -1435,7 +1592,7 @@
       remaining = duration;
       isTimeoutPrompt = false;
     }
-    addScore(playerIndex, 1);
+    addScore(playerIndex, 1, false);
   }
 
   function render() {
@@ -1455,6 +1612,11 @@
       document.getElementById(`btn-plus-${i}`).disabled = !(activePlayer === i && phase !== "finished");
       document.getElementById(`btn-minus-${i}`).disabled = !(activePlayer === i && phase !== "finished" && scores[i] > 0);
       document.getElementById(`btn-timeout-${i}`).disabled = !(activePlayer === i && phase === "running" && timeouts[i] > 0);
+    }
+
+    const undoBtn = document.getElementById("undo-btn");
+    if (undoBtn) {
+      undoBtn.disabled = actionHistory.length === 0;
     }
 
     if (isTimeoutPrompt) {
@@ -1520,6 +1682,7 @@
   function resetMatch() {
     clearInterval(timer);
     clearInterval(matchClockTimer);
+    actionHistory = [];
     scores = [0, 0];
     innings = [0, 0];
     currentRuns = [0, 0];
@@ -1594,6 +1757,7 @@
 
   function useTimeout(i) {
     if (phase !== "running" || activePlayer !== i || timeouts[i] <= 0) return;
+    saveStateSnapshot();
     timeouts[i]--;
     remaining += duration;
     isTimeoutPrompt = false;
@@ -1603,6 +1767,7 @@
   function handleCardClick(targetPlayerIndex) {
     if (phase === "finished") return;
     if (activePlayer !== targetPlayerIndex) {
+      saveStateSnapshot();
       innings[activePlayer]++;
       currentRuns[activePlayer] = 0;
       activePlayer = targetPlayerIndex;
@@ -1612,8 +1777,9 @@
     }
   }
 
-  function addScore(i, d) {
+  function addScore(i, d, shouldSave = true) {
     if (phase === "finished" || activePlayer !== i) return;
+    if (shouldSave) saveStateSnapshot();
     if (d > 0) {
       scores[i] += d;
       currentRuns[i] += d;
@@ -1629,6 +1795,7 @@
 
   function switchTurn() {
     if (phase === "finished") return;
+    saveStateSnapshot();
     innings[activePlayer]++;
     currentRuns[activePlayer] = 0;
     activePlayer = 1 - activePlayer;
@@ -1690,6 +1857,7 @@
     if (!h) return;
     clearInterval(timer);
     clearInterval(matchClockTimer);
+    actionHistory = [];
     names = [...h.names];
     scores = [...h.scores];
     innings = [...h.innings];
