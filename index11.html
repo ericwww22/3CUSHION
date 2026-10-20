@@ -840,7 +840,7 @@
 
 
     <!-- =====================================================
-         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側拉長 15 首清單)
+         YouTube / Podcasts (完整可選歌播放器)
          ===================================================== -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -848,7 +848,7 @@
       <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
         <div class="flex items-center gap-2">
           <span class="text-lg sm:text-xl">🎧</span>
-          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (15首)</h2>
+          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 完整曲目隨選播放清單</h2>
         </div>
         <div class="flex gap-2">
           <button onclick="switchMedia('playlist')" id="tab-playlist" class="btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm">▶️ 播放清單</button>
@@ -857,45 +857,22 @@
       </div>
 
       <div id="media-playlist">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <!-- 影片播放器 (佔 2 欄) -->
-          <div class="lg:col-span-2 flex flex-col gap-2">
-            
-            <!-- 上方控制列 (循環播放 / 隨機播放) -->
-            <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-emerald-300 font-bold">播放模式：</span>
-                <button id="btn-loop" onclick="toggleLoopMode()" class="btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
-                  <span>🔁</span> <span id="loop-text">單曲循環: 關</span>
-                </button>
-                <button id="btn-shuffle" onclick="toggleShuffleMode()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow">
-                  <span>🔀</span> <span id="shuffle-text">隨機播放: 開</span>
-                </button>
-              </div>
-              <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center gap-1 shrink-0">
-                <span>▶</span> 手動隨機跳轉
-              </button>
-            </div>
-
-            <!-- YouTube iframe 播放器 -->
+          <div class="lg:col-span-2">
             <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
-              <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-
-            <!-- 目前播放曲目顯示列 -->
-            <div class="bg-black/40 px-3 py-2 rounded-xl border border-white/10">
-              <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate block">🎵 目前播放：載入中...</span>
+              <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
           </div>
 
-          <!-- 右側選歌清單 (拉長高度約可顯示 15 首) -->
-          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[340px] sm:h-[405px] lg:h-[455px] overflow-hidden">
-            <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center shrink-0">
-              <span>🎵 曲目清單 (顯示約200首)</span>
-              <span class="text-[10px] text-emerald-300">共 200 首</span>
+          <!-- 自訂選歌清單 (佔 1 欄，可上下捲動選取所有歌曲) -->
+          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-[315px] overflow-hidden">
+            <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center">
+              <span>🎵 點歌清單 (所有歌曲隨選)</span>
+              <span id="current-track-indicator" class="text-[10px] text-emerald-300">播放中</span>
             </div>
             <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
-              <!-- 動態載入 200 首歌曲清單 -->
+              <!-- 動態載入歌曲清單 -->
             </div>
           </div>
         </div>
@@ -1075,37 +1052,13 @@
   let isTimeoutPrompt = false;
   let lastTapTimes = [0, 0];
 
-  // 播放模式開關狀態 (預設隨機播放為打開)
-  let isLoopEnabled = false;
-  let isShuffleEnabled = true;
-
-  // 設定清單精選 15 首曲目對應 (PLQvBYUHGQEcU)
-  const playlistSongs = [];
-  const specialTitles = [
-    "セブン·クッション·伝説 日女演唱會01",
-    "다크호스 3쿠션男搖滾02",
-    "다크호스 3쿠션男搖滾01",
-    "다크호스 3쿠션女搖滾01",
-    "다크호스 3쿠션女演唱01",
-    "다크호스 3쿠션女搖滾02",
-    "三顆星極光白黃互解 02",
-    "開侖三顆星搖滾男粵語 02",
-    "8號撞球王 02",
-    "美式三顆星對戰版 Battle06",
-    "黑馬三顆星主題曲特輯 01",
-    "三顆星技巧解析與進階練習",
-    "球友對戰精選實錄 03",
-    "跟著林師傅學撞球精華 01",
-    "黑馬三顆星實戰對局 15"
+  // 完整可選歌曲清單資料
+  const playlistSongs = [
+    { title: "三顆星極光白黃互解 02", duration: "4:28", index: 0 },
+    { title: "開侖三顆星搖滾男粵語 02", duration: "3:45", index: 1 },
+    { title: "8號撞球王 02", duration: "6:14", index: 2 },
+    { title: "美式三顆星對戰版 Battle06", duration: "5:10", index: 3 }
   ];
-  for (let i = 0; i < 15; i++) {
-    playlistSongs.push({
-      title: specialTitles[i] || `Carom 3cushion song ${String(i + 1).padStart(3, '0')}`,
-      duration: "3:45",
-      vid: "xtT9d4avAW4",
-      index: i
-    });
-  }
   let currentSongIndex = 0;
 
   /* =========================================================
@@ -1117,24 +1070,17 @@
     updateTargetDisplay();
     loadZoomSetting();
     setupDoubleTapHandlers();
-    
-    // 初始化時若隨機播放開啟，直接隨機選一首歌
-    if (isShuffleEnabled && playlistSongs.length > 0) {
-      currentSongIndex = Math.floor(Math.random() * playlistSongs.length);
-    }
-    
     renderSongList();
-    selectSong(currentSongIndex);
     render();
   });
 
-  // 渲染右側清單 15 首歌曲可供選擇
+  // 渲染自訂選歌清單
   function renderSongList() {
     const container = document.getElementById("song-list-container");
     container.innerHTML = playlistSongs.map((song, idx) => `
       <div onclick="selectSong(${idx})" class="playlist-item p-2 rounded-lg bg-black/40 border border-white/10 cursor-pointer flex justify-between items-center ${idx === currentSongIndex ? 'active' : ''}">
         <div class="flex items-center gap-2 truncate">
-          <span class="text-amber-400 font-bold">${idx === currentSongIndex ? '▶' : (idx + 1)}</span>
+          <span class="text-amber-400 font-bold">${idx === currentSongIndex ? '▶' : '🎵'}</span>
           <span class="truncate text-white font-medium">${song.title}</span>
         </div>
         <span class="text-[10px] text-gray-400 whitespace-nowrap ml-2">${song.duration}</span>
@@ -1145,54 +1091,9 @@
   function selectSong(index) {
     currentSongIndex = index;
     renderSongList();
-    const song = playlistSongs[index];
     const player = document.getElementById("youtube-player");
-    
-    // 如果開啟循環播放，帶入 loop 參數
-    let extraParams = isLoopEnabled ? "&loop=1&playlist=" + song.vid : "";
-    player.src = `https://www.youtube.com/embed/${song.vid}?list=PLQvBYUHGQEcU&index=${index}&autoplay=1${extraParams}`;
-    document.getElementById("current-playing-title").textContent = `🎵 目前播放：${song.title}`;
-  }
-
-  // 切換循環播放模式
-  function toggleLoopMode() {
-    isLoopEnabled = !isLoopEnabled;
-    const btn = document.getElementById("btn-loop");
-    const txt = document.getElementById("loop-text");
-    if (isLoopEnabled) {
-      btn.className = "btn-action bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow";
-      txt.textContent = "單曲循環: 開";
-    } else {
-      btn.className = "btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1";
-      txt.textContent = "單曲循環: 關";
-    }
-    selectSong(currentSongIndex);
-  }
-
-  // 切換隨機播放模式
-  function toggleShuffleMode() {
-    isShuffleEnabled = !isShuffleEnabled;
-    const btn = document.getElementById("btn-shuffle");
-    const txt = document.getElementById("shuffle-text");
-    if (isShuffleEnabled) {
-      btn.className = "btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow";
-      txt.textContent = "隨機播放: 開";
-      playRandomSong();
-    } else {
-      btn.className = "btn-action bg-white/10 hover:bg-white/25 text-white px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1";
-      txt.textContent = "隨機播放: 關";
-    }
-  }
-
-  // 隨機跳轉播放功能
-  function playRandomSong() {
-    if (playlistSongs.length === 0) return;
-    let randomIndex;
-    do {
-      randomIndex = Math.floor(Math.random() * playlistSongs.length);
-    } while (randomIndex === currentSongIndex && playlistSongs.length > 1);
-    
-    selectSong(randomIndex);
+    // 利用 YouTube 播放清單參數 index 進行指定曲目切換
+    player.src = `https://www.youtube.com/embed/videoseries?list=PLQvBYUHGQEcU&index=${index}&autoplay=1`;
   }
 
 
