@@ -1,490 +1,2707 @@
+
+Gemini
+
+新對話
+媒體庫
+已排定
+自訂
+新增筆記本
+嘉義番路柿子季：路跑、農產與栽培指南
+e`Best Compression Hosiery Official Product Catalog
+Academia Sinica Weekly 1352: Research Ethics and Academic Achievement
+所有筆記本
+新增多功能記分板按鈕
+新增切換三顆星按鈕
+新增 9號/8號/14-1記分板按鈕
+9號球記分板原始碼更新
+多模式撞球記分板 Pro 改良
+9號球記分板下拉選單設定
+播放清單改為可選歌版本更新
+熱門 YouTube 播放清單推薦
+交換計分板與球號選擇位置
+記分板 App 開發費用評估
+IFrame 置中語法修改教學
+感冒咳嗽伴隨左胸痛解析
+黑馬三顆星 Pro 記分板
+行動裝置計分板橫向優化
+黑馬三顆星 Pro 手機版程式碼修復
+多裝置計分功能調整
+修正黑馬三顆星記分板計分問題
+黑馬三顆星旗艦記分板
+黑馬三顆星記分板程式碼補全
+撞球計分板網頁程式碼開發
+比賽數據自動寫入 Google 試算表
+互動式撞球賽事表產生器
+讓上傳的 HTML 檔生效
+如何在 GitHub 部署 HTML 網頁
+黑馬三顆星旗艦記分板升級
+複雜主題的拆解與理解方法
+和 Gemini 的對話
+新增按鈕可以連去使用多功能記分板
+
+網址 <!doctype html>
+
+<html lang="zh-Hant">
+
+<head>
+
+  <meta charset="UTF-8">
+
+
+
+  <meta
+
+    name="viewport"
+
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+
+  >
+
+
+
+  <title>黑馬三顆星 - 旗艦賽事記分板 Pro 2026</title>
+
+
+
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+
+
+  <link
+
+    href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Fraunces:wght@700;900&display=swap"
+
+    rel="stylesheet"
+
+  >
+
+
+
+  <style>
+
+
+
+    /* =========================================================
+
+       基本設定
+
+       ========================================================= */
+
+
+
+    :root {
+
+      --dark-bg: #071b19;
+
+      --surface: rgba(19, 40, 37, 0.85);
+
+      --gold: #e8bc70;
+
+      --zoom-factor: 1;
+
+    }
+
+
+
+    * {
+
+      box-sizing: border-box;
+
+      touch-action: manipulation;
+
+    }
+
+
+
+    html {
+
+      width: 100%;
+
+      min-height: 100%;
+
+      overflow-x: hidden;
+
+    }
+
+
+
+    body {
+
+      margin: 0;
+
+      background: var(--dark-bg);
+
+      color: #edf5eb;
+
+      font-family: "Work Sans", sans-serif;
+
+
+
+      min-height: 100vh;
+
+
+
+      overflow-x: hidden;
+
+      overflow-y: auto !important;
+
+    }
+
+
+
+    #zoom-container {
+
+      transform-origin: top center;
+
+      transition: transform 0.15s ease-out;
+
+
+
+      width: 100%;
+
+      min-width: 0;
+
+    }
+
+
+
+    .glass {
+
+      background: var(--surface);
+
+      border: 1px solid rgba(192, 231, 209, 0.15);
+
+      border-radius: 20px;
+
+      backdrop-filter: blur(12px);
+
+    }
+
+
+
+    .display-font {
+
+      font-family: "Fraunces", serif;
+
+    }
+
+
+
+    .gold-text {
+
+      color: var(--gold);
+
+    }
+
+
+
+    /* =========================================================
+
+       玩家卡片
+
+       ========================================================= */
+
+
+
+    .active-player {
+
+      border: 3px solid var(--gold);
+
+
+
+      box-shadow:
+
+        0 0 30px rgba(232, 188, 112, 0.4);
+
+
+
+      cursor: pointer;
+
+    }
+
+
+
+    .inactive-player {
+
+      cursor: pointer;
+
+
+
+      opacity: 0.85;
+
+
+
+      border: 3px solid transparent;
+
+
+
+      transition: all 0.2s;
+
+    }
+
+
+
+    .inactive-player:hover {
+
+      opacity: 1;
+
+
+
+      border-color:
+
+        rgba(232, 188, 112, 0.5);
+
+    }
+
+
+
+    /* =========================================================
+
+       LED 分數
+
+       ========================================================= */
+
+
+
+    .led-score {
+
+      font-variant-numeric: tabular-nums;
+
+
+
+      line-height: 1;
+
+
+
+      text-shadow:
+
+        0 0 12px rgba(255, 255, 255, 0.6);
+
+
+
+      cursor: pointer;
+
+
+
+      user-select: none;
+
+    }
+
+
+
+    .led-yellow {
+
+      color: #ffe066 !important;
+
+
+
+      text-shadow:
+
+        0 0 12px rgba(255, 224, 102, 0.7);
+
+    }
+
+
+
+    .led-white {
+
+      color: #ffffff !important;
+
+
+
+      text-shadow:
+
+        0 0 12px rgba(255, 255, 255, 0.65);
+
+    }
+
+
+
+    /* =========================================================
+
+       按鈕
+
+       ========================================================= */
+
+
+
+    .btn-action {
+
+      transition: all 0.15s ease;
+
+
+
+      user-select: none;
+
+    }
+
+
+
+    .btn-action:active {
+
+      transform: scale(0.96);
+
+    }
+
+
+
+    .btn-action:disabled {
+
+      opacity: 0.4;
+
+
+
+      cursor: not-allowed;
+
+    }
+
+
+
+    dialog::backdrop {
+
+      background: rgba(0, 10, 10, 0.85);
+
+
+
+      backdrop-filter: blur(8px);
+
+    }
+
+
+
+    /* =========================================================
+
+       歷史面板
+
+       ========================================================= */
+
+
+
+    .history-panel {
+
+      position: fixed;
+
+
+
+      top: 0;
+
+      right: -400px;
+
+
+
+      width: 380px;
+
+      max-width: 90vw;
+
+
+
+      height: 100vh;
+
+
+
+      background: var(--surface);
+
+
+
+      border-left:
+
+        1px solid rgba(232, 188, 112, 0.3);
+
+
+
+      backdrop-filter: blur(20px);
+
+
+
+      transition:
+
+        right 0.3s ease;
+
+
+
+      z-index: 10000;
+
+
+
+      overflow-y: auto;
+
+
+
+      padding: 20px;
+
+    }
+
+
+
+    .history-panel.open {
+
+      right: 0;
+
+    }
+
+
+
+    .history-item {
+
+      background:
+
+        rgba(0, 0, 0, 0.3);
+
+
+
+      border:
+
+        1px solid rgba(255, 255, 255, 0.1);
+
+
+
+      border-radius: 12px;
+
+
+
+      padding: 12px;
+
+
+
+      margin-bottom: 10px;
+
+
+
+      cursor: pointer;
+
+
+
+      transition: all 0.2s;
+
+    }
+
+
+
+    .history-item:hover {
+
+      border-color: var(--gold);
+
+
+
+      background:
+
+        rgba(232, 188, 112, 0.1);
+
+    }
+
+
+
+    .history-item .winner {
+
+      color: var(--gold);
+
+
+
+      font-weight: bold;
+
+    }
+
+
+
+    /* =========================================================
+
+       播放清單選單樣式
+
+       ========================================================= */
+
+    .playlist-item {
+
+      transition: all 0.2s ease;
+
+    }
+
+    .playlist-item:hover {
+
+      background: rgba(232, 188, 112, 0.15);
+
+      border-color: rgba(232, 188, 112, 0.4);
+
+    }
+
+    .playlist-item.active {
+
+      background: rgba(232, 188, 112, 0.25);
+
+      border-color: var(--gold);
+
+    }
+
+
+
+    /* =========================================================
+
+       ★★★ 強制主記分板排序 ★★★
+
+
+
+       左：player1
+
+       中：center
+
+       右：player2
+
+       ========================================================= */
+
+
+
+    main.grid {
+
+      display: grid !important;
+
+
+
+      grid-template-columns:
+
+        minmax(0, 1fr)
+
+        248px
+
+        minmax(0, 1fr) !important;
+
+
+
+      grid-template-areas:
+
+        "player1 center player2" !important;
+
+
+
+      gap: 1rem !important;
+
+
+
+      align-items: stretch;
+
+
+
+      width: 100%;
+
+    }
+
+
+
+    #player-card-0 {
+
+      grid-area: player1 !important;
+
+
+
+      order: 1 !important;
+
+    }
+
+
+
+    .center-panel {
+
+      grid-area: center !important;
+
+
+
+      order: 2 !important;
+
+    }
+
+
+
+    #player-card-1 {
+
+      grid-area: player2 !important;
+
+
+
+      order: 3 !important;
+
+    }
+
+
+
+    /* =========================================================
+
+       桌機
+
+       ========================================================= */
+
+
+
+    @media (min-width: 1025px) {
+
+
+
+      main.grid {
+
+        grid-template-columns:
+
+          minmax(0, 1fr)
+
+          248px
+
+          minmax(0, 1fr) !important;
+
+
+
+        grid-template-areas:
+
+          "player1 center player2" !important;
+
+      }
+
+
+
+    }
+
+
+
+    /* =========================================================
+
+       平板橫向
+
+       ========================================================= */
+
+
+
+    @media
+
+    (min-width: 640px)
+
+    and (max-width: 1024px)
+
+    and (orientation: landscape) {
+
+
+
+      body {
+
+        overflow-x: hidden !important;
+
+
+
+        overflow-y: auto !important;
+
+      }
+
+
+
+      #zoom-container {
+
+        width: 100%;
+
+
+
+        min-width: 0;
+
+      }
+
+
+
+      #zoom-container > .max-w-7xl {
+
+        max-width: none !important;
+
+
+
+        width: 100%;
+
+      }
+
+
+
+      main.grid {
+
+        display: grid !important;
+
+
+
+        grid-template-columns:
+
+          minmax(0, 1fr)
+
+          220px
+
+          minmax(0, 1fr) !important;
+
+
+
+        grid-template-areas:
+
+          "player1 center player2" !important;
+
+
+
+        gap: 0.75rem !important;
+
+      }
+
+
+
+      #player-card-0,
+
+      .center-panel,
+
+      #player-card-1 {
+
+        min-width: 0;
+
+      }
+
+
+
+      .led-score {
+
+        font-size:
+
+          calc(5.5rem * var(--zoom-factor)) !important;
+
+      }
+
+
+
+    }
+
+
+
+    /* =========================================================
+
+       手機橫向
+
+       ========================================================= */
+
+
+
+    @media
+
+    (max-width: 639px)
+
+    and (orientation: landscape) {
+
+
+
+      html,
+
+      body {
+
+        width: 100%;
+
+
+
+        min-width: 100%;
+
+
+
+        overflow-x: hidden !important;
+
+
+
+        overflow-y: auto !important;
+
+      }
+
+
+
+      body {
+
+        padding: 0.3rem !important;
+
+      }
+
+
+
+      #zoom-container {
+
+        width: 100%;
+
+
+
+        min-width: 0;
+
+      }
+
+
+
+      #zoom-container > .max-w-7xl {
+
+        width: 100%;
+
+
+
+        max-width: none !important;
+
+
+
+        padding: 0 !important;
+
+
+
+        margin: 0 auto;
+
+      }
+
+
+
+      header.glass {
+
+        padding:
+
+          0.4rem
+
+          0.6rem !important;
+
+
+
+        margin-bottom:
+
+          0.45rem !important;
+
+      }
+
+
+
+      header.glass h1 {
+
+        font-size:
+
+          0.95rem !important;
+
+      }
+
+
+
+      main.grid {
+
+        display: grid !important;
+
+
+
+        grid-template-columns:
+
+          minmax(0, 1fr)
+
+          190px
+
+          minmax(0, 1fr) !important;
+
+
+
+        grid-template-areas:
+
+          "player1 center player2" !important;
+
+
+
+        gap:
+
+          0.5rem !important;
+
+
+
+        width: 100% !important;
+
+
+
+        margin-bottom:
+
+          0.5rem !important;
+
+      }
+
+
+
+      #player-card-0 {
+
+        grid-area:
+
+          player1 !important;
+
+
+
+        order: 1 !important;
+
+      }
+
+
+
+      section.glass.center-panel {
+
+        grid-area:
+
+          center !important;
+
+
+
+        order: 2 !important;
+
+      }
+
+
+
+      #player-card-1 {
+
+        grid-area:
+
+          player2 !important;
+
+
+
+        order: 3 !important;
+
+      }
+
+
+
+      article.glass,
+
+      section.glass.center-panel {
+
+        padding:
+
+          calc(0.5rem * var(--zoom-factor))
+
+          !important;
+
+
+
+        min-width: 0 !important;
+
+      }
+
+
+
+      .led-score {
+
+        font-size:
+
+          calc(3.8rem * var(--zoom-factor))
+
+          !important;
+
+
+
+        line-height:
+
+          0.9 !important;
+
+      }
+
+
+
+    }
+
+
+
+    /* =========================================================
+
+       手機直向
+
+       ========================================================= */
+
+
+
+    @media
+
+    (max-width: 639px)
+
+    and (orientation: portrait) {
+
+
+
+      html {
+
+        overflow-x: auto !important;
+
+
+
+        overflow-y: auto !important;
+
+      }
+
+
+
+      body {
+
+        overflow-x: auto !important;
+
+
+
+        overflow-y: auto !important;
+
+
+
+        padding:
+
+          0.5rem !important;
+
+      }
+
+
+
+      #zoom-container {
+
+        width: 100%;
+
+
+
+        min-width: 720px;
+
+      }
+
+
+
+      #zoom-container > .max-w-7xl {
+
+        max-width: none !important;
+
+
+
+        width: 100%;
+
+      }
+
+
+
+      main.grid {
+
+        display: grid !important;
+
+
+
+        grid-template-columns:
+
+          minmax(0, 1fr)
+
+          190px
+
+          minmax(0, 1fr) !important;
+
+
+
+        grid-template-areas:
+
+          "player1 center player2" !important;
+
+
+
+        gap:
+
+          0.5rem !important;
+
+      }
+
+
+
+      #player-card-0 {
+
+        grid-area:
+
+          player1 !important;
+
+
+
+        order: 1 !important;
+
+      }
+
+
+
+      .center-panel {
+
+        grid-area:
+
+          center !important;
+
+
+
+        order: 2 !important;
+
+      }
+
+
+
+      #player-card-1 {
+
+        grid-area:
+
+          player2 !important;
+
+
+
+        order: 3 !important;
+
+      }
+
+
+
+    }
+
+
+
+  </style>
+
+</head>
+
+
+
+<body class="p-2 sm:p-6 pb-16">
+
+
+
+<div id="zoom-container">
+
+
+
+  <div class="max-w-7xl mx-auto">
+
+
+
+    <!-- =====================================================
+
+         Header
+
+         ===================================================== -->
+
+
+
+    <header
+
+      class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6"
+
+    >
+
+
+
+      <div class="flex items-center gap-2.5">
+
+
+
+        <div class="text-2xl sm:text-3xl">
+
+          🐴
+
+        </div>
+
+
+
+        <div>
+
+
+
+          <div class="flex items-baseline gap-2 flex-wrap">
+
+
+
+            <h1
+
+              class="text-lg sm:text-2xl font-extrabold tracking-wider text-amber-400 display-font"
+
+            >
+
+              黑馬三顆星 Pro
+
+            </h1>
+
+
+
+            <span
+
+              class="text-[10px] sm:text-xs font-semibold text-emerald-300/90 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-md"
+
+            >
+
+              2026 Mobile/Tablet Edition
+
+            </span>
+
+
+
+          </div>
+
+
+
+          <p
+
+            class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5"
+
+          >
+
+            DARK HORSE 3-CUSHION MATCH SYSTEM
+
+          </p>
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+      <!-- 控制列 -->
+
+
+
+      <div
+
+        class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end"
+
+      >
+
+
+
+        <button
+
+          id="start-btn"
+
+          onclick="startMatch()"
+
+          class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-md"
+
+        >
+
+          ▶️ 開始比賽
+
+        </button>
+
+
+
+        <button
+
+          id="pause-btn"
+
+          onclick="pauseMatch()"
+
+          class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
+
+          disabled
+
+        >
+
+          ⏸ 暫停
+
+        </button>
+
+
+
+        <button
+
+          id="resume-btn"
+
+          onclick="resumeMatch()"
+
+          class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden"
+
+        >
+
+          ▶ 繼續
+
+        </button>
+
+
+
+        <button
+
+          onclick="resetMatch()"
+
+          class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
+
+        >
+
+          🔄 重設
+
+        </button>
+
+
+
+        <button
+
+          onclick="generateReport()"
+
+          class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
+
+        >
+
+          📸 戰報
+
+        </button>
+
+
+
+        <span class="text-white/20">
+
+          |
+
+        </span>
+
+
+
+        <!-- 分享按鈕列 -->
+
+        <button
+
+          onclick="shareToFB()"
+
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-600/40 text-blue-300 hover:bg-blue-600/60 border border-blue-500/40"
+
+        >
+
+          📘 分享 FB
+
+        </button>
+
+
+
+        <button
+
+          onclick="shareToLine()"
+
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600/40 text-emerald-300 hover:bg-emerald-600/60 border border-emerald-500/40"
+
+        >
+
+          💬 分享 LINE
+
+        </button>
+
+
+
+        <button
+
+          onclick="copyShareText()"
+
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-500/30 text-amber-300 hover:bg-amber-500/50 border border-amber-400/40"
+
+        >
+
+          📋 複製文案
+
+        </button>
+
+
+
+        <span class="text-white/20">
+
+          |
+
+        </span>
+
+
+
+        <button
+
+          onclick="setDeviceMode('mobile')"
+
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-sky-600/30 text-sky-300 hover:bg-sky-600/50 border border-sky-500/40"
+
+        >
+
+          📱 手機版
+
+        </button>
+
+
+
+        <button
+
+          onclick="setDeviceMode('tablet')"
+
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/40"
+
+        >
+
+          📋 平板版
+
+        </button>
+
+
+
+        <span class="text-white/20">
+
+          |
+
+        </span>
+
+
+
+        <!-- 新增切換到 8/9號/14-1 記分板按鈕 -->
+
+        <a
+
+          href="https://ericwww22.github.io/3CUSHION//89%E8%A8%98%E5%88%86%E6%9D%BF.html"
+
+          class="btn-action flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-purple-600/40 text-purple-200 hover:bg-purple-600/60 border border-purple-400/50"
+
+        >
+
+          <span>🎱</span>
+
+          <span>9號/8號/14-1/9號(大小金制)</span>
+
+        </a>
+
+
+
+        <a
+
+          href="https://www.youtube.com/@taiwan3cushion"
+
+          target="_blank"
+
+          rel="noopener noreferrer"
+
+          class="btn-action flex items-center gap-1 px-2 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white border border-red-400/40"
+
+        >
+
+          <span>🔴</span>
+
+          <span>頻道</span>
+
+        </a>
+
+
+
+        <button
+
+          onclick="toggleHistoryPanel()"
+
+          class="btn-action px-2 py-1 text-xs font-bold rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40"
+
+        >
+
+          📜 歷史
+
+        </button>
+
+
+
+        <button
+
+          onclick="toggleSettingsModal()"
+
+          class="btn-action px-2 py-1 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40"
+
+        >
+
+          ⚙️ 設定
+
+        </button>
+
+
+
+        <span
+
+          id="match-status"
+
+          class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+
+        >
+
+          準備中
+
+        </span>
+
+
+
+        <!-- 縮放 -->
+
+
+
+        <div
+
+          class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden"
+
+        >
+
+
+
+          <button
+
+            onclick="adjustZoom(-0.08)"
+
+            class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition"
+
+          >
+
+            -
+
+          </button>
+
+
+
+          <span
+
+            id="zoom-level-display"
+
+            class="px-1 text-xs font-mono text-amber-300"
+
+          >
+
+            100%
+
+          </span>
+
+
+
+          <button
+
+            onclick="adjustZoom(0.08)"
+
+            class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition"
+
+          >
+
+            +
+
+          </button>
+
+
+
+          <button
+
+            onclick="resetZoom()"
+
+            class="px-1.5 py-1 text-xs hover:bg-white/20 text-emerald-200 border-l border-white/10"
+
+          >
+
+            ↺
+
+          </button>
+
+
+
+        </div>
+
+
+
+        <button
+
+          onclick="toggleFullscreen()"
+
+          class="px-2 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 hidden sm:inline-block"
+
+        >
+
+          ⛶ 全螢幕
+
+        </button>
+
+
+
+      </div>
+
+
+
+    </header>
+
+
+
+
+
+    <!-- =====================================================
+
+         ★★★ 主記分板
+
+         ===================================================== -->
+
+
+
+    <main
+
+      id="scoreboard-main"
+
+      class="grid gap-3 sm:gap-4 mb-4 sm:mb-6"
+
+    >
+
+
+
+      <!-- PLAYER 1 -->
+
+      <article
+
+        id="player-card-0"
+
+        onclick="handleCardClick(0)"
+
+        class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player"
+
+      >
+
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+
+          <span id="name-display-0" class="text-base sm:text-xl font-bold gold-text">林師傅 (白球)</span>
+
+          <span id="turn-tag-0" class="text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-amber-400 text-black font-bold">● 擊球中</span>
+
+        </div>
+
+        <div class="my-2 sm:my-4 text-center">
+
+          <div id="score-0" class="led-score display-font text-6xl sm:text-9xl font-black led-white">0</div>
+
+        </div>
+
+        <div class="stat-box grid grid-cols-3 gap-1.5 text-center text-xs text-emerald-100/70 mb-2 sm:mb-4 bg-white/5 p-2 rounded-xl">
+
+          <div>Inning<br><strong id="inning-0" class="text-base sm:text-lg text-white font-bold">0</strong></div>
+
+          <div>AVG<br><strong id="avg-0" class="text-base sm:text-lg text-amber-300 font-bold">0.000</strong></div>
+
+          <div>High Run<br><strong id="hr-0" class="text-base sm:text-lg text-red-400 font-bold">0</strong></div>
+
+        </div>
+
+        <div class="timeout-box flex justify-between items-center bg-black/40 px-3 py-1 sm:py-1.5 rounded-lg mb-2 sm:mb-3 border border-white/10 text-xs">
+
+          <span class="text-emerald-200/60">延長牌</span>
+
+          <span id="timeout-count-0" class="font-bold text-amber-300">剩餘 2 次</span>
+
+        </div>
+
+        <div class="action-btn-group grid grid-cols-3 gap-2" onclick="event.stopPropagation()">
+
+          <button onclick="addScore(0,-1)" id="btn-minus-0" class="btn-action bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-2 sm:py-3 rounded-xl text-sm sm:text-base">-1</button>
+
+          <button onclick="useTimeout(0)" id="btn-timeout-0" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 sm:py-3 rounded-xl text-xs">⏱ 延長</button>
+
+          <button onclick="addScore(0,1)" id="btn-plus-0" class="btn-action btn-plus bg-red-600 hover:bg-red-500 text-white font-extrabold py-2 sm:py-3 rounded-xl text-xl sm:text-2xl">+1</button>
+
+        </div>
+
+      </article>
+
+
+
+      <!-- CENTER PANEL -->
+
+      <section class="glass center-panel p-4 sm:p-5 flex flex-col justify-between text-center items-center">
+
+        <div>
+
+          <div id="target-display" class="text-base sm:text-xl font-black text-amber-300 tracking-wide">目標 15 分</div>
+
+        </div>
+
+        <div class="bg-black/40 border border-white/10 rounded-xl px-2 py-1 w-full text-center my-0.5 sm:my-1">
+
+          <span class="text-[10px] text-emerald-200/60 block">當前進程</span>
+
+          <span id="current-inning-display" class="text-xs sm:text-base font-bold text-emerald-200">第 1 桿</span>
+
+        </div>
+
+        <button id="switch-btn" onclick="switchTurn()" class="btn-action w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold py-2.5 sm:py-3 rounded-xl text-base sm:text-lg my-0.5 sm:my-1">⇦ 失誤 / 換人</button>
+
+        <div class="bg-black/40 border border-white/10 rounded-xl px-2 py-1 w-full text-center my-0.5 sm:my-1">
+
+          <span class="text-[10px] text-emerald-200/60 block">比賽時間</span>
+
+          <span id="elapsed-time" class="text-sm sm:text-lg font-bold text-amber-300 font-mono">00:00</span>
+
+        </div>
+
+        <div class="w-full my-0.5 sm:my-1">
+
+          <span id="timer-label" class="text-[10px] sm:text-[11px] text-emerald-200/60 block mb-0.5">Shot Clock</span>
+
+          <div id="timer" class="display-font text-4xl sm:text-5xl font-black led-score text-white my-0.5">40</div>
+
+          <div class="w-full bg-white/10 h-1.5 sm:h-2 rounded-full overflow-hidden mt-0.5 sm:mt-1">
+
+            <div id="timer-bar" class="bg-amber-400 h-full w-full transition-all duration-200"></div>
+
+          </div>
+
+        </div>
+
+        <p class="text-[10px] text-emerald-100/50 mt-1 hidden sm:block">黑馬三顆星 ‧ 就是這樣中！</p>
+
+      </section>
+
+
+
+      <!-- PLAYER 2 -->
+
+      <article
+
+        id="player-card-1"
+
+        onclick="handleCardClick(1)"
+
+        class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player"
+
+      >
+
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+
+          <span id="name-display-1" class="text-base sm:text-xl font-bold gold-text">黑馬 (黃球)</span>
+
+          <span id="turn-tag-1" class="text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-amber-400 text-black font-bold hidden">● 擊球中</span>
+
+        </div>
+
+        <div class="my-2 sm:my-4 text-center">
+
+          <div id="score-1" class="led-score display-font text-6xl sm:text-9xl font-black led-yellow">0</div>
+
+        </div>
+
+        <div class="stat-box grid grid-cols-3 gap-1.5 text-center text-xs text-emerald-100/70 mb-2 sm:mb-4 bg-white/5 p-2 rounded-xl">
+
+          <div>Inning<br><strong id="inning-1" class="text-base sm:text-lg text-white font-bold">0</strong></div>
+
+          <div>AVG<br><strong id="avg-1" class="text-base sm:text-lg text-amber-300 font-bold">0.000</strong></div>
+
+          <div>High Run<br><strong id="hr-1" class="text-base sm:text-lg text-red-400 font-bold">0</strong></div>
+
+        </div>
+
+        <div class="timeout-box flex justify-between items-center bg-black/40 px-3 py-1 sm:py-1.5 rounded-lg mb-2 sm:mb-3 border border-white/10 text-xs">
+
+          <span class="text-emerald-200/60">延長牌</span>
+
+          <span id="timeout-count-1" class="font-bold text-amber-300">剩餘 2 次</span>
+
+        </div>
+
+        <div class="action-btn-group grid grid-cols-3 gap-2" onclick="event.stopPropagation()">
+
+          <button onclick="addScore(1,-1)" id="btn-minus-1" class="btn-action bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-2 sm:py-3 rounded-xl text-sm sm:text-base">-1</button>
+
+          <button onclick="useTimeout(1)" id="btn-timeout-1" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 sm:py-3 rounded-xl text-xs">⏱ 延長</button>
+
+          <button onclick="addScore(1,1)" id="btn-plus-1" class="btn-action btn-plus bg-red-600 hover:bg-red-500 text-white font-extrabold py-2 sm:py-3 rounded-xl text-xl sm:text-2xl">+1</button>
+
+        </div>
+
+      </article>
+
+
+
+    </main>
+
+
+
+
+
+    <!-- =====================================================
+
+         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側拉長 15 首清單)
+
+         ===================================================== -->
+
+
+
+    <section class="glass media-section p-4 sm:p-5 mb-6">
+
+
+
+      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
+
+        <div class="flex items-center gap-2">
+
+          <span class="text-lg sm:text-xl">🎧</span>
+
+          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (15首)</h2>
+
+        </div>
+
+        <div class="flex gap-2">
+
+          <button onclick="switchMedia('playlist')" id="tab-playlist" class="btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm">▶️ 播放清單</button>
+
+          <button onclick="switchMedia('podcasts')" id="tab-podcasts" class="btn-action px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm">🎙️ Podcasts</button>
+
+        </div>
+
+      </div>
+
+
+
+      <div id="media-playlist">
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+
+          <!-- 影片播放器 (佔 2 欄) -->
+
+          <div class="lg:col-span-2 flex flex-col gap-2">
+
+            
+
+            <!-- 上方控制列 (循環播放 / 隨機播放) -->
+
+            <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
+
+              <div class="flex items-center gap-2">
+
+                <span class="text-xs text-emerald-300 font-bold">播放模式：</span>
+
+                <button id="btn-loop" onclick="toggleLoopMode()" class="btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
+
+                  <span>🔁</span> <span id="loop-text">單曲循環: 關</span>
+
+                </button>
+
+                <button id="btn-shuffle" onclick="toggleShuffleMode()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 border border-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow">
+
+                  <span>🔀</span> <span id="shuffle-text">隨機播放: 開</span>
+
+                </button>
+
+              </div>
+
+              <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center gap-1 shrink-0">
+
+                <span>▶</span> 手動隨機跳轉
+
+              </button>
+
+            </div>
+
+
+
+            <!-- YouTube iframe 播放器 -->
+
+            <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
+
+              <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+            </div>
+
+
+
+            <!-- 目前播放曲目顯示列 -->
+
+            <div class="bg-black/40 px-3 py-2 rounded-xl border border-white/10">
+
+              <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate block">🎵 目前播放：載入中...</span>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- 右側選歌清單 (拉長高度約可顯示 15 首) -->
+
+          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[340px] sm:h-[405px] lg:h-[455px] overflow-hidden">
+
+            <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center shrink-0">
+
+              <span>🎵 曲目清單 (顯示約15首)</span>
+
+              <span class="text-[10px] text-emerald-300">共 15 首</span>
+
+            </div>
+
+            <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
+
+              <!-- 動態載入 15 首歌曲清單 -->
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div id="media-podcasts" class="hidden">
+
+        <div class="rounded-xl border border-white/10 bg-black/60 p-6 text-center">
+
+          <div class="text-4xl mb-2">🎙️</div>
+
+          <h3 class="text-amber-300 font-bold text-base mb-1">黑馬 Podcasts 節目</h3>
+
+          <p class="text-emerald-100/70 text-xs mb-4">點擊下方按鈕前往收聽線上對談與精選音訊。</p>
+
+          <a href="https://www.youtube.com/@taiwan3cushion/podcasts" target="_blank" rel="noopener noreferrer" class="inline-block btn-action bg-red-600 hover:bg-red-500 text-white font-extrabold px-5 py-2 rounded-xl text-sm">🎧 開啟 Podcasts 頻道</a>
+
+        </div>
+
+      </div>
+
+
+
+    </section>
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+
+<!-- =========================================================
+
+     歷史面板
+
+     ========================================================= -->
+
+<div id="history-panel" class="history-panel">
+
+  <div class="flex justify-between items-center mb-4">
+
+    <h3 class="text-lg font-bold text-amber-400">📜 對局歷史</h3>
+
+    <button onclick="toggleHistoryPanel()" class="text-gray-400 hover:text-white text-xl">&times;</button>
+
+  </div>
+
+  <div id="history-list"></div>
+
+  <div class="mt-4 pt-4 border-t border-white/10">
+
+    <button onclick="clearHistory()" class="btn-action w-full bg-red-900/60 hover:bg-red-800 text-red-200 py-2 rounded-xl text-sm">清除所有歷史</button>
+
+  </div>
+
+</div>
+
+
+
+
+
+<!-- =========================================================
+
+     設定 Dialog
+
+     ========================================================= -->
+
+<dialog id="settings-modal" class="p-6 text-white glass border border-amber-400/50 rounded-3xl max-w-3xl w-full shadow-2xl">
+
+  <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-4">
+
+    <h2 class="text-xl font-bold text-amber-300">⚙️ 賽事與系統設定</h2>
+
+    <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+
+  </div>
+
+  <div class="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+
+    <div>
+
+      <h3 class="text-sm font-bold text-emerald-300 mb-2">👤 選手與母球</h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-black/40 p-3 rounded-xl border border-white/10">
+
+        <div>
+
+          <label class="block text-xs text-emerald-200/70 mb-1">選手一 姓名</label>
+
+          <input id="name-input-0" type="text" value="林師傅" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm font-bold" onchange="updateNames()">
+
+        </div>
+
+        <div>
+
+          <label class="block text-xs text-emerald-200/70 mb-1">選手一 母球</label>
+
+          <select id="ball-color-0" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm font-bold" onchange="onBallColorChange()">
+
+            <option value="white" selected>⚪ 白球</option>
+
+            <option value="yellow">🟡 黃球</option>
+
+          </select>
+
+        </div>
+
+        <div>
+
+          <label class="block text-xs text-emerald-200/70 mb-1">選手二 姓名</label>
+
+          <input id="name-input-1" type="text" value="黑馬" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm font-bold" onchange="updateNames()">
+
+        </div>
+
+        <div>
+
+          <label class="block text-xs text-emerald-200/70 mb-1">選手二 母球</label>
+
+          <select id="ball-color-1" class="w-full bg-slate-900/60 border border-white/10 rounded-lg p-2 text-sm font-bold text-gray-400" disabled>
+
+            <option value="yellow" selected>🟡 黃球</option>
+
+            <option value="white">⚪ 白球</option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div>
+
+      <h3 class="text-sm font-bold text-emerald-300 mb-2">🎯 賽制規則</h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-black/40 p-3 rounded-xl border border-white/10">
+
+        <div>
+
+          <label class="block text-xs text-emerald-200/70 mb-1">目標分數</label>
+
+          <select id="target-score" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm" onchange="updateTargetDisplay()">
+
+            <option value="15" selected>15 分</option>
+
+            <option value="25">25 分</option>
+
+            <option value="30">30 分</option>
+
+            <option value="40">40 分</option>
+
+            <option value="50">50 分</option>
+
+          </select>
+
+        </div>
+
+        <div>
+
+          <label class="block text-xs text-emerald-200/70 mb-1">Shot Clock</label>
+
+          <select id="shot-duration" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm" onchange="updateShotDuration()">
+
+            <option value="30">30 秒</option>
+
+            <option value="40" selected>40 秒</option>
+
+            <option value="50">50 秒</option>
+
+            <option value="60">60 秒</option>
+
+          </select>
+
+        </div>
+
+        <div>
+
+          <label class="block text-xs text-emerald-200/70 mb-1">延長牌</label>
+
+          <select id="timeout-limit" class="w-full bg-slate-900 border borde 
+
+已完成程式碼修改。我在原本「黑馬三顆星 Pro」的三顆星記分板導覽列中，新增了一個前往 「9號/8號/14-1/9號(大小金制)」多功能記分板 的按鈕，讓您可以直接在兩個頁面之間快速切換。   
+HTML
+
+以下是更新後的完整 HTML 程式碼，您可以直接複製使用：
+
+HTML
 <!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>旗艦撞球記分板 Pro - 14-1 / 8號球 / 9號球 / 三顆星 (大小金)</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+  <title>黑馬三顆星 - 旗艦賽事記分板 Pro 2026</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Fraunces:wght@700;900&display=swap"
+    rel="stylesheet"
+  >
   <style>
+    /* =========================================================
+        基本設定
+        ========================================================= */
     :root {
       --dark-bg: #071b19;
       --surface: rgba(19, 40, 37, 0.85);
       --gold: #e8bc70;
+      --zoom-factor: 1;
     }
-    * { box-sizing: border-box; touch-action: manipulation; }
-    html, body { width: 100%; min-height: 100vh; margin: 0; background: var(--dark-bg); color: #edf5eb; font-family: "Work Sans", sans-serif; overflow-x: hidden; }
-    .glass { background: var(--surface); border: 1px solid rgba(192, 231, 209, 0.15); border-radius: 20px; backdrop-filter: blur(12px); }
-    .display-font { font-family: "Fraunces", serif; }
-    .gold-text { color: var(--gold); }
-    .active-player { border: 3px solid var(--gold); box-shadow: 0 0 30px rgba(232, 188, 112, 0.4); cursor: pointer; }
-    .inactive-player { cursor: pointer; opacity: 0.85; border: 3px solid transparent; transition: all 0.2s; }
-    .inactive-player:hover { opacity: 1; border-color: rgba(232, 188, 112, 0.5); }
-    .led-score { font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 12px rgba(255, 255, 255, 0.6); user-select: none; }
-    .btn-action { transition: all 0.15s ease; user-select: none; }
-    .btn-action:active { transform: scale(0.96); }
-    .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
-    dialog::backdrop { background: rgba(0, 10, 10, 0.85); backdrop-filter: blur(8px); }
-    main.grid { display: grid !important; grid-template-columns: minmax(0, 1fr) 260px minmax(0, 1fr) !important; grid-template-areas: "player1 center player2" !important; gap: 1rem !important; align-items: stretch; width: 100%; }
-    #player-card-0 { grid-area: player1 !important; order: 1 !important; }
-    .center-panel { grid-area: center !important; order: 2 !important; }
-    #player-card-1 { grid-area: player2 !important; order: 3 !important; }
+    * {
+      box-sizing: border-box;
+      touch-action: manipulation;
+    }
+    html {
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+    body {
+      margin: 0;
+      background: var(--dark-bg);
+      color: #edf5eb;
+      font-family: "Work Sans", sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+    }
+    #zoom-container {
+      transform-origin: top center;
+      transition: transform 0.15s ease-out;
+      width: 100%;
+      min-width: 0;
+    }
+    .glass {
+      background: var(--surface);
+      border: 1px solid rgba(192, 231, 209, 0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+    }
+    .display-font {
+      font-family: "Fraunces", serif;
+    }
+    .gold-text {
+      color: var(--gold);
+    }
+    /* =========================================================
+        玩家卡片
+        ========================================================= */
+    .active-player {
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 30px rgba(232, 188, 112, 0.4);
+      cursor: pointer;
+    }
+    .inactive-player {
+      cursor: pointer;
+      opacity: 0.85;
+      border: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .inactive-player:hover {
+      opacity: 1;
+      border-color: rgba(232, 188, 112, 0.5);
+    }
+    /* =========================================================
+        LED 分數
+        ========================================================= */
+    .led-score {
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      user-select: none;
+    }
+    .led-yellow {
+      color: #ffe066 !important;
+      text-shadow: 0 0 12px rgba(255, 224, 102, 0.7);
+    }
+    .led-white {
+      color: #ffffff !important;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.65);
+    }
+    /* =========================================================
+        按鈕
+        ========================================================= */
+    .btn-action {
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .btn-action:active {
+      transform: scale(0.96);
+    }
+    .btn-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    dialog::backdrop {
+      background: rgba(0, 10, 10, 0.85);
+      backdrop-filter: blur(8px);
+    }
+    /* =========================================================
+        歷史面板
+        ========================================================= */
+    .history-panel {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 380px;
+      max-width: 90vw;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid rgba(232, 188, 112, 0.3);
+      backdrop-filter: blur(20px);
+      transition: right 0.3s ease;
+      z-index: 10000;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .history-panel.open {
+      right: 0;
+    }
+    .history-item {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .history-item:hover {
+      border-color: var(--gold);
+      background: rgba(232, 188, 112, 0.1);
+    }
+    .history-item .winner {
+      color: var(--gold);
+      font-weight: bold;
+    }
+    /* =========================================================
+        播放清單選單樣式
+        ========================================================= */
+    .playlist-item {
+      transition: all 0.2s ease;
+    }
+    .playlist-item:hover {
+      background: rgba(232, 188, 112, 0.15);
+      border-color: rgba(232, 188, 112, 0.4);
+    }
+    .playlist-item.active {
+      background: rgba(232, 188, 112, 0.25);
+      border-color: var(--gold);
+    }
+    /* =========================================================
+        ★★★ 強制主記分板排序 ★★★
+        左：player1
+        中：center
+        右：player2
+        ========================================================= */
+    main.grid {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 248px minmax(0, 1fr) !important;
+      grid-template-areas: "player1 center player2" !important;
+      gap: 1rem !important;
+      align-items: stretch;
+      width: 100%;
+    }
+    #player-card-0 {
+      grid-area: player1 !important;
+      order: 1 !important;
+    }
+    .center-panel {
+      grid-area: center !important;
+      order: 2 !important;
+    }
+    #player-card-1 {
+      grid-area: player2 !important;
+      order: 3 !important;
+    }
+    /* =========================================================
+        桌機
+        ========================================================= */
+    @media (min-width: 1025px) {
+      main.grid {
+        grid-template-columns: minmax(0, 1fr) 248px minmax(0, 1fr) !important;
+        grid-template-areas: "player1 center player2" !important;
+      }
+    }
+    /* =========================================================
+        平板橫向
+        ========================================================= */
+    @media (min-width: 640px) and (max-width: 1024px) and (orientation: landscape) {
+      body {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+      #zoom-container {
+        width: 100%;
+        min-width: 0;
+      }
+      #zoom-container > .max-w-7xl {
+        max-width: none !important;
+        width: 100%;
+      }
+      main.grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1fr) !important;
+        grid-template-areas: "player1 center player2" !important;
+        gap: 0.75rem !important;
+      }
+      #player-card-0,
+      .center-panel,
+      #player-card-1 {
+        min-width: 0;
+      }
+      .led-score {
+        font-size: calc(5.5rem * var(--zoom-factor)) !important;
+      }
+    }
+    /* =========================================================
+        手機橫向
+        ========================================================= */
+    @media (max-width: 639px) and (orientation: landscape) {
+      html, body {
+        width: 100%;
+        min-width: 100%;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+      body {
+        padding: 0.3rem !important;
+      }
+      #zoom-container {
+        width: 100%;
+        min-width: 0;
+      }
+      #zoom-container > .max-w-7xl {
+        width: 100%;
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 auto;
+      }
+      header.glass {
+        padding: 0.4rem 0.6rem !important;
+        margin-bottom: 0.45rem !important;
+      }
+      header.glass h1 {
+        font-size: 0.95rem !important;
+      }
+      main.grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 190px minmax(0, 1fr) !important;
+        grid-template-areas: "player1 center player2" !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
+      }
+      #player-card-0 {
+        grid-area: player1 !important;
+        order: 1 !important;
+      }
+      section.glass.center-panel {
+        grid-area: center !important;
+        order: 2 !important;
+      }
+      #player-card-1 {
+        grid-area: player2 !important;
+        order: 3 !important;
+      }
+      article.glass,
+      section.glass.center-panel {
+        padding: calc(0.5rem * var(--zoom-factor)) !important;
+        min-width: 0 !important;
+      }
+      .led-score {
+        font-size: calc(3.8rem * var(--zoom-factor)) !important;
+        line-height: 0.9 !important;
+      }
+    }
+    /* =========================================================
+        手機直向
+        ========================================================= */
+    @media (max-width: 639px) and (orientation: portrait) {
+      html {
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+      }
+      body {
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+        padding: 0.5rem !important;
+      }
+      #zoom-container {
+        width: 100%;
+        min-width: 720px;
+      }
+      #zoom-container > .max-w-7xl {
+        max-width: none !important;
+        width: 100%;
+      }
+      main.grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 190px minmax(0, 1fr) !important;
+        grid-template-areas: "player1 center player2" !important;
+        gap: 0.5rem !important;
+      }
+      #player-card-0 {
+        grid-area: player1 !important;
+        order: 1 !important;
+      }
+      .center-panel {
+        grid-area: center !important;
+        order: 2 !important;
+      }
+      #player-card-1 {
+        grid-area: player2 !important;
+        order: 3 !important;
+      }
+    }
   </style>
 </head>
 <body class="p-2 sm:p-6 pb-16">
+
 <div id="zoom-container">
   <div class="max-w-7xl mx-auto">
-    <!-- Header -->
+
+    <!-- =====================================================
+         Header
+         ===================================================== -->
     <header class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6">
       <div class="flex items-center gap-2.5">
-        <div class="text-2xl sm:text-3xl">🎱</div>
+        <div class="text-2xl sm:text-3xl">🐴</div>
         <div>
           <div class="flex items-baseline gap-2 flex-wrap">
-            <h1 class="text-lg sm:text-2xl font-extrabold tracking-wider text-amber-400 display-font">多功能撞球記分板 Pro</h1>
-            <span id="header-rule-badge" class="text-[10px] sm:text-xs font-semibold text-emerald-300/95 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-md">14-1 (14.1 Continuous)</span>
+            <h1 class="text-lg sm:text-2xl font-extrabold tracking-wider text-amber-400 display-font">
+              黑馬三顆星 Pro
+            </h1>
+            <span class="text-[10px] sm:text-xs font-semibold text-emerald-300/90 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-md">
+              2026 Mobile/Tablet Edition
+            </span>
           </div>
-          <p class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5">14-1 / 8BALL / 9BALL / 三顆星開侖</p>
+          <p class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5">
+            DARK HORSE 3-CUSHION MATCH SYSTEM
+          </p>
         </div>
       </div>
+
+      <!-- 控制列 -->
       <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end">
-        <!-- 新增切換到三顆星按鈕 -->
-        <button onclick="switchToCarom3Cushion()" class="btn-action bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm">⭐ 切換三顆星</button>
-        <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm">▶️ 開始比賽</button>
-        <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
-        <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
-        <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm">🔄 重設</button>
-        <button onclick="toggleSettingsModal()" class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40">⚙️ 賽制設定</button>
-        <span id="match-status" class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
+        <button
+          id="start-btn"
+          onclick="startMatch()"
+          class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-md"
+        >
+          ▶️ 開始比賽
+        </button>
+
+        <button
+          id="pause-btn"
+          onclick="pauseMatch()"
+          class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
+          disabled
+        >
+          ⏸ 暫停
+        </button>
+
+        <button
+          id="resume-btn"
+          onclick="resumeMatch()"
+          class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden"
+        >
+          ▶ 繼續
+        </button>
+
+        <button
+          onclick="resetMatch()"
+          class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
+        >
+          🔄 重設
+        </button>
+
+        <button
+          onclick="generateReport()"
+          class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
+        >
+          📸 戰報
+        </button>
+
+        <span class="text-white/20">|</span>
+
+        <!-- 分享按鈕列 -->
+        <button
+          onclick="shareToFB()"
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-600/40 text-blue-300 hover:bg-blue-600/60 border border-blue-500/40"
+        >
+          📘 分享 FB
+        </button>
+
+        <button
+          onclick="shareToLine()"
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600/40 text-emerald-300 hover:bg-emerald-600/60 border border-emerald-500/40"
+        >
+          💬 分享 LINE
+        </button>
+
+        <button
+          onclick="copyShareText()"
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-500/30 text-amber-300 hover:bg-amber-500/50 border border-amber-400/40"
+        >
+          📋 複製文案
+        </button>
+
+        <span class="text-white/20">|</span>
+
+        <button
+          onclick="setDeviceMode('mobile')"
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-sky-600/30 text-sky-300 hover:bg-sky-600/50 border border-sky-500/40"
+        >
+          📱 手機版
+        </button>
+
+        <button
+          onclick="setDeviceMode('tablet')"
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/40"
+        >
+          📋 平板版
+        </button>
+
+        <span class="text-white/20">|</span>
+
+        <!-- 切換到多功能記分板按鈕 -->
+        <a
+          href="https://ericwww22.github.io/3CUSHION//89%E8%A8%98%E5%88%86%E6%9D%BF.html"
+          class="btn-action flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-purple-600/40 text-purple-200 hover:bg-purple-600/60 border border-purple-400/50"
+        >
+          <span>🎱</span>
+          <span>9號/8號/14-1/9號(大小金制)</span>
+        </a>
+
+        <a
+          href="https://www.youtube.com/@taiwan3cushion"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-action flex items-center gap-1 px-2 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white border border-red-400/40"
+        >
+          <span>🔴</span>
+          <span>頻道</span>
+        </a>
+
+        <button
+          onclick="toggleHistoryPanel()"
+          class="btn-action px-2 py-1 text-xs font-bold rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40"
+        >
+          📜 歷史
+        </button>
+
+        <button
+          onclick="toggleSettingsModal()"
+          class="btn-action px-2 py-1 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40"
+        >
+          ⚙️ 設定
+        </button>
+
+        <span
+          id="match-status"
+          class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+        >
+          準備中
+        </span>
+
+        <!-- 縮放控制 -->
+        <div class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
+          <button onclick="adjustZoom(-0.08)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">-</button>
+          <span id="zoom-level-display" class="px-1 text-xs font-mono text-amber-300">100%</span>
+          <button onclick="adjustZoom(0.08)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">+</button>
+          <button onclick="resetZoom()" class="px-1.5 py-1 text-xs hover:bg-white/20 text-emerald-200 border-l border-white/10">↺</button>
+        </div>
+
+        <button
+          onclick="toggleFullscreen()"
+          class="px-2 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 hidden sm:inline-block"
+        >
+          ⛶ 全螢幕
+        </button>
       </div>
     </header>
 
-    <!-- Main Scoreboard -->
+    <!-- =====================================================
+         ★★★ 主記分板
+         ===================================================== -->
     <main id="scoreboard-main" class="grid gap-3 sm:gap-4 mb-4 sm:mb-6">
+
       <!-- PLAYER 1 -->
-      <article id="player-card-0" onclick="handleCardClick(0)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
-        <div class="flex justify-between items-center mb-1">
-          <span id="name-display-0" class="text-base sm:text-xl font-bold gold-text">選手一</span>
-          <span id="turn-tag-0" class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-400 text-black font-bold">● 擊球中</span>
+      <article
+        id="player-card-0"
+        onclick="handleCardClick(0)"
+        class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player"
+      >
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <span id="name-display-0" class="text-base sm:text-xl font-bold gold-text">林師傅 (白球)</span>
+          <span id="turn-tag-0" class="text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-amber-400 text-black font-bold">● 擊球中</span>
         </div>
-        
-        <div class="my-2 sm:my-3 text-center">
-          <div id="score-0" class="led-score display-font text-6xl sm:text-8xl font-black text-white">0</div>
-          <div id="foul-status-0" class="text-xs text-red-400 font-bold mt-1">累積犯規: 0 次</div>
+        <div class="my-2 sm:my-4 text-center">
+          <div id="score-0" class="led-score display-font text-6xl sm:text-9xl font-black led-white">0</div>
         </div>
-
-        <!-- 14-1 專屬計分與扣分控制 -->
-        <div id="14-1-controls-0" class="grid grid-cols-2 gap-1.5 mb-3" onclick="event.stopPropagation()">
-          <button onclick="addScore(0, 1)" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs col-span-2">⚽ 進球 (+1 分)</button>
-          <button onclick="apply141Foul(0, -1)" class="btn-action bg-amber-700 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規 (-1 分)</button>
-          <button onclick="apply141Foul(0, -15)" class="btn-action bg-red-800 hover:bg-red-700 text-red-100 font-bold py-1.5 rounded-lg text-xs">⛔ 3連犯 (-15 分)</button>
+        <div class="stat-box grid grid-cols-3 gap-1.5 text-center text-xs text-emerald-100/70 mb-2 sm:mb-4 bg-white/5 p-2 rounded-xl">
+          <div>Inning<br><strong id="inning-0" class="text-base sm:text-lg text-white font-bold">0</strong></div>
+          <div>AVG<br><strong id="avg-0" class="text-base sm:text-lg text-amber-300 font-bold">0.000</strong></div>
+          <div>High Run<br><strong id="hr-0" class="text-base sm:text-lg text-red-400 font-bold">0</strong></div>
         </div>
-
-        <!-- 大小金專屬控制 -->
-        <div id="big-small-gold-controls-0" class="hidden grid grid-cols-2 gap-1.5 mb-3" onclick="event.stopPropagation()">
-          <button onclick="addGoldScore(0, 10, '大金')" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-1.5 rounded-lg text-xs">✨ 大金 (+10)</button>
-          <button onclick="addGoldScore(0, 7, '小金')" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs">⭐ 小金 (+7)</button>
-          <button onclick="addGoldScore(0, 4, '普勝')" class="btn-action bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-xs">🎯 普勝 (+4)</button>
-          <button onclick="handleFoul(0)" class="btn-action bg-red-800/80 hover:bg-red-700 text-red-200 font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規/罰分</button>
+        <div class="timeout-box flex justify-between items-center bg-black/40 px-3 py-1 sm:py-1.5 rounded-lg mb-2 sm:mb-3 border border-white/10 text-xs">
+          <span class="text-emerald-200/60">延長牌</span>
+          <span id="timeout-count-0" class="font-bold text-amber-300">剩餘 2 次</span>
         </div>
-
-        <!-- 一般微調分數 -->
-        <div class="action-btn-group grid grid-cols-2 gap-2" onclick="event.stopPropagation()">
-          <button onclick="addScore(0, -1)" id="btn-minus-0" class="btn-action bg-emerald-800/60 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs">-1 分</button>
-          <button onclick="addScore(0, 1)" id="btn-plus-0" class="btn-action bg-red-600/60 hover:bg-red-500 text-white font-extrabold py-2 rounded-xl text-xs">+1 分</button>
+        <div class="action-btn-group grid grid-cols-3 gap-2" onclick="event.stopPropagation()">
+          <button onclick="addScore(0,-1)" id="btn-minus-0" class="btn-action bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-2 sm:py-3 rounded-xl text-sm sm:text-base">-1</button>
+          <button onclick="useTimeout(0)" id="btn-timeout-0" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 sm:py-3 rounded-xl text-xs">⏱ 延長</button>
+          <button onclick="addScore(0,1)" id="btn-plus-0" class="btn-action btn-plus bg-red-600 hover:bg-red-500 text-white font-extrabold py-2 sm:py-3 rounded-xl text-xl sm:text-2xl">+1</button>
         </div>
       </article>
 
       <!-- CENTER PANEL -->
       <section class="glass center-panel p-4 sm:p-5 flex flex-col justify-between text-center items-center">
         <div>
-          <div id="target-display" class="text-base sm:text-xl font-black text-amber-300 tracking-wide">目標搶分: 50 分</div>
-          <div id="rule-display" class="text-xs text-emerald-200/80 mt-1">規則：14-1 計分制</div>
+          <div id="target-display" class="text-base sm:text-xl font-black text-amber-300 tracking-wide">目標 15 分</div>
         </div>
-
-        <!-- 14-1 檯面剩餘球數與結算區 -->
-        <div id="14-1-center-box" class="w-full bg-black/40 border border-amber-400/30 p-2.5 rounded-xl my-2">
-          <span class="text-xs text-amber-300 font-bold block mb-1">本輪檯面球數</span>
-          <div class="flex justify-center items-center gap-2">
-            <span id="balls-left-count" class="text-2xl font-black text-amber-400">14</span>
-            <span class="text-xs text-emerald-200/60">/ 14 顆球</span>
+        <div class="bg-black/40 border border-white/10 rounded-xl px-2 py-1 w-full text-center my-0.5 sm:my-1">
+          <span class="text-[10px] text-emerald-200/60 block">當前進程</span>
+          <span id="current-inning-display" class="text-xs sm:text-base font-bold text-emerald-200">第 1 桿</span>
+        </div>
+        <button id="switch-btn" onclick="switchTurn()" class="btn-action w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold py-2.5 sm:py-3 rounded-xl text-base sm:text-lg my-0.5 sm:my-1">⇦ 失誤 / 換人</button>
+        <div class="bg-black/40 border border-white/10 rounded-xl px-2 py-1 w-full text-center my-0.5 sm:my-1">
+          <span class="text-[10px] text-emerald-200/60 block">比賽時間</span>
+          <span id="elapsed-time" class="text-sm sm:text-lg font-bold text-amber-300 font-mono">00:00</span>
+        </div>
+        <div class="w-full my-0.5 sm:my-1">
+          <span id="timer-label" class="text-[10px] sm:text-[11px] text-emerald-200/60 block mb-0.5">Shot Clock</span>
+          <div id="timer" class="display-font text-4xl sm:text-5xl font-black led-score text-white my-0.5">40</div>
+          <div class="w-full bg-white/10 h-1.5 sm:h-2 rounded-full overflow-hidden mt-0.5 sm:mt-1">
+            <div id="timer-bar" class="bg-amber-400 h-full w-full transition-all duration-200"></div>
           </div>
-          <button onclick="finish141Rack()" class="btn-action w-full mt-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-1.5 rounded-lg text-xs shadow">
-            🔄 打完14顆，結算重排
-          </button>
         </div>
-
-        <button id="switch-btn" onclick="switchTurn()" class="btn-action w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold py-2.5 rounded-xl text-sm my-1">⇦ 換人擊球</button>
-
-        <div class="bg-black/40 border border-white/10 rounded-xl px-2 py-1.5 w-full text-center">
-          <span class="text-[10px] text-emerald-200/60 block">比賽計時</span>
-          <span id="elapsed-time" class="text-base sm:text-lg font-bold text-amber-300 font-mono">00:00</span>
-        </div>
+        <p class="text-[10px] text-emerald-100/50 mt-1 hidden sm:block">黑馬三顆星 ‧ 就是這樣中！</p>
       </section>
 
       <!-- PLAYER 2 -->
-      <article id="player-card-1" onclick="handleCardClick(1)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
-        <div class="flex justify-between items-center mb-1">
-          <span id="name-display-1" class="text-base sm:text-xl font-bold gold-text">選手二</span>
-          <span id="turn-tag-1" class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-400 text-black font-bold hidden">● 擊球中</span>
+      <article
+        id="player-card-1"
+        onclick="handleCardClick(1)"
+        class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player"
+      >
+        <div class="flex justify-between items-center mb-1 sm:mb-2">
+          <span id="name-display-1" class="text-base sm:text-xl font-bold gold-text">黑馬 (黃球)</span>
+          <span id="turn-tag-1" class="text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-amber-400 text-black font-bold hidden">● 擊球中</span>
         </div>
-        
-        <div class="my-2 sm:my-3 text-center">
-          <div id="score-1" class="led-score display-font text-6xl sm:text-8xl font-black text-white">0</div>
-          <div id="foul-status-1" class="text-xs text-red-400 font-bold mt-1">累積犯規: 0 次</div>
+        <div class="my-2 sm:my-4 text-center">
+          <div id="score-1" class="led-score display-font text-6xl sm:text-9xl font-black led-yellow">0</div>
         </div>
-
-        <!-- 14-1 專屬計分與扣分控制 -->
-        <div id="14-1-controls-1" class="grid grid-cols-2 gap-1.5 mb-3" onclick="event.stopPropagation()">
-          <button onclick="addScore(1, 1)" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs col-span-2">⚽ 進球 (+1 分)</button>
-          <button onclick="apply141Foul(1, -1)" class="btn-action bg-amber-700 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規 (-1 分)</button>
-          <button onclick="apply141Foul(1, -15)" class="btn-action bg-red-800 hover:bg-red-700 text-red-100 font-bold py-1.5 rounded-lg text-xs">⛔ 3連犯 (-15 分)</button>
+        <div class="stat-box grid grid-cols-3 gap-1.5 text-center text-xs text-emerald-100/70 mb-2 sm:mb-4 bg-white/5 p-2 rounded-xl">
+          <div>Inning<br><strong id="inning-1" class="text-base sm:text-lg text-white font-bold">0</strong></div>
+          <div>AVG<br><strong id="avg-1" class="text-base sm:text-lg text-amber-300 font-bold">0.000</strong></div>
+          <div>High Run<br><strong id="hr-1" class="text-base sm:text-lg text-red-400 font-bold">0</strong></div>
         </div>
-
-        <!-- 大小金專屬控制 -->
-        <div id="big-small-gold-controls-1" class="hidden grid grid-cols-2 gap-1.5 mb-3" onclick="event.stopPropagation()">
-          <button onclick="addGoldScore(1, 10, '大金')" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-1.5 rounded-lg text-xs">✨ 大金 (+10)</button>
-          <button onclick="addGoldScore(1, 7, '小金')" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs">⭐ 小金 (+7)</button>
-          <button onclick="addGoldScore(1, 4, '普勝')" class="btn-action bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-xs">🎯 普勝 (+4)</button>
-          <button onclick="handleFoul(1)" class="btn-action bg-red-800/80 hover:bg-red-700 text-red-200 font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規/罰分</button>
+        <div class="timeout-box flex justify-between items-center bg-black/40 px-3 py-1 sm:py-1.5 rounded-lg mb-2 sm:mb-3 border border-white/10 text-xs">
+          <span class="text-emerald-200/60">延長牌</span>
+          <span id="timeout-count-1" class="font-bold text-amber-300">剩餘 2 次</span>
         </div>
-
-        <!-- 一般微調分數 -->
-        <div class="action-btn-group grid grid-cols-2 gap-2" onclick="event.stopPropagation()">
-          <button onclick="addScore(1, -1)" id="btn-minus-1" class="btn-action bg-emerald-800/60 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs">-1 分</button>
-          <button onclick="addScore(1, 1)" id="btn-plus-1" class="btn-action bg-red-600/60 hover:bg-red-500 text-white font-extrabold py-2 rounded-xl text-xs">+1 分</button>
+        <div class="action-btn-group grid grid-cols-3 gap-2" onclick="event.stopPropagation()">
+          <button onclick="addScore(1,-1)" id="btn-minus-1" class="btn-action bg-emerald-800 hover:bg-emerald-700 text-white font-bold py-2 sm:py-3 rounded-xl text-sm sm:text-base">-1</button>
+          <button onclick="useTimeout(1)" id="btn-timeout-1" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 sm:py-3 rounded-xl text-xs">⏱ 延長</button>
+          <button onclick="addScore(1,1)" id="btn-plus-1" class="btn-action btn-plus bg-red-600 hover:bg-red-500 text-white font-extrabold py-2 sm:py-3 rounded-xl text-xl sm:text-2xl">+1</button>
         </div>
       </article>
+
     </main>
-  </div>
-</div>
-
-<!-- 設定 Dialog -->
-<dialog id="settings-modal" class="p-6 text-white glass border border-amber-400/50 rounded-3xl max-w-lg w-full shadow-2xl">
-  <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-4">
-    <h2 class="text-xl font-bold text-amber-300">⚙️ 賽制與規則設定</h2>
-    <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
-  </div>
-  <div class="space-y-4">
-    <div>
-      <label class="block text-xs text-emerald-300 mb-1 font-bold">選擇球局類型</label>
-      <select id="game-type" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2.5 text-sm font-bold text-amber-300" onchange="onGameTypeChange()">
-        <option value="14-1" selected>14-1 (14.1 Continuous)</option>
-        <option value="9ball">9號球 (標準制)</option>
-        <option value="8ball">8號球</option>
-        <option value="bigsmallgold">9號球 (大小金制)</option>
-        <option value="carom3cushion">三顆星 (開侖記分)</option>
-      </select>
-    </div>
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="block text-xs text-emerald-300 mb-1 font-bold">預設搶分設定</label>
-        <select id="target-score" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2.5 text-sm" onchange="updateMatchSettings()">
-          <option value="15" selected>15 分 (三顆星建議)</option>
-          <option value="25">25 分 (三顆星建議)</option>
-          <option value="50">50 分 (14-1建議)</option>
-          <option value="100">100 分 (14-1建議)</option>
-          <option value="7">搶 7 分</option>
-          <option value="9">搶 9 分</option>
-          <option value="11">搶 11 分</option>
-          <option value="custom">自訂分數</option>
-        </select>
-      </div>
-      <div id="custom-score-box" class="hidden">
-        <label class="block text-xs text-emerald-300 mb-1 font-bold">自訂目標分</label>
-        <input id="custom-target-input" type="number" value="50" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm font-bold text-center" onchange="updateMatchSettings()">
-      </div>
-    </div>
-    <div class="grid grid-cols-2 gap-3 pt-2">
-      <div>
-        <label class="block text-xs text-emerald-200/70 mb-1">選手一 姓名</label>
-        <input id="name-input-0" type="text" value="選手一" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm" onchange="updateNames()">
-      </div>
-      <div>
-        <label class="block text-xs text-emerald-200/70 mb-1">選手二 姓名</label>
-        <input id="name-input-1" type="text" value="選手二" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm" onchange="updateNames()">
-      </div>
-    </div>
-  </div>
-  <div class="mt-6 text-right">
-    <button onclick="toggleSettingsModal(); startMatch();" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-sm">儲存並開始</button>
-  </div>
-</dialog>
-
-<!-- 勝者 Dialog -->
-<dialog id="win-modal" class="p-6 text-center text-white glass border border-amber-400/40 rounded-3xl max-w-md w-full">
-  <div class="text-4xl mb-2">🏆</div>
-  <h2 class="text-2xl font-black text-amber-300 mb-2">比賽獲勝！</h2>
-  <p id="win-summary" class="text-lg font-bold text-white mb-4"></p>
-  <button onclick="document.getElementById('win-modal').close(); resetMatch();" class="bg-amber-400 text-slate-950 font-extrabold px-6 py-2.5 rounded-xl">重新開始新賽局</button>
-</dialog>
-
-<script>
-  let scores = [0, 0];
-  let foulCounts = [0, 0]; // 記錄連續犯規次數
-  let names = ["選手一", "選手二"];
-  let activePlayer = 0;
-  let phase = "idle";
-  let targetScore = 50;
-  let gameType = "14-1";
-  let matchClockTimer = null;
-  let totalElapsedSeconds = 0;
-  let ballsLeftInRack = 14; // 14-1 檯面剩餘球數
-
-  document.addEventListener("DOMContentLoaded", () => {
-    onGameTypeChange();
-  });
-
-  function toggleSettingsModal() {
-    const m = document.getElementById("settings-modal");
-    if (m.open) m.close(); else m.showModal();
-  }
-
-  // 快捷切換至三顆星開侖模式
-  function switchToCarom3Cushion() {
-    const gameTypeSelect = document.getElementById("game-type");
-    gameTypeSelect.value = "carom3cushion";
-    
-    // 將預設目標分設為 15 分
-    const targetSelect = document.getElementById("target-score");
-    targetSelect.value = "15";
-    
-    onGameTypeChange();
-    startMatch();
-  }
-
-  function onGameTypeChange() {
-    gameType = document.getElementById("game-type").value;
-    const badge = document.getElementById("header-rule-badge");
-    const ruleDesc = document.getElementById("rule-display");
-    
-    // 介面切換
-    const is141 = (gameType === "14-1");
-    const isGold = (gameType === "bigsmallgold");
-    const isCarom3C = (gameType === "carom3cushion");
-
-    document.getElementById("14-1-controls-0").classList.toggle("hidden", !is141);
-    document.getElementById("14-1-controls-1").classList.toggle("hidden", !is141);
-    document.getElementById("14-1-center-box").classList.toggle("hidden", !is141);
-
-    document.getElementById("big-small-gold-controls-0").classList.toggle("hidden", !isGold);
-    document.getElementById("big-small-gold-controls-1").classList.toggle("hidden", !isGold);
-
-    if (is141) {
-      badge.textContent = "14-1 Continuous";
-      ruleDesc.textContent = "規則：進球+1分/犯規扣分/14顆結算";
-    } else if (gameType === "8ball") {
-      badge.textContent = "8號球賽制";
-      ruleDesc.textContent = "規則：標準 8 號球計分";
-    } else if (isGold) {
-      badge.textContent = "9號球 (大小金制)";
-      ruleDesc.textContent = "規則：大金10分 / 小金7分 / 普勝4分";
-    } else if (isCarom3C) {
-      badge.textContent = "三顆星 (開侖)";
-      ruleDesc.textContent = "規則：碰撞三顆星以上得分 (+1分)";
-    } else {
-      badge.textContent = "9號球 (標準制)";
-      ruleDesc.textContent = "規則：標準 9 號球搶分";
-    }
-    updateMatchSettings();
-  }
-
-  function updateMatchSettings() {
-    const targetSelect = document.getElementById("target-score").value;
-    const customBox = document.getElementById("custom-score-box");
-    
-    if (targetSelect === "custom") {
-      customBox.classList.remove("hidden");
-      targetScore = parseInt(document.getElementById("custom-target-input").value) || 50;
-    } else {
-      customBox.classList.add("hidden");
-      targetScore = parseInt(targetSelect);
-    }
-    document.getElementById("target-display").textContent = `目標搶分: ${targetScore} 分`;
-    render();
-  }
-
-  function updateNames() {
-    names[0] = document.getElementById("name-input-0").value || "選手一";
-    names[1] = document.getElementById("name-input-1").value || "選手二";
-    document.getElementById("name-display-0").textContent = names[0];
-    document.getElementById("name-display-1").textContent = names[1];
-  }
-
-  function render() {
-    for (let i = 0; i < 2; i++) {
-      document.getElementById(`score-${i}`).textContent = scores[i];
-      document.getElementById(`foul-status-${i}`).textContent = `累積犯規: ${foulCounts[i]} 次`;
-      
-      const isActive = activePlayer === i;
-      document.getElementById(`player-card-${i}`).classList.toggle("active-player", isActive);
-      document.getElementById(`player-card-${i}`).classList.toggle("inactive-player", !isActive);
-      document.getElementById(`turn-tag-${i}`).classList.toggle("hidden", !isActive);
-    }
-    
-    document.getElementById("balls-left-count").textContent = ballsLeftInRack;
-    document.getElementById("elapsed-time").textContent = formatTime(totalElapsedSeconds);
-    document.getElementById("switch-btn").textContent = activePlayer === 0 ? `⇦ ${names[0]} 打完，換 ${names[1]}` : `${names[1]} 打完，換 ${names[0]} ⇨`;
-  }
-
-  function formatTime(s) {
-    return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-  }
-
-  function startMatch() {
-    phase = "running";
-    document.getElementById("start-btn").disabled = true;
-    document.getElementById("pause-btn").disabled = false;
-    document.getElementById("match-status").textContent = "比賽進行中";
-    startMatchClock();
-    render();
-  }
-
-  function pauseMatch() {
-    phase = "paused";
-    clearInterval(matchClockTimer);
-    document.getElementById("pause-btn").disabled = true;
-    document.getElementById("resume-btn").classList.remove("hidden");
-    document.getElementById("match-status").textContent = "暫停中";
-  }
-
-  function resumeMatch() {
-    phase = "running";
-    document.getElementById("pause-btn").disabled = false;
-    document.getElementById("resume-btn").classList.add("hidden");
-    document.getElementById("match-status").textContent = "比賽進行中";
-    startMatchClock();
-  }
-
-  function resetMatch() {
-    clearInterval(matchClockTimer);
-    scores = [0, 0];
-    foulCounts = [0, 0];
-    ballsLeftInRack = 14;
-    activePlayer = 0;
-    phase = "idle";
-    totalElapsedSeconds = 0;
-    document.getElementById("start-btn").disabled = false;
-    document.getElementById("pause-btn").disabled = true;
-    document.getElementById("resume-btn").classList.add("hidden");
-    document.getElementById("match-status").textContent = "準備中";
-    render();
-  }
-
-  function startMatchClock() {
-    clearInterval(matchClockTimer);
-    matchClockTimer = setInterval(() => {
-      if (phase === "running") {
-        totalElapsedSeconds++;
-        document.getElementById("elapsed-time").textContent = formatTime(totalElapsedSeconds);
-      }
-    }, 1000);
-  }
-
-  function handleCardClick(i) {
-    if (phase === "finished") return;
-    activePlayer = i;
-    render();
-  }
-
-  function switchTurn() {
-    if (phase === "finished") return;
-    activePlayer = 1 - activePlayer;
-    render();
-  }
-
-  // 進球或基本得分
-  function addScore(i, d) {
-    if (phase === "finished") return;
-    
-    if (gameType === "14-1" && d > 0) {
-      if (ballsLeftInRack > 0) {
-        ballsLeftInRack--;
-      }
-      foulCounts[i] = 0; // 進球重置連續犯規次數
-    }
-    
-    scores[i] += d;
-    render();
-    if (scores[i] >= targetScore) finishMatch(names[i]);
-  }
-
-  // 14-1 扣分與犯規處理
-  function apply141Foul(playerIdx, penalty) {
-    if (phase === "finished") return;
-
-    scores[playerIdx] += penalty; // penalty 為負數 (-1 或 -15)
-
-    if (penalty === -15) {
-      alert(`⛔ ${names[playerIdx]} 發生連續 3 次犯規！懲罰扣除 15 分！`);
-      foulCounts[playerIdx] = 0;
-    } else {
-      foulCounts[playerIdx]++;
-      alert(`⚠️ ${names[playerIdx]} 犯規！扣除 1 分 (累積連犯: ${foulCounts[playerIdx]} 次)`);
-    }
-
-    render();
-    if (scores[playerIdx] >= targetScore) finishMatch(names[playerIdx]);
-  }
-
-  // 14-1 打完 14 顆球結算
-  function finish141Rack() {
-    alert(`🎉 本輪 14 顆球已打完！\n請將桌上進的 14 顆球重新排三角框（保留第 15 顆球位置與母球），準備繼續打下一輪！`);
-    ballsLeftInRack = 14;
-    render();
-  }
-
-  // 大小金加分
-  function addGoldScore(playerIdx, points, typeName) {
-    if (phase === "finished") return;
-    scores[playerIdx] += points;
-    alert(`🎉 ${names[playerIdx]} 打出【${typeName}】獲得 +${points} 分！`);
-    render();
-    if (scores[playerIdx] >= targetScore) finishMatch(names[playerIdx]);
-  }
-
-  // 大小金犯規
-  function handleFoul(foulPlayerIdx) {
-    if (phase === "finished") return;
-    const opponentIdx = 1 - foulPlayerIdx;
-    foulCounts[foulPlayerIdx]++;
-
-    if (foulCounts[foulPlayerIdx] >= 3) {
-      scores[opponentIdx] += 2;
-      alert(`⚠️ ${names[foulPlayerIdx]} 累計達 3 次犯規！${names[opponentIdx]} 獲得 2 分，該局結束。`);
-      foulCounts = [0, 0];
-    } else {
-      scores[opponentIdx] += 1;
-      alert(`⚠️ ${names[foulPlayerIdx]} 發生犯規，${names[opponentIdx]} +1 分。`);
-    }
-    render();
-    if (scores[opponentIdx] >= targetScore) finishMatch(names[opponentIdx]);
-  }
-
-  function finishMatch(winnerName) {
-    phase = "finished";
-    clearInterval(matchClockTimer);
-    document.getElementById("match-status").textContent = "比賽結束";
-    document.getElementById("win-summary").textContent = `🏆 恭喜 ${winnerName} 獲得勝利！\n總耗時：${formatTime(totalElapsedSeconds)}`;
-    document.getElementById("win-modal").showModal();
-  }
-</script>
-
-    <!-- YouTube / Podcasts 區塊保持不變 -->
-    <section class="glass media-section p-4 sm:p-5 mb-6">
-      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-lg sm:text-xl">🎧</span>
-          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (15首)</h2>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="switchMedia('playlist')" id="tab-playlist" class="btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm">▶️ 播放清單</button>
-          <button onclick="switchMedia('podcasts')" id="tab-podcasts" class="btn-action px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm">🎙️ Podcasts</button>
-        </div>
-      </div>
-      <!-- 略：其餘 YouTube / 廣告區塊保持原樣 -->
-    </section>
 
   </div>
 </div>
+
 </body>
 </html>
+
+
+
+
+Gemini 是 AI，有時可能會出錯。
+
