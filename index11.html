@@ -840,7 +840,7 @@
 
 
     <!-- =====================================================
-         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側 200 首清單)
+         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側 15 首清單)
          ===================================================== -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -848,7 +848,7 @@
       <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
         <div class="flex items-center gap-2">
           <span class="text-lg sm:text-xl">🎧</span>
-          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 完整播放清單選歌 (200首)</h2>
+          <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (15首)</h2>
         </div>
         <div class="flex gap-2">
           <button onclick="switchMedia('playlist')" id="tab-playlist" class="btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm">▶️ 播放清單</button>
@@ -888,14 +888,14 @@
             </div>
           </div>
 
-          <!-- 右側選歌清單 (顯示 200 首完整清單) -->
+          <!-- 右側選歌清單 (顯示 15 首清單) -->
           <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-[360px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center">
-              <span>🎵 完整曲目清單 (200首)</span>
-              <span class="text-[10px] text-emerald-300">共 200 首</span>
+              <span>🎵 曲目清單 (精選15首)</span>
+              <span class="text-[10px] text-emerald-300">共 15 首</span>
             </div>
             <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
-              <!-- 動態載入 200 首歌曲清單 -->
+              <!-- 動態載入 15 首歌曲清單 -->
             </div>
           </div>
         </div>
@@ -1079,7 +1079,7 @@
   let isLoopEnabled = false;
   let isShuffleEnabled = false;
 
-  // 動態生成 200 首曲目清單對應 (PLQvBYUHGQEcU)
+  // 設定清單精選 15 首曲目對應 (PLQvBYUHGQEcU)
   const playlistSongs = [];
   const specialTitles = [
     "セブン·クッション·伝説 日女演唱會01",
@@ -1089,12 +1089,18 @@
     "다크호스 3쿠션女演唱01",
     "다크호스 3쿠션女搖滾02",
     "三顆星極光白黃互解 02",
-    "開侖三顆星搖滾男粵語 02"
+    "開侖三顆星搖滾男粵語 02",
+    "8號撞球王 02",
+    "美式三顆星對戰版 Battle06",
+    "黑馬三顆星主題曲特輯 01",
+    "三顆星技巧解析與進階練習",
+    "球友對戰精選實錄 03",
+    "跟著林師傅學撞球精華 01",
+    "黑馬三顆星實戰對局 15"
   ];
-  for (let i = 0; i < 200; i++) {
-    let title = specialTitles[i] || `Carom 3cushion song ${String(i + 1).padStart(3, '0')}`;
+  for (let i = 0; i < 15; i++) {
     playlistSongs.push({
-      title: title,
+      title: specialTitles[i] || `Carom 3cushion song ${String(i + 1).padStart(3, '0')}`,
       duration: "3:45",
       vid: "xtT9d4avAW4",
       index: i
@@ -1115,7 +1121,7 @@
     render();
   });
 
-  // 渲染右側清單 200 首歌曲可供選擇
+  // 渲染右側清單 15 首歌曲可供選擇
   function renderSongList() {
     const container = document.getElementById("song-list-container");
     container.innerHTML = playlistSongs.map((song, idx) => `
