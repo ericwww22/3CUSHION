@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -648,6 +649,32 @@
           |
         </span>
 
+        <!-- 分享按鈕列 -->
+        <button
+          onclick="shareToFB()"
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-600/40 text-blue-300 hover:bg-blue-600/60 border border-blue-500/40"
+        >
+          📘 分享 FB
+        </button>
+
+        <button
+          onclick="shareToLine()"
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600/40 text-emerald-300 hover:bg-emerald-600/60 border border-emerald-500/40"
+        >
+          💬 分享 LINE
+        </button>
+
+        <button
+          onclick="copyShareText()"
+          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-500/30 text-amber-300 hover:bg-amber-500/50 border border-amber-400/40"
+        >
+          📋 複製文案
+        </button>
+
+        <span class="text-white/20">
+          |
+        </span>
+
         <button
           onclick="setDeviceMode('mobile')"
           class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-sky-600/30 text-sky-300 hover:bg-sky-600/50 border border-sky-500/40"
@@ -891,11 +918,11 @@
           <!-- 右側選歌清單 (拉長高度約可顯示 15 首) -->
           <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[340px] sm:h-[405px] lg:h-[455px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center shrink-0">
-              <span>🎵 曲目清單 (顯示約200首)</span>
-              <span class="text-[10px] text-emerald-300">共 200 首</span>
+              <span>🎵 曲目清單 (顯示約15首)</span>
+              <span class="text-[10px] text-emerald-300">共 15 首</span>
             </div>
             <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
-              <!-- 動態載入 200 首歌曲清單 -->
+              <!-- 動態載入 15 首歌曲清單 -->
             </div>
           </div>
         </div>
@@ -1193,6 +1220,30 @@
     } while (randomIndex === currentSongIndex && playlistSongs.length > 1);
     
     selectSong(randomIndex);
+  }
+
+
+  /* =========================================================
+     分享與文案功能
+     ========================================================= */
+  const shareText = "我最近發現一個超好用的開侖記分板,且可以聽很多開侖歌曲,推薦給您使用。\n\n👉 立即體驗：https://ericwww22.github.io/3CUSHION/";
+
+  function copyShareText() {
+    navigator.clipboard.writeText(shareText).then(() => {
+      alert("✅ 分享文案與網址已複製到剪貼簿！");
+    }).catch(err => {
+      alert("❌ 複製失敗，請手動複製。");
+    });
+  }
+
+  function shareToFB() {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://ericwww22.github.io/3CUSHION/')}`;
+    window.open(url, '_blank', 'width=600,height=400');
+  }
+
+  function shareToLine() {
+    const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent('https://ericwww22.github.io/3CUSHION/')}&text=${encodeURIComponent('我最近發現一個超好用的開侖記分板,且可以聽很多開侖歌曲,推薦給您使用。')}`;
+    window.open(url, '_blank', 'width=600,height=400');
   }
 
 
@@ -1695,10 +1746,7 @@
 
 </script>
 
-      <!-- 底部廣告位 -->
-      <div class="flex justify-center my-4 overflow-hidden rounded-xl">
-        <iframe src="https://ads-partners.tw.coupang.com/widgets.html?id=2012&template=carousel&trackingCode=AF1599278&subId=&width=680&height=140&tsource=" width="680" height="140" frameborder="0" scrolling="no" referrerpolicy="unsafe-url"></iframe>
-      </div>
-
 </body>
 </html>
+
+```
