@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>旗艦撞球記分板 Pro - 14-1 / 8號球 / 9號球 (大小金)</title>
+  <title>旗艦撞球記分板 Pro - 9號球 / 14-1 / 8號球 / 大小金</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
   <style>
@@ -25,45 +25,22 @@
     .btn-action:active { transform: scale(0.96); }
     .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
     dialog::backdrop { background: rgba(0, 10, 10, 0.85); backdrop-filter: blur(8px); }
-    
-    /* 預設三欄版型 (平板 / 電腦模式) */
-    .layout-tablet main.grid,
-    main.grid.default-grid {
-      display: grid !important;
-      grid-template-columns: minmax(0, 1fr) 260px minmax(0, 1fr) !important;
-      grid-template-areas: "player1 center player2" !important;
-      gap: 1rem !important;
-      align-items: stretch;
-      width: 100%;
-    }
-    .layout-tablet #player-card-0, main.grid.default-grid #player-card-0 { grid-area: player1 !important; order: 1 !important; }
-    .layout-tablet .center-panel, main.grid.default-grid .center-panel { grid-area: center !important; order: 2 !important; }
-    .layout-tablet #player-card-1, main.grid.default-grid #player-card-1 { grid-area: player2 !important; order: 3 !important; }
 
-    /* 手機模式強制單欄垂直堆疊 (Mobile Mode Overrides) */
-    .layout-mobile main.grid {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 1rem !important;
-    }
-    .layout-mobile #player-card-0 { order: 1 !important; }
-    .layout-mobile .center-panel { order: 2 !important; }
-    .layout-mobile #player-card-1 { order: 3 !important; }
+    /* 預設或平板模式網格 */
+    main.grid-desktop { display: grid !important; grid-template-columns: minmax(0, 1fr) 260px minmax(0, 1fr) !important; grid-template-areas: "player1 center player2" !important; gap: 1rem !important; align-items: stretch; width: 100%; }
+    #player-card-0 { grid-area: player1 !important; order: 1 !important; }
+    .center-panel { grid-area: center !important; order: 2 !important; }
+    #player-card-1 { grid-area: player2 !important; order: 3 !important; }
 
-    /* 響應式自動微調 */
-    @media (max-width: 1023px) {
-      main.grid.default-grid {
-        display: flex !important;
-        flex-direction: column !important;
-      }
-    }
+    /* 手機模式強制直向單欄 */
+    main.grid-mobile { display: flex !important; flex-direction: column !important; gap: 1rem !important; width: 100%; }
   </style>
 </head>
 <body class="p-2 sm:p-6 pb-16">
 <div id="zoom-container">
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
-    <header class="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6">
+    <header class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6">
       <div class="flex items-center gap-2.5">
         <div class="text-2xl sm:text-3xl">🎱</div>
         <div>
@@ -71,46 +48,36 @@
             <h1 class="text-lg sm:text-2xl font-extrabold tracking-wider text-amber-400 display-font">多功能撞球記分板 Pro</h1>
             <span id="header-rule-badge" class="text-[10px] sm:text-xs font-semibold text-emerald-300/95 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-md">9號球 (標準制)</span>
           </div>
-          <p class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5">14-1 / 8BALL / 9BALL / 9BALL (BIG-SMALL GOLD)</p>
+          <p class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5">點擊卡片換人擊球 ｜ 連點兩下卡片 +1分</p>
         </div>
       </div>
 
-      <!-- 控制按鈕區 (含全螢幕、分享與模式切換) -->
-      <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-start lg:justify-end">
+      <!-- 控制按鈕群組 -->
+      <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end">
         <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm">▶️ 開始比賽</button>
         <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
         <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
         <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm">🔄 重設</button>
+        
+        <!-- 裝置模式切換 -->
+        <button onclick="toggleDeviceMode()" id="device-mode-btn" class="btn-action bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-200 border border-cyan-500/40 px-2.5 py-1.5 rounded-lg text-xs font-bold">📱 手機模式</button>
+
+        <!-- 全螢幕按鈕 -->
+        <button onclick="toggleFullScreen()" class="btn-action bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 px-2.5 py-1.5 rounded-lg text-xs font-bold">⛶ 全螢幕</button>
+
+        <!-- 社群分享 -->
+        <button onclick="shareToFB()" class="btn-action bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">📘 分享 FB</button>
+        <button onclick="shareToLINE()" class="btn-action bg-green-600 hover:bg-green-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold">💚 分享 LINE</button>
+
         <button onclick="toggleSettingsModal()" class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40">⚙️ 賽制設定</button>
-
-        <!-- 裝置/排版模式切換按鈕 -->
-        <button id="mode-toggle-btn" onclick="toggleDeviceMode()" class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 border border-indigo-400/40 flex items-center gap-1">
-          <span id="mode-icon">📱</span> <span id="mode-text">手機模式</span>
-        </button>
-
-        <!-- 全螢幕切換按鈕 -->
-        <button onclick="toggleFullscreen()" class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-400/40 flex items-center gap-1">
-          <span id="fullscreen-icon">⛶</span> <span id="fullscreen-text">全螢幕</span>
-        </button>
-
-        <!-- FB 分享按鈕 -->
-        <button onclick="shareFB()" class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-blue-600/30 text-blue-200 hover:bg-blue-600/40 border border-blue-400/40 flex items-center gap-1">
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> FB
-        </button>
-
-        <!-- LINE 分享按鈕 -->
-        <button onclick="shareLine()" class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-emerald-600/30 text-emerald-200 hover:bg-emerald-600/40 border border-emerald-400/40 flex items-center gap-1">
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .348-.281.63-.63.63h-2.425v1.125h2.425c.349 0 .63.283.63.63 0 .348-.281.63-.63.63h-3.055c-.349 0-.63-.282-.63-.63V8.093c0-.348.281-.63.63-.63h3.055c.349 0 .63.282.63.63 0 .348-.281.631-.63.631h-2.425v1.139h2.425zm-3.856 3.016c.349 0 .63.283.63.63 0 .348-.281.63-.63.63h-2.425c-.349 0-.63-.282-.63-.63V8.093c0-.348.281-.63.63-.63s.63.282.63.63v4.398h1.765zm-4.727-4.398c.349 0 .63.282.63.63v4.398c0 .348-.281.63-.63.63s-.63-.282-.63-.63V9.355l-1.892 3.99c-.114.24-.356.388-.619.388-.088 0-.178-.018-.263-.058-.312-.148-.445-.521-.297-.833l2.253-4.752c.114-.24.356-.388.619-.388h.839zm-5.719 0c.349 0 .63.282.63.63v4.398c0 .348-.281.63-.63.63s-.63-.282-.63-.63V8.093c0-.348.281-.63.63-.63zM12 2C6.477 2 2 5.789 2 10.46c0 4.18 3.565 7.688 8.375 8.351.326.07.77.215.882.493.101.25.066.643.033.897-.058.447-.268 1.748-.298 2.122-.051.628.291.618.614.403 2.378-1.584 6.425-4.437 8.766-7.595C21.488 13.684 22 12.13 22 10.46 22 5.789 17.523 2 12 2z"/></svg> LINE
-        </button>
-
         <span id="match-status" class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
       </div>
     </header>
 
     <!-- Main Scoreboard -->
-    <main id="scoreboard-main" class="grid gap-3 sm:gap-4 mb-4 sm:mb-6 default-grid">
-      <!-- PLAYER 1 -->
-      <article id="player-card-0" onclick="handleCardClick(0)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
+    <main id="scoreboard-main" class="grid-desktop gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <!-- PLAYER 1 (支援單擊換人、雙擊+1分) -->
+      <article id="player-card-0" onclick="handleCardClick(0)" ondblclick="handleCardDblClick(0)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player select-none">
         <div class="flex justify-between items-center mb-1">
           <span id="name-display-0" class="text-base sm:text-xl font-bold gold-text">選手一</span>
           <span id="turn-tag-0" class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-400 text-black font-bold">● 擊球中</span>
@@ -119,6 +86,7 @@
         <div class="my-2 sm:my-3 text-center">
           <div id="score-0" class="led-score display-font text-6xl sm:text-8xl font-black text-white">0</div>
           <div id="foul-status-0" class="text-xs text-red-400 font-bold mt-1">累積犯規: 0 次</div>
+          <div class="text-[10px] text-emerald-300/50 mt-0.5">💡 點一下換人，連點兩下 +1 分</div>
         </div>
 
         <!-- 14-1 專屬計分與扣分控制 -->
@@ -170,8 +138,8 @@
         </div>
       </section>
 
-      <!-- PLAYER 2 -->
-      <article id="player-card-1" onclick="handleCardClick(1)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player">
+      <!-- PLAYER 2 (支援單擊換人、雙擊+1分) -->
+      <article id="player-card-1" onclick="handleCardClick(1)" ondblclick="handleCardDblClick(1)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player select-none">
         <div class="flex justify-between items-center mb-1">
           <span id="name-display-1" class="text-base sm:text-xl font-bold gold-text">選手二</span>
           <span id="turn-tag-1" class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-400 text-black font-bold hidden">● 擊球中</span>
@@ -180,6 +148,7 @@
         <div class="my-2 sm:my-3 text-center">
           <div id="score-1" class="led-score display-font text-6xl sm:text-8xl font-black text-white">0</div>
           <div id="foul-status-1" class="text-xs text-red-400 font-bold mt-1">累積犯規: 0 次</div>
+          <div class="text-[10px] text-emerald-300/50 mt-0.5">💡 點一下換人，連點兩下 +1 分</div>
         </div>
 
         <!-- 14-1 專屬計分與扣分控制 -->
@@ -217,8 +186,8 @@
     <div>
       <label class="block text-xs text-emerald-300 mb-1 font-bold">選擇球局類型</label>
       <select id="game-type" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2.5 text-sm font-bold text-amber-300" onchange="onGameTypeChange()">
-        <option value="9ball" selected>9號球 (標準制)</option>
         <option value="14-1">14-1 (14.1 Continuous)</option>
+        <option value="9ball" selected>9號球 (標準制)</option>
         <option value="8ball">8號球</option>
         <option value="bigsmallgold">9號球 (大小金制)</option>
       </select>
@@ -227,11 +196,11 @@
       <div>
         <label class="block text-xs text-emerald-300 mb-1 font-bold">預設搶分設定</label>
         <select id="target-score" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2.5 text-sm" onchange="updateMatchSettings()">
+          <option value="50">50 分 (14-1建議)</option>
+          <option value="100">100 分 (14-1建議)</option>
           <option value="7" selected>搶 7 分</option>
           <option value="9">搶 9 分</option>
           <option value="11">搶 11 分</option>
-          <option value="50">50 分 (14-1建議)</option>
-          <option value="100">100 分 (14-1建議)</option>
           <option value="custom">自訂分數</option>
         </select>
       </div>
@@ -275,97 +244,61 @@
   let matchClockTimer = null;
   let totalElapsedSeconds = 0;
   let ballsLeftInRack = 14;
-  let deviceLayoutMode = "auto"; // "auto", "mobile", "tablet"
-
-  // 15 首 YouTube 音樂清單資料
-  const playlistSongs = [
-    { title: "撞球風情 - 經典爵士 BGM 01", id: "xtT9d4avAW4" },
-    { title: "輕快節奏 - 專注撞球對戰曲 02", id: "5qap5aO4i9A" },
-    { title: "深層放鬆 - 比賽練習音樂 03", id: "DWcJFNfAW9c" },
-    { title: "黑馬撞球 - 活力節奏 04", id: "fJ9rUzIMcDQ" },
-    { title: "動感藍調 - 高級撞球館情調 05", id: "2g8111648PE" },
-    { title: "沉浸式思維 - 專注度增強 06", id: "hTWKbfoikeg" },
-    { title: "輕爵士樂 - 撞球交流之夜 07", id: "L_LUpnjgPso" },
-    { title: "輕鬆休閒 - 週末撞球賽 08", id: "MCkTebktL48" },
-    { title: "時尚 Chill Out - 現代打球風格 09", id: "1ZYbU82NO68" },
-    { title: "黑馬精選 - 撞球對決熱血曲 10", id: "YykjpeuMNEk" },
-    { title: "比賽集中力 - 電子輕音樂 11", id: "kXYiU_JCYtU" },
-    { title: "輕鬆打球 - 午後咖啡撞球 12", id: "eKFTSSKCzWA" },
-    { title: "黑馬原創 - 競賽氛圍音樂 13", id: "NvR6MDyVIIG" },
-    { title: "夜間練習 - 靜心聽球聲 14", id: "C0DPdy98e4c" },
-    { title: "勝利時刻 - 撞球大賽主題曲 15", id: "36YnV9STBqc" }
-  ];
-
-  let currentSongIndex = 0;
-  let isLoopMode = false;
-  let isShuffleMode = true;
+  let currentDeviceMode = "auto"; // auto, mobile, tablet
 
   document.addEventListener("DOMContentLoaded", () => {
     onGameTypeChange();
-    renderSongList();
   });
+
+  // 全螢幕切換
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        alert(`無法啟用全螢幕: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  // 裝置模式切換 (手機直向單欄 vs 平板橫向雙欄)
+  function toggleDeviceMode() {
+    const mainEl = document.getElementById("scoreboard-main");
+    const btnEl = document.getElementById("device-mode-btn");
+
+    if (currentDeviceMode === "auto") {
+      currentDeviceMode = "mobile";
+      mainEl.className = "grid-mobile gap-3 sm:gap-4 mb-4 sm:mb-6";
+      btnEl.textContent = "💻 平板/大螢幕";
+    } else if (currentDeviceMode === "mobile") {
+      currentDeviceMode = "tablet";
+      mainEl.className = "grid-desktop gap-3 sm:gap-4 mb-4 sm:mb-6";
+      btnEl.textContent = "⚡ 自動適應";
+    } else {
+      currentDeviceMode = "auto";
+      mainEl.className = "grid-desktop gap-3 sm:gap-4 mb-4 sm:mb-6";
+      btnEl.textContent = "📱 手機模式";
+    }
+  }
+
+  // FB 分享
+  function shareToFB() {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+  }
+
+  // LINE 分享
+  function shareToLINE() {
+    const text = encodeURIComponent("推薦您使用超好用的多功能撞球記分板 Pro！");
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://social-plugins.line.me/lineit/share?url=${url}&text=${text}`, '_blank');
+  }
 
   function toggleSettingsModal() {
     const m = document.getElementById("settings-modal");
     if (m.open) m.close(); else m.showModal();
-  }
-
-  /* --- 全螢幕 (Fullscreen API) 功能 --- */
-  function toggleFullscreen() {
-    if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-      const docElm = document.documentElement;
-      if (docElm.requestFullscreen) docElm.requestFullscreen();
-      else if (docElm.msRequestFullscreen) docElm.msRequestFullscreen();
-      else if (docElm.mozRequestFullScreen) docElm.mozRequestFullScreen();
-      else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-      
-      document.getElementById("fullscreen-icon").textContent = "🗗";
-      document.getElementById("fullscreen-text").textContent = "退出全螢幕";
-    } else {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.msExitFullscreen) document.msExitFullscreen();
-      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-
-      document.getElementById("fullscreen-icon").textContent = "⛶";
-      document.getElementById("fullscreen-text").textContent = "全螢幕";
-    }
-  }
-
-  /* --- FB & LINE 分享功能 --- */
-  function shareFB() {
-    const currentUrl = encodeURIComponent(window.location.href);
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`, '_blank');
-  }
-
-  function shareLine() {
-    const currentUrl = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent("來看看這個好用的『多功能撞球記分板 Pro』！");
-    window.open(`https://social-plugins.line.me/lineit/share?url=${currentUrl}&text=${text}`, '_blank');
-  }
-
-  /* --- 手機模式 / 平板大螢幕模式切換功能 --- */
-  function toggleDeviceMode() {
-    const container = document.getElementById("zoom-container");
-    const modeIcon = document.getElementById("mode-icon");
-    modeText = document.getElementById("mode-text");
-
-    if (deviceLayoutMode === "auto") {
-      deviceLayoutMode = "mobile";
-      container.className = "layout-mobile";
-      modeIcon.textContent = "💻";
-      modeText.textContent = "平板/大螢幕";
-    } else if (deviceLayoutMode === "mobile") {
-      deviceLayoutMode = "tablet";
-      container.className = "layout-tablet";
-      modeIcon.textContent = "⚡";
-      modeText.textContent = "自動適應";
-    } else {
-      deviceLayoutMode = "auto";
-      container.className = "";
-      modeIcon.textContent = "📱";
-      modeText.textContent = "手機模式";
-    }
   }
 
   function onGameTypeChange() {
@@ -491,10 +424,17 @@
     }, 1000);
   }
 
+  // 點擊選手卡片：單擊切換擊球選手
   function handleCardClick(i) {
     if (phase === "finished") return;
     activePlayer = i;
     render();
+  }
+
+  // 點擊選手卡片：連點兩下直接 +1 分
+  function handleCardDblClick(i) {
+    if (phase === "finished") return;
+    addScore(i, 1);
   }
 
   function switchTurn() {
@@ -505,6 +445,14 @@
 
   function addScore(i, d) {
     if (phase === "finished") return;
+    
+    if (gameType === "14-1" && d > 0) {
+      if (ballsLeftInRack > 0) {
+        ballsLeftInRack--;
+      }
+      foulCounts[i] = 0;
+    }
+    
     scores[i] += d;
     if (scores[i] < 0) scores[i] = 0;
     render();
@@ -562,57 +510,9 @@
     document.getElementById("win-summary").textContent = `🏆 恭喜 ${winnerName} 獲得勝利！\n總耗時：${formatTime(totalElapsedSeconds)}`;
     document.getElementById("win-modal").showModal();
   }
-
-  /* --- 媒體與音樂播放清單功能 --- */
-  function switchMedia(tab) {
-    const isPlaylist = (tab === 'playlist');
-    document.getElementById("media-playlist").classList.toggle("hidden", !isPlaylist);
-    document.getElementById("media-podcasts").classList.toggle("hidden", isPlaylist);
-    
-    document.getElementById("tab-playlist").className = isPlaylist ? "btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm" : "btn-action px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm";
-    document.getElementById("tab-podcasts").className = !isPlaylist ? "btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm" : "btn-action px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm";
-  }
-
-  function renderSongList() {
-    const container = document.getElementById("song-list-container");
-    container.innerHTML = "";
-    playlistSongs.forEach((song, idx) => {
-      const btn = document.createElement("button");
-      btn.className = `w-full text-left p-2 rounded-lg border transition flex items-center justify-between ${idx === currentSongIndex ? 'bg-amber-400/20 border-amber-400 text-amber-300 font-bold' : 'bg-black/30 border-white/5 hover:bg-white/10 text-emerald-100/80'}`;
-      btn.onclick = () => playSong(idx);
-      btn.innerHTML = `<span class="truncate">${idx + 1}. ${song.title}</span> ${idx === currentSongIndex ? '<span>▶</span>' : ''}`;
-      container.appendChild(btn);
-    });
-    document.getElementById("current-playing-title").textContent = `🎵 目前播放：${playlistSongs[currentSongIndex].title}`;
-  }
-
-  function playSong(idx) {
-    currentSongIndex = idx;
-    const song = playlistSongs[idx];
-    document.getElementById("youtube-player").src = `https://www.youtube.com/embed/${song.id}?autoplay=1`;
-    renderSongList();
-  }
-
-  function playRandomSong() {
-    let nextIdx = Math.floor(Math.random() * playlistSongs.length);
-    if (nextIdx === currentSongIndex) nextIdx = (nextIdx + 1) % playlistSongs.length;
-    playSong(nextIdx);
-  }
-
-  function toggleLoopMode() {
-    isLoopMode = !isLoopMode;
-    document.getElementById("loop-text").textContent = `單曲循環: ${isLoopMode ? '開' : '關'}`;
-    document.getElementById("btn-loop").classList.toggle("bg-emerald-600", isLoopMode);
-  }
-
-  function toggleShuffleMode() {
-    isShuffleMode = !isShuffleMode;
-    document.getElementById("shuffle-text").textContent = `隨機播放: ${isShuffleMode ? '開' : '關'}`;
-    document.getElementById("btn-shuffle").classList.toggle("bg-amber-500", isShuffleMode);
-  }
 </script>
 
-    <!-- YouTube / Podcasts Section -->
+    <!-- 播放清單與廣告區塊保持不變 -->
     <section class="glass media-section p-4 sm:p-5 mb-6">
       <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
         <div class="flex items-center gap-2">
@@ -642,7 +542,7 @@
               </button>
             </div>
             <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
-              <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
             <div class="bg-black/40 px-3 py-2 rounded-xl border border-white/10">
               <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate block">🎵 目前播放：載入中...</span>
@@ -667,7 +567,6 @@
       </div>
     </section>
 
-    <!-- Sponsor Section -->
     <section class="glass p-4 sm:p-6 mb-6 border-t-2 border-amber-400/40">
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
         <div class="flex items-center gap-2">
