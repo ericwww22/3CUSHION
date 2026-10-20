@@ -840,7 +840,7 @@
 
 
     <!-- =====================================================
-         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側 15 首清單)
+         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側拉長 15 首清單)
          ===================================================== -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -857,7 +857,7 @@
       </div>
 
       <div id="media-playlist">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
           <!-- 影片播放器 (佔 2 欄) -->
           <div class="lg:col-span-2 flex flex-col gap-2">
             
@@ -888,10 +888,10 @@
             </div>
           </div>
 
-          <!-- 右側選歌清單 (顯示 15 首清單) -->
-          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-[360px] overflow-hidden">
-            <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center">
-              <span>🎵 曲目清單 (精選15首)</span>
+          <!-- 右側選歌清單 (拉長高度約可顯示 15 首) -->
+          <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[340px] sm:h-[405px] lg:h-[455px] overflow-hidden">
+            <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center shrink-0">
+              <span>🎵 曲目清單 (顯示約15首)</span>
               <span class="text-[10px] text-emerald-300">共 15 首</span>
             </div>
             <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
