@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>旗艦撞球記分板 Pro - 9號球 / 14-1 / 8號球 / 大小金</title>
+  <title>旗艦撞球記分板 Pro - 三顆星 / 司諾克 / 9號球 / 14-1 / 8號球 / 大小金</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
   <style>
@@ -58,6 +58,9 @@
 
       <!-- 控制按鈕群組 -->
       <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end">
+        <!-- 三顆星(開侖記分板)按鈕 -->
+        <a href="https://ericwww22.github.io/3CUSHION/index.html" target="_blank" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow flex items-center gap-1">⭐ 三顆星(開侖)</a>
+
         <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm">▶️ 開始比賽</button>
         <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
         <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
@@ -80,7 +83,7 @@
 
     <!-- Main Scoreboard -->
     <main id="scoreboard-main" class="grid-desktop gap-3 sm:gap-4 mb-4 sm:mb-6">
-      <!-- PLAYER 1 (支援單擊換人、雙擊+1分) -->
+      <!-- PLAYER 1 -->
       <article id="player-card-0" onclick="handleCardClick(0)" ondblclick="handleCardDblClick(0)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player select-none">
         <div class="flex justify-between items-center mb-1">
           <span id="name-display-0" class="text-base sm:text-xl font-bold gold-text">選手一</span>
@@ -106,6 +109,27 @@
           <button onclick="addGoldScore(0, 7, '小金')" class="btn-action bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs">⭐ 小金 (+7)</button>
           <button onclick="addGoldScore(0, 4, '普勝')" class="btn-action bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-xs">🎯 普勝 (+4)</button>
           <button onclick="handleFoul(0)" class="btn-action bg-red-800/80 hover:bg-red-700 text-red-200 font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規/罰分</button>
+        </div>
+
+        <!-- 司諾克專屬控制 -->
+        <div id="snooker-controls-0" class="hidden flex flex-col gap-1.5 mb-3" onclick="event.stopPropagation()">
+          <div class="grid grid-cols-4 gap-1">
+            <button onclick="addScore(0, 1)" class="btn-action bg-red-700 hover:bg-red-600 text-white font-bold py-1.5 rounded text-xs">紅(1)</button>
+            <button onclick="addScore(0, 2)" class="btn-action bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold py-1.5 rounded text-xs">黃(2)</button>
+            <button onclick="addScore(0, 3)" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 rounded text-xs">綠(3)</button>
+            <button onclick="addScore(0, 4)" class="btn-action bg-amber-800 hover:bg-amber-700 text-white font-bold py-1.5 rounded text-xs">咖(4)</button>
+          </div>
+          <div class="grid grid-cols-3 gap-1">
+            <button onclick="addScore(0, 5)" class="btn-action bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 rounded text-xs">藍(5)</button>
+            <button onclick="addScore(0, 6)" class="btn-action bg-pink-500 hover:bg-pink-400 text-white font-bold py-1.5 rounded text-xs">粉(6)</button>
+            <button onclick="addScore(0, 7)" class="btn-action bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 rounded text-xs border border-white/20">黑(7)</button>
+          </div>
+          <div class="grid grid-cols-4 gap-1 mt-1 border-t border-white/10 pt-1.5">
+            <button onclick="applySnookerFoul(0, 4)" class="btn-action bg-red-950 hover:bg-red-900 text-red-300 font-bold py-1 rounded text-[10px] border border-red-500/30">犯規-4</button>
+            <button onclick="applySnookerFoul(0, 5)" class="btn-action bg-red-950 hover:bg-red-900 text-red-300 font-bold py-1 rounded text-[10px] border border-red-500/30">犯規-5</button>
+            <button onclick="applySnookerFoul(0, 6)" class="btn-action bg-red-950 hover:bg-red-900 text-red-300 font-bold py-1 rounded text-[10px] border border-red-500/30">犯規-6</button>
+            <button onclick="applySnookerFoul(0, 7)" class="btn-action bg-red-950 hover:bg-red-900 text-red-300 font-bold py-1 rounded text-[10px] border border-red-500/30">犯規-7</button>
+          </div>
         </div>
 
         <!-- 一般微調分數 -->
@@ -142,7 +166,7 @@
         </div>
       </section>
 
-      <!-- PLAYER 2 (支援單擊換人、雙擊+1分) -->
+      <!-- PLAYER 2 -->
       <article id="player-card-1" onclick="handleCardClick(1)" ondblclick="handleCardDblClick(1)" class="glass p-4 sm:p-5 flex flex-col justify-between bg-black/60 transition-all duration-300 inactive-player select-none">
         <div class="flex justify-between items-center mb-1">
           <span id="name-display-1" class="text-base sm:text-xl font-bold gold-text">選手二</span>
@@ -170,6 +194,27 @@
           <button onclick="handleFoul(1)" class="btn-action bg-red-800/80 hover:bg-red-700 text-red-200 font-bold py-1.5 rounded-lg text-xs">⚠️ 犯規/罰分</button>
         </div>
 
+        <!-- 司諾克專屬控制 -->
+        <div id="snooker-controls-1" class="hidden flex flex-col gap-1.5 mb-3" onclick="event.stopPropagation()">
+          <div class="grid grid-cols-4 gap-1">
+            <button onclick="addScore(1, 1)" class="btn-action bg-red-700 hover:bg-red-600 text-white font-bold py-1.5 rounded text-xs">紅(1)</button>
+            <button onclick="addScore(1, 2)" class="btn-action bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold py-1.5 rounded text-xs">黃(2)</button>
+            <button onclick="addScore(1, 3)" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 rounded text-xs">綠(3)</button>
+            <button onclick="addScore(1, 4)" class="btn-action bg-amber-800 hover:bg-amber-700 text-white font-bold py-1.5 rounded text-xs">咖(4)</button>
+          </div>
+          <div class="grid grid-cols-3 gap-1">
+            <button onclick="addScore(1, 5)" class="btn-action bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 rounded text-xs">藍(5)</button>
+            <button onclick="addScore(1, 6)" class="btn-action bg-pink-500 hover:bg-pink-400 text-white font-bold py-1.5 rounded text-xs">粉(6)</button>
+            <button onclick="addScore(1, 7)" class="btn-action bg-slate-800 hover:bg-slate-700 text-white font-bold py-1.5 rounded text-xs border border-white/20">黑(7)</button>
+          </div>
+          <div class="grid grid-cols-4 gap-1 mt-1 border-t border-white/10 pt-1.5">
+            <button onclick="applySnookerFoul(1, 4)" class="btn-action bg-red-950 hover:bg-red-900 text-red-300 font-bold py-1 rounded text-[10px] border border-red-500/30">犯規-4</button>
+            <button onclick="applySnookerFoul(1, 5)" class="btn-action bg-red-950 hover:bg-red-900 text-red-300 font-bold py-1 rounded text-[10px] border border-red-500/30">犯規-5</button>
+            <button onclick="applySnookerFoul(1, 6)" class="btn-action bg-red-950 hover:bg-red-900 text-red-300 font-bold py-1 rounded text-[10px] border border-red-500/30">犯規-6</button>
+            <button onclick="applySnookerFoul(1, 7)" class="btn-action bg-red-950 hover:bg-red-900 text-red-300 font-bold py-1 rounded text-[10px] border border-red-500/30">犯規-7</button>
+          </div>
+        </div>
+
         <!-- 一般微調分數 -->
         <div class="action-btn-group grid grid-cols-2 gap-2" onclick="event.stopPropagation()">
           <button onclick="addScore(1, -1)" id="btn-minus-1" class="btn-action bg-emerald-800/60 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs">-1 分</button>
@@ -190,6 +235,7 @@
     <div>
       <label class="block text-xs text-emerald-300 mb-1 font-bold">選擇球局類型</label>
       <select id="game-type" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2.5 text-sm font-bold text-amber-300" onchange="onGameTypeChange()">
+        <option value="snooker">司諾克 (Snooker)</option>
         <option value="14-1">14-1 (14.1 Continuous)</option>
         <option value="9ball" selected>9號球 (標準制)</option>
         <option value="8ball">8號球</option>
@@ -202,9 +248,8 @@
         <select id="target-score" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2.5 text-sm" onchange="updateMatchSettings()">
           <option value="50">50 分 (14-1建議)</option>
           <option value="100">100 分 (14-1建議)</option>
-          <option value="7" selected>搶 7 分</option>
-          <option value="9">搶 9 分</option>
-          <option value="11">搶 11 分</option>
+          <option value="7" selected>搶 7 分 / 單局決勝</option>
+          <option value="60">60 分 (司諾克單局)</option>
           <option value="custom">自訂分數</option>
         </select>
       </div>
@@ -248,7 +293,6 @@
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-    <!-- 影片播放器與上方控制列 (佔 2 欄) -->
     <div class="lg:col-span-2 flex flex-col gap-2">
       <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
         <div class="flex items-center gap-2">
@@ -263,21 +307,17 @@
         <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs">🎲 隨機跳轉</button>
       </div>
 
-      <!-- YouTube 嵌入播放框 -->
       <div class="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black">
         <iframe id="youtube-player" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
       </div>
     </div>
 
-    <!-- 右側 15 首歌曲清單 (可捲動) -->
     <div class="flex flex-col gap-2">
       <div class="text-xs font-bold text-amber-300 flex justify-between items-center px-1">
         <span>清單曲目 (15首)</span>
         <span class="text-[10px] text-gray-400">點擊即播</span>
       </div>
-      <div id="song-list-container" class="flex flex-col gap-1.5 max-h-[340px] lg:max-h-[380px] overflow-y-auto pr-1">
-        <!-- JS 動態生成 15 首清單 -->
-      </div>
+      <div id="song-list-container" class="flex flex-col gap-1.5 max-h-[340px] lg:max-h-[380px] overflow-y-auto pr-1"></div>
     </div>
   </div>
 </section>
@@ -451,6 +491,7 @@
     
     const is141 = (gameType === "14-1");
     const isGold = (gameType === "bigsmallgold");
+    const isSnooker = (gameType === "snooker");
 
     document.getElementById("14-1-controls-0").classList.toggle("hidden", !is141);
     document.getElementById("14-1-controls-1").classList.toggle("hidden", !is141);
@@ -459,7 +500,13 @@
     document.getElementById("big-small-gold-controls-0").classList.toggle("hidden", !isGold);
     document.getElementById("big-small-gold-controls-1").classList.toggle("hidden", !isGold);
 
-    if (is141) {
+    document.getElementById("snooker-controls-0").classList.toggle("hidden", !isSnooker);
+    document.getElementById("snooker-controls-1").classList.toggle("hidden", !isSnooker);
+
+    if (isSnooker) {
+      badge.textContent = "司諾克 (Snooker)";
+      ruleDesc.textContent = "規則：紅球1分、彩球2~7分、犯規罰分4~7分";
+    } else if (is141) {
       badge.textContent = "14-1 Continuous";
       ruleDesc.textContent = "規則：進球+1分/犯規扣分/14顆結算";
     } else if (gameType === "8ball") {
@@ -612,6 +659,16 @@
     }
     render();
     if (scores[playerIdx] >= targetScore) finishMatch(names[playerIdx]);
+  }
+
+  function applySnookerFoul(foulPlayerIdx, penaltyPoints) {
+    if (phase === "finished") return;
+    const opponentIdx = 1 - foulPlayerIdx;
+    foulCounts[foulPlayerIdx]++;
+    scores[opponentIdx] += penaltyPoints;
+    alert(`⚠️ ${names[foulPlayerIdx]} 犯規（罰 ${penaltyPoints} 分）！\n${names[opponentIdx]} 獲得 +${penaltyPoints} 分。`);
+    render();
+    if (scores[opponentIdx] >= targetScore) finishMatch(names[opponentIdx]);
   }
 
   function finish141Rack() {
