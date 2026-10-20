@@ -107,7 +107,7 @@
 
   <div id="zoom-container">
     <div class="max-w-7xl mx-auto">
-      <!-- Header (整合控制按鈕於最上方右側) -->
+      <!-- Header (整合開始比賽等控制按鈕於最上方右側) -->
       <header class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6">
         <div class="flex items-center gap-2.5">
           <div class="text-2xl sm:text-3xl">🐴</div>
@@ -120,10 +120,10 @@
           </div>
         </div>
         
-        <!-- 頂部右側功能與控制按鈕群組 -->
-        <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center">
+        <!-- 頂部右側功能與賽事控制按鈕群組 (包含開始比賽、暫停、重設、全螢幕右側) -->
+        <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end">
           <!-- 比賽控制按鈕 -->
-          <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-md">▶️ 開始</button>
+          <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-lg text-xs sm:text-sm shadow-md">▶️ 開始比賽</button>
           <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
           <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
           <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-3 py-1.5 rounded-lg text-xs sm:text-sm">🔄 重設</button>
