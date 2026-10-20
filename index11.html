@@ -840,7 +840,7 @@
 
 
     <!-- =====================================================
-         YouTube / Podcasts (播放清單 + 隨機播放按鈕)
+         YouTube / Podcasts (播放清單 + 隨機播放按鈕 + 完整清單)
          ===================================================== -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
@@ -863,7 +863,7 @@
             <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
               <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
-            <!-- 功能控制列：隨機播放按鈕 -->
+            <!-- 功能控制列：隨機播放按鈕與目前曲目顯示 -->
             <div class="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/10">
               <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate">🎵 目前播放：三顆星極光白黃互解 02</span>
               <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs flex items-center gap-1 shrink-0">
@@ -872,11 +872,11 @@
             </div>
           </div>
 
-          <!-- 自訂選歌清單 (佔 1 欄，列出所有歌曲可選) -->
+          <!-- 右側選歌清單 (顯示該清單所有歌曲，點擊可選) -->
           <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-[315px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center">
-              <span>🎵 曲目清單 (點擊任一首即播)</span>
-              <span class="text-[10px] text-emerald-300">總計 8 首精選</span>
+              <span>🎵 清單所有歌曲 (點擊選歌)</span>
+              <span class="text-[10px] text-emerald-300">共 8 首</span>
             </div>
             <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
               <!-- 動態載入歌曲清單 -->
@@ -1059,7 +1059,7 @@
   let isTimeoutPrompt = false;
   let lastTapTimes = [0, 0];
 
-  // 播放清單歌曲清單 (對應您提供的清單連結與曲目)
+  // 播放清單所有歌曲列表 (對應 PLQvBYUHGQEcU)
   const playlistSongs = [
     { title: "三顆星極光白黃互解 02", duration: "4:28", vid: "xtT9d4avAW4", index: 0 },
     { title: "開侖三顆星搖滾男粵語 02", duration: "3:45", vid: "xtT9d4avAW4", index: 1 },
@@ -1085,7 +1085,7 @@
     render();
   });
 
-  // 渲染自訂選歌清單
+  // 渲染右側清單所有歌曲可供選擇
   function renderSongList() {
     const container = document.getElementById("song-list-container");
     container.innerHTML = playlistSongs.map((song, idx) => `
@@ -1483,10 +1483,10 @@
         </div>
         <div class="flex justify-between text-sm">
           <span>${g.names[0]}</span>
-          <span class="font-bold">${g.scores[0]} - ${g.scores[1]}</span>
+          <span class="font-bold">${g.scores[0]} -${g.scores[1]}</span>
           <span>${g.names[1]}</span>
         </div>
-        <div class="text-xs text-gray-500 mt-1">目標 ${g.targetScore} 分 | ${formatTime(g.duration)}</div>
+        <div class="text-xs text-gray-500 mt-1">目標 ${g.targetScore} 分 \vert{} ${formatTime(g.duration)}</div>
       </div>
     `).join("");
   }
@@ -1540,7 +1540,7 @@
 
     ctx.fillStyle = "#94a3b8";
     ctx.font = "28px Work Sans, sans-serif";
-    ctx.fillText(`${new Date().toISOString().split("T")[0]} | ${targetScore} PTS | ${formatTime(totalElapsedSeconds)}`, 540, 145);
+    ctx.fillText(`${new Date().toISOString().split("T")[0]} | ${targetScore} PTS \vert{}${formatTime(totalElapsedSeconds)}`, 540, 145);
 
     const dc = (x, name, color, score, inning, hr, isW) => {
       ctx.fillStyle = "rgba(255,255,255,0.05)";
@@ -1588,36 +1588,4 @@
     ctx.fillText("黑馬三顆星 ‧ 就是這樣中！", 540, 980);
 
     const link = document.createElement("a");
-    link.download = `黑馬戰報_${names[0]}VS${names[1]}_${new Date().toISOString().split("T")[0]}.png`;
-    link.href = c.toDataURL("image/png");
-    link.click();
-  }
-
-  function toggleFullscreen() {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else document.documentElement.requestFullscreen();
-  }
-
-  function switchMedia(mode) {
-    const pl = document.getElementById("media-playlist");
-    const pc = document.getElementById("media-podcasts");
-    const tp = document.getElementById("tab-playlist");
-    const tpc = document.getElementById("tab-podcasts");
-
-    if (mode === "playlist") {
-      pl.classList.remove("hidden");
-      pc.classList.add("hidden");
-      tp.className = "btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm";
-      tpc.className = "btn-action px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm";
-    } else {
-      pl.classList.add("hidden");
-      pc.classList.remove("hidden");
-      tpc.className = "btn-action px-3 py-1.5 rounded-lg bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm";
-      tp.className = "btn-action px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm";
-    }
-  }
-
-</script>
-
-</body>
-</html>
+    link.download = `黑馬戰報_${names[0]}
