@@ -42,14 +42,14 @@
     .history-item:hover { border-color: var(--gold); background: rgba(232,188,112,0.1); }
     .history-item .winner { color: var(--gold); font-weight: bold; }
 
-    /* ========== 平板 / 手機 直向與橫向優化 (左：選手一 | 中：中央控制區 | 右：選手二) ========== */
+    /* ========== 平板 / 手機 直向與橫向優化 ========== */
     @media (max-width: 1024px) {
       main.grid { grid-template-columns: 1fr; gap: 1rem; }
       section.glass.center-panel { order: 3; }
     }
 
     @media (min-width: 640px) and (max-width: 1024px) {
-      /* 平板畫面 */
+      /* 平板畫面：左選手一 | 中間控制區 | 右選手二 */
       main.grid { grid-template-columns: 1fr 220px 1fr; gap: 0.75rem; }
       section.glass.center-panel { order: 2; }
       .led-score { font-size: 5.5rem; }
@@ -61,7 +61,7 @@
       .led-score { font-size: 5rem; }
     }
 
-    /* 手機橫向 (Landscape) 極致單屏無捲動排版：選手一 | 中央控制區 | 選手二 */
+    /* 手機橫向 (Landscape) 極致單屏無捲動排版：選手一 | 中間控制區 | 選手二 */
     @media (orientation: landscape) and (max-height: 520px) {
       body { padding: 0.25rem !important; overflow: hidden; }
       #zoom-container > .max-w-7xl { padding: 0; }
@@ -80,23 +80,23 @@
       article.glass { padding: 0.5rem !important; }
       section.glass.center-panel { order: 2 !important; padding: 0.5rem !important; }
       
-      .led-score { font-size: 4.2rem !important; }
+      .led-score { font-size: 4rem !important; }
       
       /* 統計數據區域精簡 */
-      .stat-box { padding: 0.25rem !important; margin-bottom: 0.25rem !important; }
-      .stat-box div { font-size: 0.65rem !important; }
-      .stat-box strong { font-size: 0.85rem !important; }
-      .timeout-box { padding: 0.2rem 0.5rem !important; margin-bottom: 0.25rem !important; font-size: 0.65rem !important; }
+      .stat-box { padding: 0.2rem !important; margin-bottom: 0.2rem !important; }
+      .stat-box div { font-size: 0.6rem !important; }
+      .stat-box strong { font-size: 0.8rem !important; }
+      .timeout-box { padding: 0.15rem 0.4rem !important; margin-bottom: 0.2rem !important; font-size: 0.6rem !important; }
 
       /* 按鈕大拇指熱區與高度控制 */
-      .action-btn-group button { padding: 0.4rem 0.25rem !important; font-size: 0.8rem !important; border-radius: 0.5rem !important; }
-      .action-btn-group button.btn-plus { font-size: 1.25rem !important; font-weight: 900; }
+      .action-btn-group button { padding: 0.35rem 0.2rem !important; font-size: 0.75rem !important; border-radius: 0.5rem !important; }
+      .action-btn-group button.btn-plus { font-size: 1.2rem !important; font-weight: 900; }
       
       /* 中間控制區極致壓縮 */
-      #target-display { font-size: 0.85rem !important; }
-      #switch-btn { padding: 0.4rem !important; font-size: 0.85rem !important; margin: 0.25rem 0 !important; }
-      #timer { font-size: 2.2rem !important; margin: 0 !important; }
-      #elapsed-time { font-size: 0.85rem !important; }
+      #target-display { font-size: 0.8rem !important; }
+      #switch-btn { padding: 0.35rem !important; font-size: 0.8rem !important; margin: 0.2rem 0 !important; }
+      #timer { font-size: 2rem !important; margin: 0 !important; }
+      #elapsed-time { font-size: 0.8rem !important; }
       
       /* 非核心媒體區隱藏 */
       .media-section { display: none !important; }
@@ -120,41 +120,40 @@
           </div>
         </div>
         
-        <!-- 頂部右側功能與賽事控制按鈕群組 (包含開始比賽、暫停、重設、全螢幕右側) -->
+        <!-- 頂部右側功能與賽事控制按鈕群組 -->
         <div class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end">
-          <!-- 比賽控制按鈕 -->
-          <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-lg text-xs sm:text-sm shadow-md">▶️ 開始比賽</button>
-          <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
-          <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
-          <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-3 py-1.5 rounded-lg text-xs sm:text-sm">🔄 重設</button>
-          <button onclick="generateReport()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs sm:text-sm">📸 戰報</button>
+          <button id="start-btn" onclick="startMatch()" class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-md">▶️ 開始比賽</button>
+          <button id="pause-btn" onclick="pauseMatch()" class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm" disabled>⏸ 暫停</button>
+          <button id="resume-btn" onclick="resumeMatch()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden">▶ 繼續</button>
+          <button onclick="resetMatch()" class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm">🔄 重設</button>
+          <button onclick="generateReport()" class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm">📸 戰報</button>
 
           <span class="text-white/20">|</span>
 
           <a href="https://www.youtube.com/@taiwan3cushion" target="_blank" rel="noopener noreferrer"
-             class="btn-action flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white border border-red-400/40">
+             class="btn-action flex items-center gap-1 px-2 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white border border-red-400/40">
             <span>🔴</span><span>頻道</span>
           </a>
-          <button onclick="toggleHistoryPanel()" class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40">
+          <button onclick="toggleHistoryPanel()" class="btn-action px-2 py-1 text-xs font-bold rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40">
             📜 歷史
           </button>
-          <button onclick="toggleSettingsModal()" class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40">
+          <button onclick="toggleSettingsModal()" class="btn-action px-2 py-1 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40">
             ⚙️ 設定
           </button>
-          <span id="match-status" class="px-2.5 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
+          <span id="match-status" class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">準備中</span>
           
           <div class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
             <button onclick="adjustZoom(-0.1)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">-</button>
-            <span id="zoom-level-display" class="px-1.5 text-xs font-mono text-amber-300">100%</span>
+            <span id="zoom-level-display" class="px-1 text-xs font-mono text-amber-300">100%</span>
             <button onclick="adjustZoom(0.1)" class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition">+</button>
             <button onclick="resetZoom()" class="px-1.5 py-1 text-xs hover:bg-white/20 text-emerald-200 border-l border-white/10">↺</button>
           </div>
 
-          <button onclick="toggleFullscreen()" class="px-2.5 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 hidden sm:inline-block">⛶ 全螢幕</button>
+          <button onclick="toggleFullscreen()" class="px-2 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 hidden sm:inline-block">⛶ 全螢幕</button>
         </div>
       </header>
 
-      <!-- 主記分板 (左：選手一 | 中：中央控制區 | 右：選手二) -->
+      <!-- 主記分板：左側 選手一 | 中間 中央控制區 | 右側 選手二 -->
       <main class="grid grid-cols-1 md:grid-cols-[1fr_220px_1fr] gap-3 sm:gap-4 mb-4 sm:mb-6">
 
         <!-- Player 1 (左側) -->
@@ -182,7 +181,7 @@
           </div>
         </article>
 
-        <!-- Center Panel (中間：中央控制區) -->
+        <!-- Center Panel (中間：中央控制區 - 目標分數、進程、換人、計時器) -->
         <section class="glass center-panel p-4 sm:p-5 flex flex-col justify-between text-center items-center">
           <div><div id="target-display" class="text-base sm:text-xl font-black text-amber-300 tracking-wide">目標 15 分</div></div>
           <div class="bg-black/40 border border-white/10 rounded-xl px-2 py-1 w-full text-center my-0.5 sm:my-1">
