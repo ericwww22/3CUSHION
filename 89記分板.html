@@ -512,8 +512,12 @@
   }
 </script>
 
-    <!-- 播放清單與廣告區塊保持不變 -->
+    <!-- =====================================================
+         YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 右側拉長 15 首清單)
+         ===================================================== -->
+
     <section class="glass media-section p-4 sm:p-5 mb-6">
+
       <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
         <div class="flex items-center gap-2">
           <span class="text-lg sm:text-xl">🎧</span>
@@ -524,9 +528,13 @@
           <button onclick="switchMedia('podcasts')" id="tab-podcasts" class="btn-action px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs sm:text-sm">🎙️ Podcasts</button>
         </div>
       </div>
+
       <div id="media-playlist">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+          <!-- 影片播放器 (佔 2 欄) -->
           <div class="lg:col-span-2 flex flex-col gap-2">
+            
+            <!-- 上方控制列 (循環播放 / 隨機播放) -->
             <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
               <div class="flex items-center gap-2">
                 <span class="text-xs text-emerald-300 font-bold">播放模式：</span>
@@ -541,22 +549,31 @@
                 <span>▶</span> 手動隨機跳轉
               </button>
             </div>
+
+            <!-- YouTube iframe 播放器 -->
             <div class="relative w-full overflow-hidden rounded-xl bg-black/80 border border-white/10 shadow-2xl" style="aspect-ratio:16/9;">
               <iframe id="youtube-player" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/xtT9d4avAW4?list=PLQvBYUHGQEcU" title="黑馬音樂頻道播放清單" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
+
+            <!-- 目前播放曲目顯示列 -->
             <div class="bg-black/40 px-3 py-2 rounded-xl border border-white/10">
               <span id="current-playing-title" class="text-xs text-amber-300 font-bold truncate block">🎵 目前播放：載入中...</span>
             </div>
           </div>
+
+          <!-- 右側選歌清單 (拉長高度約可顯示 15 首) -->
           <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[340px] sm:h-[405px] lg:h-[455px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center shrink-0">
               <span>🎵 曲目清單 (顯示約15首)</span>
               <span class="text-[10px] text-emerald-300">共 15 首</span>
             </div>
-            <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs"></div>
+            <div id="song-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs">
+              <!-- 動態載入 15 首歌曲清單 -->
+            </div>
           </div>
         </div>
       </div>
+
       <div id="media-podcasts" class="hidden">
         <div class="rounded-xl border border-white/10 bg-black/60 p-6 text-center">
           <div class="text-4xl mb-2">🎙️</div>
@@ -565,7 +582,12 @@
           <a href="https://www.youtube.com/@taiwan3cushion/podcasts" target="_blank" rel="noopener noreferrer" class="inline-block btn-action bg-red-600 hover:bg-red-500 text-white font-extrabold px-5 py-2 rounded-xl text-sm">🎧 開啟 Podcasts 頻道</a>
         </div>
       </div>
+
     </section>
+
+  </div>
+
+</div>
 
     <section class="glass p-4 sm:p-6 mb-6 border-t-2 border-amber-400/40">
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
