@@ -138,23 +138,34 @@
     }
 
     /* =========================================================
-       按鈕
+       按鈕精緻化風格 (New Styling)
        ========================================================= */
 
     .btn-action {
-      transition: all 0.15s ease;
-
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
     }
 
     .btn-action:active {
-      transform: scale(0.96);
+      transform: translateY(1px) scale(0.97);
     }
 
     .btn-action:disabled {
       opacity: 0.4;
-
       cursor: not-allowed;
+      transform: none !important;
+      filter: none !important;
     }
 
     dialog::backdrop {
@@ -558,16 +569,16 @@
   <div class="max-w-7xl mx-auto">
 
     <!-- =====================================================
-         Header
+         Header (精緻化控制列設計)
          ===================================================== -->
 
     <header
-      class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6"
+      class="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center glass p-3.5 sm:p-5 mb-4 sm:mb-6 shadow-xl"
     >
 
-      <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-3">
 
-        <div class="text-2xl sm:text-3xl">
+        <div class="text-2xl sm:text-3xl bg-amber-400/10 p-2 rounded-2xl border border-amber-400/20 shadow-inner">
           🐴
         </div>
 
@@ -582,15 +593,15 @@
             </h1>
 
             <span
-              class="text-[10px] sm:text-xs font-semibold text-emerald-300/90 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-md"
+              class="text-[10px] sm:text-xs font-semibold text-emerald-300/90 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shadow-sm"
             >
-              2026 Mobile/Tablet Edition
+              2026 Edition
             </span>
 
           </div>
 
           <p
-            class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5"
+            class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5 tracking-wide"
           >
             DARK HORSE 3-CUSHION MATCH SYSTEM
           </p>
@@ -599,169 +610,165 @@
 
       </div>
 
-      <!-- 控制列 -->
+      <!-- 控制列按鈕群組 -->
 
       <div
-        class="flex flex-wrap gap-1.5 sm:gap-2 items-center justify-end"
+        class="flex flex-wrap gap-2 items-center justify-end"
       >
 
-        <button
-          id="start-btn"
-          onclick="startMatch()"
-          class="btn-action bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-md"
-        >
-          ▶️ 開始比賽
-        </button>
+        <!-- 比賽核心控制區 -->
+        <div class="flex items-center gap-1.5 bg-black/30 p-1 rounded-xl border border-white/10 shadow-inner">
+          <button
+            id="start-btn"
+            onclick="startMatch()"
+            class="btn-action bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-lg text-xs sm:text-sm shadow-md"
+          >
+            ▶️ 開始比賽
+          </button>
 
-        <button
-          id="pause-btn"
-          onclick="pauseMatch()"
-          class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
-          disabled
-        >
-          ⏸ 暫停
-        </button>
+          <button
+            id="pause-btn"
+            onclick="pauseMatch()"
+            class="btn-action bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs sm:text-sm shadow-sm"
+            disabled
+          >
+            ⏸ 暫停
+          </button>
 
-        <button
-          id="resume-btn"
-          onclick="resumeMatch()"
-          class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm hidden"
-        >
-          ▶ 繼續
-        </button>
+          <button
+            id="resume-btn"
+            onclick="resumeMatch()"
+            class="btn-action bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-md hidden"
+          >
+            ▶ 繼續
+          </button>
 
-        <button
-          onclick="resetMatch()"
-          class="btn-action bg-red-900/60 hover:bg-red-800 text-red-200 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
-        >
-          🔄 重設
-        </button>
+          <button
+            onclick="resetMatch()"
+            class="btn-action bg-red-950/60 hover:bg-red-900/80 text-red-200 border border-red-500/30 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm shadow-sm"
+          >
+            🔄 重設
+          </button>
+        </div>
 
-        <button
-          onclick="generateReport()"
-          class="btn-action bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm"
-        >
-          📸 戰報
-        </button>
+        <!-- 記錄與社群分享區 -->
+        <div class="flex items-center gap-1.5 bg-black/30 p-1 rounded-xl border border-white/10 shadow-inner">
+          <button
+            onclick="generateReport()"
+            class="btn-action bg-emerald-600/80 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-sm"
+          >
+            📸 戰報
+          </button>
 
-        <span class="text-white/20">
-          |
-        </span>
+          <button
+            onclick="shareToFB()"
+            class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-blue-600/30 text-blue-300 hover:bg-blue-600/50 border border-blue-500/40 shadow-sm"
+          >
+            📘 FB
+          </button>
 
-        <!-- 分享按鈕列 -->
-        <button
-          onclick="shareToFB()"
-          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-600/40 text-blue-300 hover:bg-blue-600/60 border border-blue-500/40"
-        >
-          📘 分享 FB
-        </button>
+          <button
+            onclick="shareToLine()"
+            class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 border border-emerald-500/40 shadow-sm"
+          >
+            💬 LINE
+          </button>
 
-        <button
-          onclick="shareToLine()"
-          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600/40 text-emerald-300 hover:bg-emerald-600/60 border border-emerald-500/40"
-        >
-          💬 分享 LINE
-        </button>
+          <button
+            onclick="copyShareText()"
+            class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/40 border border-amber-400/40 shadow-sm"
+          >
+            📋 複製
+          </button>
+        </div>
 
-        <button
-          onclick="copyShareText()"
-          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-500/30 text-amber-300 hover:bg-amber-500/50 border border-amber-400/40"
-        >
-          📋 複製文案
-        </button>
+        <!-- 版面與工具切換區 -->
+        <div class="flex items-center gap-1.5 bg-black/30 p-1 rounded-xl border border-white/10 shadow-inner">
+          <button
+            onclick="setDeviceMode('mobile')"
+            class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-sky-600/20 text-sky-300 hover:bg-sky-600/40 border border-sky-500/30"
+          >
+            📱 手機
+          </button>
 
-        <span class="text-white/20">
-          |
-        </span>
+          <button
+            onclick="setDeviceMode('tablet')"
+            class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/40 border border-indigo-500/30"
+          >
+            📋 平板
+          </button>
 
-        <button
-          onclick="setDeviceMode('mobile')"
-          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-sky-600/30 text-sky-300 hover:bg-sky-600/50 border border-sky-500/40"
-        >
-          📱 手機版
-        </button>
+          <a
+            href="https://ericwww22.github.io/3CUSHION//89%E8%A8%98%E5%88%86%E6%9D%BF.html"
+            class="btn-action flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg bg-purple-600/30 text-purple-200 hover:bg-purple-600/50 border border-purple-400/40 shadow-sm"
+          >
+            <span>🎱</span>
+            <span>8/9號記分板</span>
+          </a>
 
-        <button
-          onclick="setDeviceMode('tablet')"
-          class="btn-action px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 border border-indigo-500/40"
-        >
-          📋 平板版
-        </button>
+          <a
+            href="https://www.youtube.com/@taiwan3cushion"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-action flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold rounded-lg bg-red-600/80 hover:bg-red-600 text-white border border-red-500/40 shadow-sm"
+          >
+            <span>🔴</span>
+            <span>頻道</span>
+          </a>
 
-        <span class="text-white/20">
-          |
-        </span>
+          <button
+            onclick="toggleHistoryPanel()"
+            class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/40 border border-emerald-500/40"
+          >
+            📜 歷史
+          </button>
 
-        <!-- 新增切換到 8/9號/14-1 記分板按鈕 -->
-        <a
-          href="https://ericwww22.github.io/3CUSHION//89%E8%A8%98%E5%88%86%E6%9D%BF.html"
-          class="btn-action flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-purple-600/40 text-purple-200 hover:bg-purple-600/60 border border-purple-400/50"
-        >
-          <span>🎱</span>
-          <span>切換9號/8號/14-1/9號(大小金制)記分板</span>
-        </a>
-
-        <a
-          href="https://www.youtube.com/@taiwan3cushion"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn-action flex items-center gap-1 px-2 py-1 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-500 text-white border border-red-400/40"
-        >
-          <span>🔴</span>
-          <span>頻道</span>
-        </a>
-
-        <button
-          onclick="toggleHistoryPanel()"
-          class="btn-action px-2 py-1 text-xs font-bold rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/40"
-        >
-          📜 歷史
-        </button>
-
-        <button
-          onclick="toggleSettingsModal()"
-          class="btn-action px-2 py-1 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40"
-        >
-          ⚙️ 設定
-        </button>
+          <button
+            onclick="toggleSettingsModal()"
+            class="btn-action px-2.5 py-1.5 text-xs font-bold rounded-lg bg-amber-400/20 text-amber-300 hover:bg-amber-400/40 border border-amber-400/40"
+          >
+            ⚙️ 設定
+          </button>
+        </div>
 
         <span
           id="match-status"
-          class="px-2 py-1 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+          class="px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-inner"
         >
           準備中
         </span>
 
-        <!-- 縮放 -->
+        <!-- 縮放與全螢幕控制 -->
 
         <div
-          class="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden"
+          class="flex items-center bg-black/30 border border-white/10 rounded-xl overflow-hidden shadow-inner p-0.5 gap-0.5"
         >
 
           <button
             onclick="adjustZoom(-0.08)"
-            class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition"
+            class="px-2.5 py-1 text-xs font-bold hover:bg-white/20 text-white transition rounded-lg"
           >
             -
           </button>
 
           <span
             id="zoom-level-display"
-            class="px-1 text-xs font-mono text-amber-300"
+            class="px-1.5 text-xs font-mono text-amber-300 font-bold"
           >
             100%
           </span>
 
           <button
             onclick="adjustZoom(0.08)"
-            class="px-2 py-1 text-xs font-bold hover:bg-white/20 text-white transition"
+            class="px-2.5 py-1 text-xs font-bold hover:bg-white/20 text-white transition rounded-lg"
           >
             +
           </button>
 
           <button
             onclick="resetZoom()"
-            class="px-1.5 py-1 text-xs hover:bg-white/20 text-emerald-200 border-l border-white/10"
+            class="px-2 py-1 text-xs hover:bg-white/20 text-emerald-200 transition rounded-lg"
+            title="重設縮放"
           >
             ↺
           </button>
@@ -770,7 +777,7 @@
 
         <button
           onclick="toggleFullscreen()"
-          class="px-2 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 hidden sm:inline-block"
+          class="px-3 py-1.5 text-xs font-bold rounded-xl bg-black/30 hover:bg-white/20 border border-white/10 text-white transition shadow-sm hidden sm:inline-block"
         >
           ⛶ 全螢幕
         </button>
@@ -902,7 +909,7 @@
         </div>
       </div>
 
-      <!-- 播放清單分類快捷按鈕列 (對應您指定的 playlists) -->
+      <!-- 播放清單分類快捷按鈕列 -->
       <div class="flex flex-wrap gap-1.5 mb-3" id="playlist-tabs-container">
         <!-- 動態產生分類按鈕 -->
       </div>
@@ -939,7 +946,7 @@
             </div>
           </div>
 
-          <!-- 右側選歌清單 (顯示目前所選分類之清單曲目) -->
+          <!-- 右側選歌清單 -->
           <div class="bg-black/50 border border-white/10 rounded-xl p-3 flex flex-col h-[340px] sm:h-[405px] lg:h-[455px] overflow-hidden">
             <div class="text-xs font-bold text-amber-300 mb-2 pb-1 border-b border-white/10 flex justify-between items-center shrink-0">
               <span id="current-category-label">🎵 曲目清單</span>
@@ -1133,7 +1140,7 @@
   let isLoopEnabled = false;
   let isShuffleEnabled = true;
 
-  // 使用者提供的全新播放清單陣列
+  // 使用者提供的播放清單陣列
   const playlists = [
     { name: "史記-三顆星系列歌曲", id: "PLTWtZQRj3Afo" },
     { name: "三國三顆星", id: "PLdpKckWsf_Hc" },
@@ -1147,7 +1154,7 @@
   let currentPlaylistIndex = 0;
   let currentSongIndex = 0;
 
-  // 針對每個播放清單模擬內部曲目（可依清單 ID 讀取）
+  // 針對每個播放清單模擬內部曲目
   const playlistSongsMap = {
     "PLTWtZQRj3Afo": [
       { title: "史記-三顆星系列歌曲 01", duration: "3:45" },
@@ -1216,7 +1223,6 @@
     const activePl = playlists[index];
     document.getElementById("current-category-label").textContent = `🎵 ${activePl.name} 曲目清單`;
     
-    // 若隨機播放開啟，直接隨機選一首歌
     const songs = playlistSongsMap[activePl.id] || [{ title: activePl.name, duration: "3:45" }];
     if (isShuffleEnabled && songs.length > 0) {
       currentSongIndex = Math.floor(Math.random() * songs.length);
