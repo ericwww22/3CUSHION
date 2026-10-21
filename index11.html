@@ -279,26 +279,53 @@
       border-color: var(--gold);
     }
 
-    /* 動態網格佈局支援 2、3、4 人模式 */
+    /* =========================================================
+       ★★★ 置頂鎖定與動態網格佈局 (固定於螢幕上方)
+       ========================================================= */
+
+    #scoreboard-main {
+      position: sticky;
+      top: 8px;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      background: rgba(7, 27, 25, 0.95);
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
     main.grid-players-2 {
       display: grid !important;
-      grid-template-columns: minmax(0, 1fr) 248px minmax(0, 1fr) !important;
-      gap: 1rem !important;
+      grid-template-columns: minmax(0, 1fr) minmax(140px, 220px) minmax(0, 1fr) !important;
+      gap: 0.5rem !important;
       align-items: stretch;
       width: 100%;
     }
 
     main.grid-players-multi {
       display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 1rem !important;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      gap: 0.5rem !important;
       width: 100%;
     }
 
-    @media (max-width: 639px) {
+    @media (max-width: 768px) {
       main.grid-players-2 {
-        grid-template-columns: minmax(0, 1fr) 190px minmax(0, 1fr) !important;
-        gap: 0.5rem !important;
+        grid-template-columns: minmax(0, 1fr) 130px minmax(0, 1fr) !important;
+        gap: 0.25rem !important;
+      }
+
+      .center-panel {
+        padding: 0.5rem !important;
+      }
+      
+      .glass {
+        padding: 0.5rem !important;
+      }
+
+      .led-score {
+        font-size: 3.5rem !important;
       }
     }
 
@@ -1487,8 +1514,8 @@
   }
 
   function setDeviceMode(mode) {
-    if (mode === "mobile") currentZoom = 0.85;
-    else if (mode === "tablet") currentZoom = 1.0;
+    if (mode === "mobile") currentZoom = 0.75;
+    else if (mode === "tablet") currentZoom = 0.9;
     applyZoom();
   }
 
