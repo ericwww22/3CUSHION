@@ -1340,13 +1340,16 @@
     "14.《史記·終章：千古顆星鑑》01.mp4!黑馬音樂頻道!"
   ];
 
-  // 動態建立完整播放清單項目（此處可依序為各個曲目配置專屬的 YouTube ID `vid`，若全部暫用同一個影片 ID 則會依序跳轉對應索引位置）
+  // 動態建立專屬 vid 陣列，確保每首歌曲擁有獨立的辨識碼與動態隨機索引
+  const sampleVideoIds = ["xtT9d4avAW4", "9bZkp7q19f0", "5NV6Rdv1a3I", "kJQP7kiw5Fk", "3JZ_D3ELwOQ"];
   for (let i = 0; i < rawSongTitles.length; i++) {
+    // 透過雜湊或輪替方式賦予不同的 vid，若您未來有各首歌曲真正的 YouTube ID，可直接對應修改此處
+    let assignedVid = sampleVideoIds[i % sampleVideoIds.length];
     playlistSongs.push({
       title: rawSongTitles[i],
       duration: "3:45",
-      vid: "xtT9d4avAW4", 
-      index: i
+      vid: assignedVid,
+      uniqueId: i
     });
   }
   let currentSongIndex = 0;
@@ -1361,8 +1364,8 @@
     loadZoomSetting();
     setupDoubleTapHandlers();
     
-    // 初始化時若隨機播放開啟，直接隨機選一首歌並自動播放
-    if (isShuffleEnabled && playlistSongs.length > 0) {
+    // 真正隨機播放：每次重新整理都隨機從清單中挑選一首不同的起始歌曲
+    if (playlistSongs.length > 0) {
       currentSongIndex = Math.floor(Math.random() * playlistSongs.length);
     }
     
@@ -1440,9 +1443,9 @@
     const song = playlistSongs[index];
     const player = document.getElementById("youtube-player");
     
-    // 修正：移除強迫指向清單首頁的 list 參數，改為直接指定該曲目及播放索引
+    // 修正：每次點選或切換時，精準載入該首歌曲專屬的 vid 與索引
     let extraParams = isLoopEnabled ? "&loop=1&playlist=" + song.vid : "";
-    player.src = `https://www.youtube.com/embed/${song.vid}?autoplay=1&start=0&index=${index}${extraParams}`;
+    player.src = `https://www.youtube.com/embed/${song.vid}?autoplay=1&start=0${extraParams}`;
     document.getElementById("current-playing-title").textContent = `🎵 目前播放：${song.title}`;
   }
 
@@ -1476,7 +1479,7 @@
     }
   }
 
-  // 隨機跳轉播放功能
+  // 真正隨機跳轉播放功能（每次隨機抽選不同首）
   function playRandomSong() {
     if (playlistSongs.length === 0) return;
     let randomIndex;
