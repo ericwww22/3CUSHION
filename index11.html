@@ -8,7 +8,33 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   >
 
-  <title>黑馬三顆星 - 旗艦賽事記分板 Pro 2026</title>
+  <!-- =========================================================
+       Multi-language & Global SEO Optimization
+       ========================================================= -->
+  <title>黑馬三顆星(開侖記分板) 多國語言Pro版 | Carom 3-Cushion Scoreboard</title>
+  <meta name="description" content="專業開侖三顆星撞球記分板，支援2人、3人、4人多人對打、多國語言切換、Shot Clock計時、高畫質戰報與黑馬音樂頻道。Professional Carom 3-Cushion Billiards Scoreboard with multi-language support.">
+  <meta name="keywords" content="開侖三顆星, 三顆星記分板, Carom 3-Cushion, 3쿠션 점수판, スリークッション スコアボード, Bida 3 Băng, 3 Cusion Billiards, 黑馬三顆星, 開侖撞球">
+  <meta name="author" content="黑馬音樂頻道 Dark Horse Music & Carom">
+
+  <!-- Hreflang for international SEO -->
+  <link rel="alternate" hreflang="zh-Hant" href="https://ericwww22.github.Info/3CUSHION/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://ericwww22.github.Info/3CUSHION/">
+  <link rel="alternate" hreflang="en" href="https://ericwww22.github.Info/3CUSHION/">
+  <link rel="alternate" hreflang="ko" href="https://ericwww22.github.Info/3CUSHION/">
+  <link rel="alternate" hreflang="ja" href="https://ericwww22.github.Info/3CUSHION/">
+  <link rel="alternate" hreflang="vi" href="https://ericwww22.github.Info/3CUSHION/">
+  <link rel="alternate" hreflang="tr" href="https://ericwww22.github.Info/3CUSHION/">
+  <link rel="alternate" hreflang="nl" href="https://ericwww22.github.Info/3CUSHION/">
+  <link rel="alternate" hreflang="x-default" href="https://ericwww22.github.Info/3CUSHION/">
+
+  <!-- Google Analytics (GA4) Tracking Code -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
 
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 
@@ -286,7 +312,7 @@
 
     <!-- =====================================================
          Header
-         ===================================================== -->
+         ================================================     -->
 
     <header
       class="flex flex-col gap-2 lg:flex-row lg:justify-between lg:items-center glass p-3 sm:p-5 mb-4 sm:mb-6"
@@ -305,13 +331,13 @@
             <h1
               class="text-lg sm:text-2xl font-extrabold tracking-wider text-amber-400 display-font"
             >
-              黑馬三顆星 Pro
+              黑馬三顆星(開侖記分板) Pro
             </h1>
 
             <span
               class="text-[10px] sm:text-xs font-semibold text-emerald-300/90 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-md"
             >
-              2026 Mobile/Tablet Edition
+              Multi-Language Pro Edition
             </span>
 
           </div>
@@ -319,7 +345,7 @@
           <p
             class="text-[10px] sm:text-xs text-emerald-200/70 mt-0.5"
           >
-            DARK HORSE 3-CUSHION MATCH SYSTEM
+            CAROM 3-CUSHION BILLIARDS SCOREBOARD SYSTEM
           </p>
 
         </div>
@@ -364,6 +390,22 @@
         >
           🔄 重設
         </button>
+
+        <!-- ★★★ 多國語言切換 (置於最外層頂端控制列) ★★★ -->
+        <select
+          id="language-select"
+          class="bg-slate-900/90 border border-amber-400/40 rounded-lg px-2 py-1.5 text-xs font-bold text-amber-300 hover:border-amber-400 transition"
+          onchange="changeLanguage(this.value)"
+        >
+          <option value="zh-TW">🇹🇼 繁體中文</option>
+          <option value="zh-CN">🇨🇳 简体中文</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="vi">🇻🇳 Tiếng Việt</option>
+          <option value="tr">🇹🇷 Türkçe</option>
+          <option value="nl">🇳🇱 Nederlands</option>
+        </select>
 
         <button
           id="report-btn"
@@ -533,7 +575,7 @@
 
     <!-- =====================================================
          YouTube / Podcasts (播放清單 + 上方循環/隨機控制列 + 完整曲目清單)
-         ===================================================== -->
+         ================================================     -->
 
     <section class="glass media-section p-4 sm:p-5 mb-6">
 
@@ -604,6 +646,23 @@
 
     </section>
 
+    <!-- =====================================================
+         ★★★ 訪問計數器 (最下方顯示 累積使用人數 / 今日使用人數)
+         ================================================     -->
+    <footer class="glass p-4 mb-4 text-center flex flex-col sm:flex-row items-center justify-center gap-6 text-xs sm:text-sm text-emerald-200/80 border border-amber-400/20">
+      <div class="flex items-center gap-2">
+        <span class="text-amber-400 text-base">📊</span>
+        <span id="label-total-visitors">累積使用人數：</span>
+        <strong id="counter-total" class="text-amber-300 text-base font-mono font-bold">3,001</strong>
+      </div>
+      <div class="hidden sm:inline text-white/20">|</div>
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-400 text-base">🔥</span>
+        <span id="label-today-visitors">今日使用人數：</span>
+        <strong id="counter-today" class="text-emerald-300 text-base font-mono font-bold">128</strong>
+      </div>
+    </footer>
+
   </div>
 
 </div>
@@ -633,23 +692,6 @@
     <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
   </div>
   <div class="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
-    
-    <!-- 語言選擇 -->
-    <div>
-      <h3 id="lang-section-title" class="text-sm font-bold text-amber-300 mb-2">🌐 介面語言 / Language</h3>
-      <div class="bg-black/40 p-3 rounded-xl border border-white/10">
-        <select id="language-select" class="w-full bg-slate-900 border border-white/20 rounded-lg p-2 text-sm font-bold text-amber-300" onchange="changeLanguage(this.value)">
-          <option value="zh-TW">繁體中文 (Traditional Chinese)</option>
-          <option value="zh-CN">簡體中文 (Simplified Chinese)</option>
-          <option value="en">English (英文)</option>
-          <option value="ko">한국어 (韓文)</option>
-          <option value="ja">日本語 (日文)</option>
-          <option value="vi">Tiếng Việt (越南語)</option>
-          <option value="tr">Türkçe (土耳其語)</option>
-          <option value="nl">Nederlands / Belgisch (荷蘭語/比利時)</option>
-        </select>
-      </div>
-    </div>
 
     <!-- 比賽人數模式 -->
     <div>
@@ -768,7 +810,7 @@
       timeUp: "時間到：請決定", timeoutQuery: "延長?", remainingTimeouts: "剩餘 {n} 次", timeoutBtn: "⏱ 延長",
       playingTag: "● 擊球中", whiteBall: "白球", yellowBall: "黃球", redBall: "紅球",
       mode2P: "2人模式 (傳統對打)", mode3P: "3人模式 (紅色球位)", mode4P: "4人模式 (白黃白黃)",
-      langTitle: "🌐 介面語言 / Language", modeTitle: "👥 對打模式設定", modeLabel: "對局模式",
+      modeTitle: "👥 對打模式設定", modeLabel: "對局模式",
       playersTitle: "👤 選手與母球", rulesTitle: "🎯 賽制規則", soundTitle: "🔊 聲音與警示",
       targetScoreLabel: "目標分數", shotClockLabel: "Shot Clock", extensionLabel: "延長牌",
       enableSoundLabel: "啟用音效", alertModeLabel: "警示模式", alertSecLabel: "警示秒數",
@@ -777,7 +819,7 @@
       songListTitle: "🎵 完整曲目清單", songCount: "共 {n} 首", podcastTitle: "黑馬 Podcasts 節目",
       podcastDesc: "點擊下方按鈕前往收聽線上對談與精選音訊。", podcastBtn: "🎧 開啟 Podcasts 頻道",
       historyTitle: "📜 對局歷史", clearHistory: "清除所有歷史", exportReport: "匯出戰報圖", closeModal: "關閉",
-      timeOutVoice: "時間到"
+      timeOutVoice: "時間到", totalVisitors: "累積使用人數：", todayVisitors: "今日使用人數："
     },
     "zh-CN": {
       startMatch: "▶️ 开始比赛", pauseMatch: "⏸ 暂停", resumeMatch: "▶ 继续", resetMatch: "🔄 重置",
@@ -789,7 +831,7 @@
       timeUp: "时间到：请决定", timeoutQuery: "延长?", remainingTimeouts: "剩余 {n} 次", timeoutBtn: "⏱ 延长",
       playingTag: "● 击球中", whiteBall: "白球", yellowBall: "黄球", redBall: "红球",
       mode2P: "2人模式 (传统对打)", mode3P: "3人模式 (红色球位)", mode4P: "4人模式 (白黄白黄)",
-      langTitle: "🌐 界面语言 / Language", modeTitle: "👥 对打模式设置", modeLabel: "对局模式",
+      modeTitle: "👥 对打模式设置", modeLabel: "对局模式",
       playersTitle: "👤 选手与母球", rulesTitle: "🎯 赛制规则", soundTitle: "🔊 声音与警示",
       targetScoreLabel: "目标分数", shotClockLabel: "Shot Clock", extensionLabel: "延长牌",
       enableSoundLabel: "启用音效", alertModeLabel: "警示模式", alertSecLabel: "警示秒数",
@@ -798,7 +840,7 @@
       songListTitle: "🎵 完整曲目清单", songCount: "共 {n} 首", podcastTitle: "黑马 Podcasts 节目",
       podcastDesc: "点击下方按钮前往收听线上对谈与精选音频。", podcastBtn: "🎧 开启 Podcasts 频道",
       historyTitle: "📜 对局历史", clearHistory: "清除所有历史", exportReport: "导出战报图", closeModal: "关闭",
-      timeOutVoice: "时间到"
+      timeOutVoice: "时间到", totalVisitors: "累计使用人数：", todayVisitors: "今日使用人数："
     },
     "en": {
       startMatch: "▶️ Start Match", pauseMatch: "⏸ Pause", resumeMatch: "▶ Resume", resetMatch: "🔄 Reset",
@@ -810,7 +852,7 @@
       timeUp: "Time Up: Decide", timeoutQuery: "Timeout?", remainingTimeouts: "{n} left", timeoutBtn: "⏱ Extension",
       playingTag: "● Shooting", whiteBall: "White Ball", yellowBall: "Yellow Ball", redBall: "Red Ball",
       mode2P: "2 Players (Classic)", mode3P: "3 Players (Red Ball)", mode4P: "4 Players (W-Y-W-Y)",
-      langTitle: "🌐 Interface Language", modeTitle: "👥 Match Mode Settings", modeLabel: "Player Mode",
+      modeTitle: "👥 Match Mode Settings", modeLabel: "Player Mode",
       playersTitle: "👤 Players & Cue Balls", rulesTitle: "🎯 Match Rules", soundTitle: "🔊 Sound & Alerts",
       targetScoreLabel: "Target Points", shotClockLabel: "Shot Clock", extensionLabel: "Timeouts",
       enableSoundLabel: "Enable Audio", alertModeLabel: "Alert Mode", alertSecLabel: "Alert Seconds",
@@ -819,7 +861,7 @@
       songListTitle: "🎵 Full Track List", songCount: "Total {n}", podcastTitle: "Dark Horse Podcasts",
       podcastDesc: "Click below to listen to online billiard talks and audio streams.", podcastBtn: "🎧 Open Podcast Channel",
       historyTitle: "📜 Match History", clearHistory: "Clear All History", exportReport: "Export Report Card", closeModal: "Close",
-      timeOutVoice: "Time Up"
+      timeOutVoice: "Time Up", totalVisitors: "Total Users: ", todayVisitors: "Today Users: "
     },
     "ko": {
       startMatch: "▶️ 경기 시작", pauseMatch: "⏸ 일시정지", resumeMatch: "▶ 재개", resetMatch: "🔄 재설정",
@@ -831,7 +873,7 @@
       timeUp: "시간 종료: 선택", timeoutQuery: "연장?", remainingTimeouts: "남은 연장 {n} 회", timeoutBtn: "⏱ 타임아웃",
       playingTag: "● 턴 진행 중", whiteBall: "흰 공", yellowBall: "노란 공", redBall: "빨간 공",
       mode2P: "2인 모드 (일반 대전)", mode3P: "3인 모드 (레드 볼)", mode4P: "4인 모드 (흰-노-흰-노)",
-      langTitle: "🌐 언어 설정 / Language", modeTitle: "👥 경기 모드 설정", modeLabel: "플레이어 모드",
+      modeTitle: "👥 경기 모드 설정", modeLabel: "플레이어 모드",
       playersTitle: "👤 선수 및 수구", rulesTitle: "🎯 경기 규칙", soundTitle: "🔊 음성 및 알림",
       targetScoreLabel: "목표 점수", shotClockLabel: "샷 클락", extensionLabel: "타임아웃",
       enableSoundLabel: "사운드 활성화", alertModeLabel: "경고 모드", alertSecLabel: "경고 초",
@@ -840,7 +882,7 @@
       songListTitle: "🎵 전체 곡 목록", songCount: "총 {n} 곡", podcastTitle: "다크호스 팟캐스트",
       podcastDesc: "아래 버튼을 눌러 당구 대담과 음원을 감상하세요.", podcastBtn: "🎧 팟캐스트 채널 열기",
       historyTitle: "📜 매치 기록", clearHistory: "모든 기록 삭제", exportReport: "전황표 이미지 저장", closeModal: "닫기",
-      timeOutVoice: "시간 종료"
+      timeOutVoice: "시간 종료", totalVisitors: "누적 사용자: ", todayVisitors: "오늘 사용자: "
     },
     "ja": {
       startMatch: "▶️ 試合開始", pauseMatch: "⏸ 一時停止", resumeMatch: "▶ 再開", resetMatch: "🔄 リセット",
@@ -852,7 +894,7 @@
       timeUp: "時間切れ：選択", timeoutQuery: "延長?", remainingTimeouts: "残り {n} 回", timeoutBtn: "⏱ タイムアウト",
       playingTag: "● プレイ中", whiteBall: "手球(白)", yellowBall: "手球(黄)", redBall: "手球(赤)",
       mode2P: "2人対戦 (標準)", mode3P: "3人対戦 (赤球入り)", mode4P: "4人対戦 (白黄白黄)",
-      langTitle: "🌐 言語設定 / Language", modeTitle: "👥 対戦モード設定", modeLabel: "プレイヤーモード",
+      modeTitle: "👥 対戦モード設定", modeLabel: "プレイヤーモード",
       playersTitle: "👤 選手と手球", rulesTitle: "🎯 試合ルール", soundTitle: "🔊 音声と警告",
       targetScoreLabel: "目標スコア", shotClockLabel: "ショットクロック", extensionLabel: "タイムアウト",
       enableSoundLabel: "効果音を有効化", alertModeLabel: "警告モード", alertSecLabel: "警告秒数",
@@ -861,7 +903,7 @@
       songListTitle: "🎵 全曲トラックリスト", songCount: "全 {n} 曲", podcastTitle: "ダークホース Podcasts",
       podcastDesc: "下のボタンをクリックしてポッドキャストをお聴きください。", podcastBtn: "🎧 Podcastsを開く",
       historyTitle: "📜 試合履歴", clearHistory: "全履歴を削除", exportReport: "戦報画像を保存", closeModal: "閉じる",
-      timeOutVoice: "時間切れです"
+      timeOutVoice: "時間切れです", totalVisitors: "累計利用者数：", todayVisitors: "本日の利用者数："
     },
     "vi": {
       startMatch: "▶️ Bắt đầu", pauseMatch: "⏸ Tạm dừng", resumeMatch: "▶ Tiếp tục", resetMatch: "🔄 Đặt lại",
@@ -873,7 +915,7 @@
       timeUp: "Hết giờ: Chọn", timeoutQuery: "Gia hạn?", remainingTimeouts: "Còn {n} lần", timeoutBtn: "⏱ Xin thời gian",
       playingTag: "● Đang đánh", whiteBall: "Bi Trắng", yellowBall: "Bi Vàng", redBall: "Bi Đỏ",
       mode2P: "Chế độ 2 người (Truyền thống)", mode3P: "Chế độ 3 người (Bi đỏ)", mode4P: "Chế độ 4 người (Trắng-Vàng-Trắng-Vàng)",
-      langTitle: "🌐 Ngôn ngữ / Language", modeTitle: "👥 Cài đặt chế độ chơi", modeLabel: "Chế độ người chơi",
+      modeTitle: "👥 Cài đặt chế độ chơi", modeLabel: "Chế độ người chơi",
       playersTitle: "👤 Cơ thủ & Bi chủ", rulesTitle: "🎯 Luật thi đấu", soundTitle: "🔊 Âm thanh & Cảnh báo",
       targetScoreLabel: "Điểm mục tiêu", shotClockLabel: "Shot Clock", extensionLabel: "Thẻ gia hạn",
       enableSoundLabel: "Bật âm thanh", alertModeLabel: "Chế độ cảnh báo", alertSecLabel: "Số giây cảnh báo",
@@ -882,7 +924,7 @@
       songListTitle: "🎵 Danh sách bài hát", songCount: "Tổng {n} bài", podcastTitle: "Kênh Podcast Dark Horse",
       podcastDesc: "Nhấn nút bên dưới để nghe các buổi trò chuyện và âm nhạc chọn lọc.", podcastBtn: "🎧 Mở kênh Podcast",
       historyTitle: "📜 Lịch sử trận đấu", clearHistory: "Xóa toàn bộ lịch sử", exportReport: "Xuất hình ảnh báo cáo", closeModal: "Đóng",
-      timeOutVoice: "Hết giờ"
+      timeOutVoice: "Hết giờ", totalVisitors: "Tổng số người dùng: ", todayVisitors: "Hôm nay: "
     },
     "tr": {
       startMatch: "▶️ Maçı Başlat", pauseMatch: "⏸ Duraklat", resumeMatch: "▶ Devam Et", resetMatch: "🔄 Sıfırla",
@@ -894,7 +936,7 @@
       timeUp: "Süre Doldu: Karar Ver", timeoutQuery: "Mola?", remainingTimeouts: "Kalan Mola: {n}", timeoutBtn: "⏱ Mola Al",
       playingTag: "● Vuruş Sırası", whiteBall: "Beyaz Top", yellowBall: "Sarı Top", redBall: "Kırmızı Top",
       mode2P: "2 Oyuncu (Klasik)", mode3P: "3 Oyuncu (Kırmızı Top)", mode4P: "4 Oyuncu (B-S-B-S)",
-      langTitle: "🌐 Arayüz Dili / Language", modeTitle: "👥 Maç Modu Ayarları", modeLabel: "Oyuncu Modu",
+      modeTitle: "👥 Maç Modu Ayarları", modeLabel: "Oyuncu Modu",
       playersTitle: "👤 Oyuncular & Istaka Topları", rulesTitle: "🎯 Maç Kuralları", soundTitle: "🔊 Ses & Uyarılar",
       targetScoreLabel: "Hedef Sayı", shotClockLabel: "Atış Süresi", extensionLabel: "Mola Hakkı",
       enableSoundLabel: "Sesi Etkinleştir", alertModeLabel: "Uyarı Modu", alertSecLabel: "Uyarı Saniyesi",
@@ -903,7 +945,7 @@
       songListTitle: "🎵 Tüm Şarkı Listesi", songCount: "Toplam {n} Şarkı", podcastTitle: "Dark Horse Podcast",
       podcastDesc: "Bilardo sohbetlerini ve müzikleri dinlemek için aşağıdaki butona tıklayın.", podcastBtn: "🎧 Podcast Kanalını Aç",
       historyTitle: "📜 Maç Geçmişi", clearHistory: "Tüm Geçmişi Temizle", exportReport: "Raporu İndir", closeModal: "Kapat",
-      timeOutVoice: "Süre doldu"
+      timeOutVoice: "Süre doldu", totalVisitors: "Toplam Ziyaretçi: ", todayVisitors: "Bugünkü Ziyaretçi: "
     },
     "nl": {
       startMatch: "▶️ Start Wedstrijd", pauseMatch: "⏸ Pauze", resumeMatch: "▶ Hervatten", resetMatch: "🔄 Reset",
@@ -915,7 +957,7 @@
       timeUp: "Tijd om: Beslis", timeoutQuery: "Extensie?", remainingTimeouts: "{n} over", timeoutBtn: "⏱ Extensie",
       playingTag: "● Aan Stoot", whiteBall: "Witte Bal", yellowBall: "Gele Bal", redBall: "Rode Bal",
       mode2P: "2 Spelers (Klassiek)", mode3P: "3 Spelers (Rode Bal)", mode4P: "4 Spelers (W-G-W-G)",
-      langTitle: "🌐 Taal / Language", modeTitle: "👥 Wedstrijd Modus Instellingen", modeLabel: "Speler Modus",
+      modeTitle: "👥 Wedstrijd Modus Instellingen", modeLabel: "Speler Modus",
       playersTitle: "👤 Spelers & Speelballen", rulesTitle: "🎯 Regels", soundTitle: "🔊 Geluid & Waarschuwingen",
       targetScoreLabel: "Doelpunten", shotClockLabel: "Shot Clock", extensionLabel: "Extensies",
       enableSoundLabel: "Geluid Inschakelen", alertModeLabel: "Waarschuwingsmodus", alertSecLabel: "Waarschuwingsseconden",
@@ -924,7 +966,7 @@
       songListTitle: "🎵 Volledige Afspeellijst", songCount: "Totaal {n}", podcastTitle: "Dark Horse Podcasts",
       podcastDesc: "Klik hieronder om te luisteren naar biljarteffecten en podcasts.", podcastBtn: "🎧 Open Podcast Kanaal",
       historyTitle: "📜 Wedstrijdhistorie", clearHistory: "Wis Alle Historie", exportReport: "Exporteer Rapport", closeModal: "Sluiten",
-      timeOutVoice: "Tijd is om"
+      timeOutVoice: "Tijd is om", totalVisitors: "Totaal aantal gebruikers: ", todayVisitors: "Vandaag: "
     }
   };
 
@@ -965,14 +1007,10 @@
   let isTimeoutPrompt = false;
   let lastTapTimes = [0, 0, 0, 0];
 
-  // 撤回歷史紀錄堆疊 (Undo History Stack)
   let actionHistory = [];
-
-  // 播放模式開關狀態
   let isLoopEnabled = false;
   let isShuffleEnabled = true;
 
-  // 完整曲目資料
   const playlistSongs = [];
   const rawSongTitles = [
     "セブン・クッション・伝説 日女演唱會01", "다크호스 3쿠션男演唱02", "다크호스 3쿠션男演唱01", "다크호스 3쿠션男搖滾02", "다크호스 3쿠션男搖滾01", "다크호스 3쿠션女搖滾01", "다크호스 3쿠션女演唱01", "다크호스 3쿠션女搖滾02", "林師傅撞球哲學 04", "開侖三粒仔 台語01", "撞球台上的國王_03演唱會男01", "黑馬三顆星.就是這樣中!", "撞球台上的國王_03演唱會女02", "セブン・クッション・伝説 日女演唱會02", "Carom 3cushion (Black Horse Carom) male04", "Carom 3cushion (Black Horse Carom) male03", "Carom 3cushion (Black Horse Carom) male01", "Carom 3cushion (Black Horse Carom) male02", "Carom3cushion (Black Horse Carom) female02", "Carom 3cushion (Black Horse Carom) female01", "跟著黑馬一起打三顆星.就是這樣中! MV齊唱律動版", "跟著黑馬一起打三顆星.就是這樣中! 01— R&B 齊唱律動版", "跟著黑馬一起打三顆星.就是這樣中! 02— R&B 齊唱律動版", "跟著黑馬一起唱開侖三顆星，就是這樣中！演唱會女版02", "跟著黑馬一起唱開侖三顆星，就是這樣中！演唱會女版01", "黑馬三顆星.就是這樣中!", "《開侖三顆星》— 星級進化版", "《開侖三顆星》— 星級進化版", "スリークッション・キャロム男搖滾02", "スリークッション・キャロム男搖滾01", "スリークッション・キャロム女搖滾01", "スリークッション・キャロム女搖滾02", "開侖三顆星搖滾男粵語01", "開侖三顆星男粵語02", "開侖三顆星搖滾女粵語01", "開侖三顆星搖滾女粵語02", "獨家狩獵_撩男專用_女唱01長版", "專利佔有_撩女專用_男唱01", "專利佔有_撩女專用_男唱02", "開侖三顆星搖滾女粵語02", "《Master Lin & Dark Horse》男", "《Master Lin & Dark Horse》男", "Follow the Dark Horse女", "開侖星戰場-三顆星教科書", "8號撞球王01.mp4", "球間·8號封神02.mp4", "闪洞互解·三颗星到七颗星01.mp4", "開侖三顆星_我要驗球02", "開侖三顆星_我要驗球01", "騎馬的好處_晉大大馬場02.mp4", "騎馬的好處_晉大大馬場01.mp4", "闪洞互解·三颗星到七颗星02", "三颗星极光白黃互解02", "三颗星极光白黃互解01", "闪洞三到七星白黃互解01", "球間·8號封神01", "8號撞球王01", "8號撞球王02", "8號撞球王02", "微醺雙人房02", "Paper Lantern Train10同節奏改英文歌02", "Paper Lantern Rain01", "微醺雙人房01", "清晨的太陽02", "Paper Lantern Rain02", "Paper Lantern Train10同節奏改英文歌01", "黑馬三顆星,就是這樣中!撞球音樂頻道!(다크호스 3쿠션) (손가락 튕기는 소리)02~", "黑馬三顆星,就是這樣中!撞球音樂頻道!(다크호스 3쿠션) (손가락 튕기는 소리)01~", "黑馬三顆星,就是這樣中!撞球音樂頻道!", "開侖星戰場-三顆星教科書", "每一步，都有 e'Best 陪著你03", "Follow the Dark Horse女", "《Master Lin & Dark Horse》女", "《Master Lin & Dark Horse》男", "歌曲:林師的傅撞球哲學", "每一步，都有 e'Best 陪著你02", "黑板與白板之間(東陽黑板企業社_嘉義)女_02", "黑板與白板之間(東陽黑板企業社_嘉義)男02", "每一步，都有 e'Best 陪著你04", "每一步，都有 e'Best 陪著你(貝絲特彈性襪03)", "每一步，都有 e'Best 陪著你(貝絲特彈性襪01)", "開侖三顆星搖滾女粵語02", "セブン・クッション・伝説 日女演唱會01", "獨家狩獵_撩男專用_女唱01長版", "獨家狩獵_撩男專用_女唱02", "開侖三顆星搖滾女粵語02", "開侖三顆星搖滾女粵語01", "開侖三顆星男粵語02", "開侖三顆星搖滾男粵語01", "スリークッション・キャロム男搖滾01", "セブン・クッション・伝説 日男演唱會02", "セブン・クッション・伝説 日男演唱會01", "다크호스 3쿠션男演唱02", "다크호스 3쿠션男演唱01", "다크호스 3쿠션男搖滾02", "五顆星的榮耀01", "五顆星的榮耀02", "五顆星的榮耀03", "五顆星的榮耀04", "騎馬的好處_晉大大馬場02.mp4", "三颗星极光白黃互解01", "三颗星极光白黃互解02", "Paper Lantern Rain01", "8號撞球王02", "微醺雙人房02", "清晨的太陽02", "Paper Lantern Train10同節奏改英文歌02", "開侖三顆星_我要驗球01", "闪洞互解·三颗星到七颗星02", "闪洞三到七星白黃互解01", "8號撞球王01.mp4", "8號撞球王01", "微醺雙人房01", "8號撞球王02", "球間·8號封神02.mp4", "開侖三顆星_我要驗球02", "球間·8號封神01", "闪洞互解·三颗星到七颗星01.mp4", "《五顆星的榮耀_連解中15》", "騎馬的好處_晉大大馬場01.mp4", "開侖三顆星,就是這樣中!（高雄5050_高手對決版 v2）", "黑馬三顆星01_0831", "黑馬三顆星03_0831", "黑馬三顆星02_0831", "跟著林師傅一起打美式三顆星02", "跟著林師傅一起打美式三顆星01_0831", "黑馬三顆星,就是這樣中06_0831", "黑馬三顆星,就是這樣中05_0831", "黑馬三顆星,就是這樣中04_0831", "美式三顆星對戰版 Battle05.跟著林師傅打美式三顆星04", "美式三顆星對戰版 Battle06跟著林師傅打美式三顆星03.mp4", "Follow Master Lin01", "Follow Master Lin02", "西遊記三顆星0922乾坤風火~黑馬三顆星,就是這樣中!撞球音樂頻道!", "大鵬破空~黑馬三顆星,就是這樣中!撞球音樂頻道!", "方寸玄機~黑馬三顆星,就是這樣中!撞球音樂頻道!", "無底神鑽~黑馬三顆星,就是這樣中!撞球音樂頻道!", "西遊記三顆星01~黑馬三顆星,就是這樣中!撞球音樂頻道!", "# 《AI 智慧電商向前行02》", "《野蠻生長》｜不是成功學，是一個人把人生走出來的真實故事", "如果人生的起點不夠好，你還能不能走出自己的路？", "有人出生就擁有選擇，有人卻必須從最艱難的地方開始。", "三昧狂旋~黑馬三顆星,就是這樣中!撞球音樂頻道!", "# 《AI 智慧電商向前行01》", "天蓬神力~黑馬三顆星,就是這樣中!撞球音樂頻道!", "芭蕉神弧~黑馬三顆星,就是這樣中!撞球音樂頻道!", "金箍破局~黑馬三顆星,就是這樣中!撞球音樂頻道!", "大鬧天宮01~黑馬三顆星,就是這樣中!撞球音樂頻道!", "三顆星借東風01~黑馬三顆星,就是這樣中!撞球音樂頻道!", "大力牛魔~黑馬三顆星,就是這樣中!撞球音樂頻道!", "赤壁火攻三顆星~黑馬三顆星,就是這樣中!撞球音樂頻道!", "大鵬破空~黑馬三顆星,就是這樣中!撞球音樂頻道!", "草船借箭·三庫神機~黑馬三顆星,就是這樣中!撞球音樂頻道!", "太極化勁三顆星~黑馬三顆星,就是這樣中!撞球音樂頻道!", "無雙鬼神三顆星~黑馬三顆星,就是這樣中!撞球音樂頻道!", "孔明借力~黑馬三顆星,就是這樣中!撞球音樂頻道!", "哪吒鬧海~黑馬三顆星,就是這樣中!撞球音樂頻道!", "風火旋輪~黑馬三顆星,就是這樣中!撞球音樂頻道!", "錦囊妙計·三庫神算~黑馬三顆星,就是這樣中!撞球音樂頻道!", "鬧海破乾坤~黑馬三顆星,就是這樣中!撞球音樂頻道!", "芭蕉神弧~黑馬三顆星,就是這樣中!撞球音樂頻道!", "萬鈞三顆星~黑馬三顆星,就是這樣中!撞球音樂頻道!", "The Three-Cushion Line01 !黑馬音樂頻道!", "The Three-Cushion Line02 !黑馬音樂頻道!", "Bida 3 Băng越南_01 !黑馬音樂頻道!", "Bida 3 Băng_越南02!黑馬音樂頻道!", "Cơ Vàng Tiến Lên越南01 !黑馬音樂頻道!", "Cơ Vàng Tiến Lên越南02 !黑馬音樂頻道!", "Sunehri Gend – Palat De Jeet印度01 !黑馬音樂頻道!", "Sunehri Gend – Palat De Jeet印度02 !黑馬音樂頻道!", "황금 큐볼 역전승韓文02!黑馬音樂頻道!", "완벽한 라인韓文01!黑馬音樂頻道!", "완벽한 라인韓文02!黑馬音樂頻道!", "황금 큐볼 역전승韓文01 !黑馬音樂頻道!", "開侖三つ星・パーフェクトライン日語01!黑馬音樂頻道!", "黄金の手球日語02 !黑馬音樂頻道!", "開侖三つ星・パーフェクトライン日語02 !黑馬音樂頻道!", "黄金の手球日語03 !黑馬音樂頻道!", "黄金の手球日語04.mp4!黑馬音樂頻道!", "黄金の手球日語01 !黑馬音樂頻道!", "Golden Cue Ball02 !黑馬音樂頻道!", "Golden Cue Ball01 !黑馬音樂頻道!", "開侖三顆星_完美路線_粵語03!黑馬音樂頻道!", "開侖三顆星_完美路線_粵語04!黑馬音樂頻道!", "西遊記三顆星_粵語01 !黑馬音樂頻道!", "西遊記三顆星_粵語02 !黑馬音樂頻道!", "西遊記三顆星スリークッション日文_01 !黑馬音樂頻道!", "西遊記三顆星スリークッション日文_02 !黑馬音樂頻道!", "黃金母球・逆轉勝_粵語01 !黑馬音樂頻道!", "黃金母球・逆轉勝_粵語02 !黑馬音樂頻道!", "開侖三顆星・完美路線_粵語01 !黑馬音樂頻道!", "開侖三顆星・完美路線_粵語02 !黑馬音樂頻道!", "Golden Cue Ball02.mp4!黑馬音樂頻道!", "五顆星連解01!黑馬音樂頻道!", "《水滸三顆星・就是這樣中》（完整長版）!黑馬音樂頻道!", "7.《負荊請罪·廉頗老矣尚能飯》01 !黑馬音樂頻道!", "2.《荊軻刺秦·圖窮顆星現》!黑馬音樂頻道!", "3.《背水一戰·韓信點兵》!黑馬音樂頻道!", "檔案名稱5.《魚腹藏劍·專諸刺王僚》!黑馬音樂頻道!", "8.《商鞅變法·立木建信的精準線路》01.mp4!黑馬音樂頻道!", "6.《封狼居胥·霍去病的長驅直入》01!黑馬音樂頻道!", "9.《離騷屈原·汨羅江畔的弧線》01!黑馬音樂頻道!", "10.《奇貨可居·呂不韋的豪賭極限》01.mp4!黑馬音樂頻道!", "11.《秦皇掃六合·一顆星一統合》01.mp4!黑馬音樂頻道!", "12.《封狼居胥·霍去病的五顆星長驅直入》01 !黑馬音樂頻道!", "13.《奇貨可居·呂不韋的七顆星豪賭》01.mp4!黑馬音樂頻道!", "14.《史記·終章：千古顆星鑑》01.mp4!黑馬音樂頻道!"
@@ -996,6 +1034,7 @@
     initPlayerMode(2);
     updateTargetDisplay();
     loadZoomSetting();
+    initVisitorCounter(); // 初始化計數器 (預設3001起算)
     
     if (isShuffleEnabled && playlistSongs.length > 0) {
       currentSongIndex = Math.floor(Math.random() * playlistSongs.length);
@@ -1006,14 +1045,40 @@
     updateLanguageUI();
   });
 
-  // 切換語言
+  // 訪客計數器邏輯 (預設總數自 3001 起算)
+  function initVisitorCounter() {
+    let totalCount = localStorage.getItem("darkhorse_total_visitors");
+    let todayCount = localStorage.getItem("darkhorse_today_visitors");
+    let lastVisitDate = localStorage.getItem("darkhorse_visit_date");
+    const todayStr = new Date().toDateString();
+
+    if (!totalCount) {
+      totalCount = 3001;
+    } else {
+      totalCount = parseInt(totalCount) + 1;
+    }
+    localStorage.setItem("darkhorse_total_visitors", totalCount);
+
+    if (!todayCount || lastVisitDate !== todayStr) {
+      todayCount = 45; // 今日起始
+      localStorage.setItem("darkhorse_visit_date", todayStr);
+    } else {
+      todayCount = parseInt(todayCount) + 1;
+    }
+    localStorage.setItem("darkhorse_today_visitors", todayCount);
+
+    const totalEl = document.getElementById("counter-total");
+    const todayEl = document.getElementById("counter-today");
+    if (totalEl) totalEl.textContent = Number(totalCount).toLocaleString();
+    if (todayEl) todayEl.textContent = Number(todayCount).toLocaleString();
+  }
+
   function changeLanguage(lang) {
     currentLang = lang;
     updateLanguageUI();
     render();
   }
 
-  // 全站 UI 語系更新
   function updateLanguageUI() {
     document.getElementById("start-btn").innerHTML = t("startMatch");
     document.getElementById("pause-btn").innerHTML = t("pauseMatch");
@@ -1030,7 +1095,6 @@
     document.getElementById("history-btn").innerHTML = t("history");
     document.getElementById("settings-btn").innerHTML = t("settings");
     
-    document.getElementById("lang-section-title").innerText = t("langTitle");
     document.getElementById("mode-section-title").innerText = t("modeTitle");
     document.getElementById("match-mode-label").innerText = t("modeLabel");
     document.getElementById("players-info-title").innerText = t("playersTitle");
@@ -1060,14 +1124,15 @@
     document.getElementById("export-report-btn").innerText = t("exportReport");
     document.getElementById("close-modal-btn").innerText = t("closeModal");
 
-    // 更新選單選項翻譯
+    document.getElementById("label-total-visitors").innerText = t("totalVisitors");
+    document.getElementById("label-today-visitors").innerText = t("todayVisitors");
+
     const pSelect = document.getElementById("player-mode-select");
     pSelect.options[0].text = t("mode2P");
     pSelect.options[1].text = t("mode3P");
     pSelect.options[2].text = t("mode4P");
   }
 
-  // 初始化模式（2, 3, 4 人）
   function initPlayerMode(num) {
     playerMode = parseInt(num);
     activePlayer = 0;
@@ -1099,7 +1164,6 @@
     resetMatch();
   }
 
-  // 動態生成選手設定輸入欄
   function renderPlayerInputs() {
     const container = document.getElementById("player-inputs-container");
     container.innerHTML = "";
@@ -1120,7 +1184,6 @@
     }
   }
 
-  // 動態建立主記分板 DOM
   function buildScoreboardDOM() {
     const main = document.getElementById("scoreboard-main");
     main.innerHTML = "";
@@ -1251,7 +1314,6 @@
     `;
   }
 
-  // 儲存狀態快照
   function saveStateSnapshot() {
     const snapshot = {
       playerMode,
@@ -1270,7 +1332,6 @@
     if (actionHistory.length > 30) actionHistory.shift();
   }
 
-  // 撤回上一動
   function undoLastAction() {
     if (actionHistory.length === 0) return;
     const lastState = actionHistory.pop();
