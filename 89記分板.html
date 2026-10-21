@@ -127,6 +127,57 @@
   </div>
 </div>
 
+<!-- YouTube 音樂播放區塊 -->
+<section class="glass media-section p-4 sm:p-5 mb-6 max-w-7xl mx-auto">
+  <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
+    <div class="flex items-center gap-2">
+      <span class="text-lg">🎧</span>
+      <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (15首)</h2>
+    </div>
+    <div class="text-xs text-emerald-200/70" id="current-playing-title">🎵 目前播放：載入中...</div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+    <div class="lg:col-span-2 flex flex-col gap-2">
+      <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-emerald-300 font-bold">播放模式：</span>
+          <button id="btn-loop" onclick="toggleLoopMode()" class="btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold">🔁 單曲循環: 關</button>
+          <button id="btn-shuffle" onclick="toggleShuffleMode()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded-lg text-xs font-bold shadow">🔀 隨機播放: 開</button>
+        </div>
+        <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs">🎲 隨機跳轉</button>
+      </div>
+      <div class="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black">
+        <iframe id="youtube-player" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+    </div>
+    <div class="flex flex-col gap-2">
+      <div class="text-xs font-bold text-amber-300 flex justify-between items-center px-1">
+        <span>清單曲目 (15首)</span>
+        <span class="text-[10px] text-gray-400">點擊即播</span>
+      </div>
+      <div id="song-list-container" class="flex flex-col gap-1.5 max-h-[340px] overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 最下方流量與使用人數計數器 -->
+<footer class="max-w-7xl mx-auto mb-8 text-center">
+  <div class="glass py-3 px-4 flex flex-wrap justify-center items-center gap-6 text-xs text-emerald-200/80 border border-white/10">
+    <div class="flex items-center gap-2">
+      <span>👥</span>
+      <span>累積使用人數：<strong id="counter-total" class="text-amber-400 font-mono text-sm">5001</strong> 人</span>
+    </div>
+    <div class="h-3 w-[1px] bg-white/20 hidden sm:block"></div>
+    <div class="flex items-center gap-2">
+      <span>🔥</span>
+      <span>今日使用人數：<strong id="counter-today" class="text-emerald-300 font-mono text-sm">1</strong> 人</span>
+    </div>
+    <div class="h-3 w-[1px] bg-white/20 hidden sm:block"></div>
+    <div class="text-[11px] text-gray-400">© 2026 黑馬三顆星撞球記分系統 Pro Edition</div>
+  </div>
+</footer>
+
 <!-- 設定 Dialog -->
 <dialog id="settings-modal" class="p-6 text-white glass border border-amber-400/50 rounded-3xl max-w-lg w-full shadow-2xl">
   <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-4">
@@ -167,12 +218,9 @@
       </select>
     </div>
 
-    <!-- 選手姓名動態設定區 -->
     <div>
       <label class="block text-xs text-emerald-300 mb-1 font-bold">選手姓名設定</label>
-      <div id="name-inputs-container" class="grid grid-cols-2 gap-2">
-        <!-- JS 動態填入姓名輸入框 -->
-      </div>
+      <div id="name-inputs-container" class="grid grid-cols-2 gap-2"></div>
     </div>
   </div>
   <div class="mt-6 text-right">
@@ -197,40 +245,6 @@
   <p id="win-summary" class="text-lg font-bold text-white mb-4"></p>
   <button onclick="document.getElementById('win-modal').close(); resetMatch();" class="bg-amber-400 text-slate-950 font-extrabold px-6 py-2.5 rounded-xl">重新開始新賽局</button>
 </dialog>
-
-<!-- YouTube 音樂播放區塊 -->
-<section class="glass media-section p-4 sm:p-5 mb-6 max-w-7xl mx-auto">
-  <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3">
-    <div class="flex items-center gap-2">
-      <span class="text-lg">🎧</span>
-      <h2 class="text-base sm:text-lg font-bold text-amber-400">黑馬音樂頻道 ‧ 播放清單選歌 (15首)</h2>
-    </div>
-    <div class="text-xs text-emerald-200/70" id="current-playing-title">🎵 目前播放：載入中...</div>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-    <div class="lg:col-span-2 flex flex-col gap-2">
-      <div class="flex items-center justify-between bg-black/50 px-3 py-2 rounded-xl border border-white/10">
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-emerald-300 font-bold">播放模式：</span>
-          <button id="btn-loop" onclick="toggleLoopMode()" class="btn-action bg-emerald-600/40 hover:bg-emerald-600 text-emerald-200 border border-emerald-500/50 px-2.5 py-1 rounded-lg text-xs font-bold">🔁 單曲循環: 關</button>
-          <button id="btn-shuffle" onclick="toggleShuffleMode()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded-lg text-xs font-bold shadow">🔀 隨機播放: 開</button>
-        </div>
-        <button onclick="playRandomSong()" class="btn-action bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs">🎲 隨機跳轉</button>
-      </div>
-      <div class="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black">
-        <iframe id="youtube-player" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-      </div>
-    </div>
-    <div class="flex flex-col gap-2">
-      <div class="text-xs font-bold text-amber-300 flex justify-between items-center px-1">
-        <span>清單曲目 (15首)</span>
-        <span class="text-[10px] text-gray-400">點擊即播</span>
-      </div>
-      <div id="song-list-container" class="flex flex-col gap-1.5 max-h-[340px] overflow-y-auto pr-1"></div>
-    </div>
-  </div>
-</section>
 
 <script>
   let playerCount = 2;
@@ -266,8 +280,50 @@
     if (isShuffleEnabled) currentSongIndex = Math.floor(Math.random() * playlistSongs.length);
     renderSongList();
     selectSong(currentSongIndex);
+    initVisitorCounters();
     render();
   });
+
+  // 計數器初始化與累加邏輯（預設5001起算）
+  function initVisitorCounters() {
+    let totalCount = localStorage.getItem("billiard_total_visitors");
+    let todayCount = localStorage.getItem("billiard_today_visitors");
+    let lastVisitDate = localStorage.getItem("billiard_last_visit_date");
+    const currentDate = new Date().toDateString();
+
+    if (!totalCount) {
+      totalCount = 5001;
+      localStorage.setItem("billiard_total_visitors", totalCount);
+    } else {
+      totalCount = parseInt(totalCount);
+    }
+
+    // 檢查是否為新的一天，若是則重設今日訪客
+    if (lastVisitDate !== currentDate) {
+      todayCount = 1;
+      localStorage.setItem("billiard_last_visit_date", currentDate);
+      localStorage.setItem("billiard_today_visitors", todayCount);
+      // 跨日新訪客總數+1
+      totalCount++;
+      localStorage.setItem("billiard_total_visitors", totalCount);
+    } else {
+      if (!todayCount) {
+        todayCount = 1;
+      } else {
+        // 每次重新整理或進入網頁，若尚未記錄過本次 Session 則計數+1
+        if (!sessionStorage.getItem("visited_session")) {
+          todayCount = parseInt(todayCount) + 1;
+          totalCount++;
+          sessionStorage.setItem("visited_session", "true");
+          localStorage.setItem("billiard_today_visitors", todayCount);
+          localStorage.setItem("billiard_total_visitors", totalCount);
+        }
+      }
+    }
+
+    document.getElementById("counter-total").textContent = totalCount.toLocaleString();
+    document.getElementById("counter-today").textContent = parseInt(todayCount).toLocaleString();
+  }
 
   function updatePlayerCountInputs() {
     playerCount = parseInt(document.getElementById("player-count").value) || 2;
@@ -291,8 +347,6 @@
       </div>
     `).join('');
     
-    const mainEl = document.getElementById("scoreboard-main");
-    mainEl.className = `players-grid-${playerCount} mb-6`;
     render();
   }
 
@@ -356,7 +410,7 @@
       `;
     }).join('');
 
-    document.getElementById("target-display.textContent") = `目標搶分: ${targetScore} 分`;
+    document.getElementById("target-display").textContent = `目標搶分: ${targetScore} 分`;
     document.getElementById("elapsed-time").textContent = formatTime(totalElapsedSeconds);
   }
 
