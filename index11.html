@@ -1340,12 +1340,12 @@
     "14.《史記·終章：千古顆星鑑》01.mp4!黑馬音樂頻道!"
   ];
 
-  // 動態建立完整播放清單項目
+  // 動態建立完整播放清單項目（此處可依序為各個曲目配置專屬的 YouTube ID `vid`，若全部暫用同一個影片 ID 則會依序跳轉對應索引位置）
   for (let i = 0; i < rawSongTitles.length; i++) {
     playlistSongs.push({
       title: rawSongTitles[i],
       duration: "3:45",
-      vid: "xtT9d4avAW4",
+      vid: "xtT9d4avAW4", 
       index: i
     });
   }
@@ -1440,9 +1440,9 @@
     const song = playlistSongs[index];
     const player = document.getElementById("youtube-player");
     
-    // 如果開啟循環播放，帶入 loop 參數
+    // 修正：移除強迫指向清單首頁的 list 參數，改為直接指定該曲目及播放索引
     let extraParams = isLoopEnabled ? "&loop=1&playlist=" + song.vid : "";
-    player.src = `https://www.youtube.com/embed/${song.vid}?list=PLQvBYUHGQEcU&index=${index}&autoplay=1${extraParams}`;
+    player.src = `https://www.youtube.com/embed/${song.vid}?autoplay=1&start=0&index=${index}${extraParams}`;
     document.getElementById("current-playing-title").textContent = `🎵 目前播放：${song.title}`;
   }
 
