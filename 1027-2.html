@@ -99,7 +99,8 @@
                     <option value="B">🍱 廠商 B（經典便當系列）</option>
                     <option value="C">🍱 廠商 C（特色弁當系列）</option>
                     <option value="D">📅 廠商 D（金御咖哩~11月限定特價）</option>
-                    <option value="E" selected>🍱 廠商 E（御上皇經濟便當）</option>
+                    <option value="E">🍱 廠商 E（御上皇經濟便當）</option>
+                    <option value="F" selected>📅 廠商 F（好記便當~11月優惠菜單）</option>
                 </select>
             </div>
 
@@ -200,7 +201,7 @@
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwvznQ855PvLdxNTHMs6MO4eaEpV7fZZT9aY421DDri_lhtyWAMkHkwePyozVO0C5xE/exec";
 
-    // 依據字首 A, B, C, D, E 分類的菜單資料
+    // 依據字首 A, B, C, D, E, F 分類的菜單資料
     const allMenuItems = [
         // 廠商 A（素食選項）
         { vendor: "A", name: "A佳岱素食-白飯", price: 70, isVege: true, allowEgg: false },
@@ -265,7 +266,22 @@
         { vendor: "E", name: "E懷舊排骨", price: 80 },
         { vendor: "E", name: "E港式香腸飯", price: 80 },
         { vendor: "E", name: "E香醋鱈魚", price: 80 },
-        { vendor: "E", name: "E酥炸鯖魚", price: 80 }
+        { vendor: "E", name: "E酥炸鯖魚", price: 80 },
+
+        // 廠商 F（好記私房便當 - 11月優惠菜單）
+        { vendor: "F", name: "F脆皮炸雞 (一)", price: 75 },
+        { vendor: "F", name: "F蒜泥豬里肌 (一)", price: 80 },
+        { vendor: "F", name: "F紅燒獅子頭 (二)", price: 75 },
+        { vendor: "F", name: "F紐奧良雞腿 (二)", price: 80 },
+        { vendor: "F", name: "F毛豆雞丁 (三)", price: 75 },
+        { vendor: "F", name: "F蜜汁咕咾肉 (三)", price: 80 },
+        { vendor: "F", name: "F古早味排骨 (四)", price: 75 },
+        { vendor: "F", name: "F檸檬香茅雞 (四)", price: 80 },
+        { vendor: "F", name: "F咔啦雞排 (五)", price: 75 },
+        { vendor: "F", name: "F蒜香辣炒肉片 (五)", price: 80 },
+        { vendor: "F", name: "F炒木須肉 (六)", price: 75 },
+        { vendor: "F", name: "F糖醋魚 (六)", price: 80 },
+        { vendor: "F", name: "F健康蔬菜飯", price: 70 }
     ];
 
     let selectedItem = null;
@@ -316,7 +332,8 @@
             };
 
             let displayName = item.name.replace(/^[A-Z]/, '');
-            const isTodayMenu = vendorKey === 'D' && item.name.includes(todayTag);
+            // 對於按星期排定的廠商 (D, F)，自動標示今日主打品項
+            const isTodayMenu = (vendorKey === 'D' || vendorKey === 'F') && item.name.includes(todayTag);
             const titleStyle = isTodayMenu ? 'class="today-highlight"' : '';
 
             div.innerHTML = `<span ${titleStyle}>${displayName}</span><span class="menu-price">$${item.price}</span>`;
