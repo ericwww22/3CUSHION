@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>謝師宴及同學結業聚餐統計表(AI電商班) | AI 結業紀念版</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts: Noto Sans TC 與 Orbitron / JetBrains Mono 科技字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
+    <!-- 引入 FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        tech: ['"Orbitron"', '"Noto Sans TC"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            bg: '#050816',
+                            surface: '#0A0F24',
+                            cyan: '#00F0FF',
+                            purple: '#8B5CF6',
+                            pink: '#EC4899',
+                            gold: '#F59E0B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 深邃星夜科技基底與賽博網格 */
+        body {
+            background-color: #050816;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 85% 75%, rgba(0, 240, 255, 0.14) 0%, transparent 45%),
+                linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+            background-attachment: fixed;
+        }
+
+        /* 動態流光掃描線 */
+        .cyber-scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.5), rgba(139, 92, 246, 0.5), transparent);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+            animation: scanMove 8s linear infinite;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @keyframes scanMove {
+            0% { top: -2%; opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { top: 102%; opacity: 0; }
+        }
+
+        /* AI 毛玻璃擬態卡片 (Glassmorphism) */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 240, 255, 0.22);
+            box-shadow: 0 8px 32px rgba(2, 6, 23, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+        }
+
+        /* 霓虹文字發光 */
+        .neon-text-cyan {
+            text-shadow: 0 0 14px rgba(0, 240, 255, 0.55);
+        }
+
+        /* 自訂深色捲軸 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.35);
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.65);
+        }
+    </style>
+</head>
+<body class="text-slate-100 font-sans antialiased selection:bg-cyan-400 selection:text-slate-950 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- 全螢幕動態 AI 神經網絡粒子 Canvas 背景 -->
+    <canvas id="aiNetworkCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+    <!-- 科技流光掃描線 -->
+    <div class="cyber-scanline"></div>
+
+    <!-- 頂部未來 AI 視覺橫幅 -->
+    <header class="relative pt-10 pb-16 px-4 z-10 border-b border-cyan-500/20 bg-gradient-to-b from-slate-950/80 via-slate-900/50 to-transparent">
+        <div class="max-w-2xl mx-auto text-center relative">
+            <!-- AI 結業紀念徽章 -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/40 text-cyan-300 text-xs sm:text-sm font-mono tracking-wider mb-4 shadow-[0_0_20px_rgba(0,240,255,0.2)] backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                <i class="fa-solid fa-microchip text-cyan-400"></i>
+                <span>AI GRADUATION BANQUET // 結業紀念盛典</span>
+            </div>
+
+            <h1 class="font-sans text-3xl sm:text-4xl md:text-5xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 to-purple-300 neon-text-cyan mb-3 leading-tight">
+                謝師宴及同學結業聚餐統計表(AI電商班)
+            </h1>
+
+            <p class="text-slate-300 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+                感謝師長引領探索科技新視界，珍藏同窗並肩學習的美好時光。<br class="hidden sm:inline">誠摯邀請您撥冗出席，舉杯共慶結業榮耀！
+            </p>
+        </div>
+    </header>
+
+    <!-- 主要內容區塊 -->
+    <main class="flex-grow max-w-2xl w-full mx-auto px-4 -mt-8 pb-12 relative z-10 space-y-6">
+
+        <!-- 1. 活動資訊與重要備註卡片 -->
+        <section class="glass-card rounded-2xl overflow-hidden transition-all duration-300">
+            <div class="bg-slate-900/70 px-6 py-4 border-b border-cyan-500/20 flex items-center justify-between">
+                <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2.5">
+                    <i class="fa-solid fa-satellite-dish text-cyan-400"></i>
+                    <span>聚餐活動資訊</span>
+                </h2>
+                <span class="text-xs font-mono font-semibold px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-400/40 rounded-full">
+                    ON TIME // 準時開桌
+                </span>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <!-- 日期與時間 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-900/60 border border-cyan-500/25 hover:border-cyan-400/50 transition">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+                            <i class="fa-regular fa-calendar-days text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-cyan-400/80 font-mono">DATE // 活動日期</div>
+                            <div class="text-base sm:text-lg font-bold text-white mt-0.5">11月20日（週五）</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-900/60 border border-purple-500/25 hover:border-purple-400/50 transition">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(139,92,246,0.4)]">
+                            <i class="fa-regular fa-clock text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-purple-300/80 font-mono">TIME // 開桌時間</div>
+                            <div class="text-base sm:text-lg font-bold text-white mt-0.5">
+                                晚上 6:31 分 <span class="text-xs font-normal text-cyan-300">(開桌)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 重要備註：聚餐費用說明卡片 (賽博霓虹金發光框) -->
+                <div class="p-4 rounded-xl bg-gradient-to-r from-amber-500/15 via-purple-500/15 to-cyan-500/15 border border-amber-400/50 shadow-[0_0_20px_rgba(245,158,11,0.15)] flex items-start gap-3.5 relative overflow-hidden">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.5)] mt-0.5">
+                        <i class="fa-solid fa-coins text-lg"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/40">
+                                NOTICE // 重要備註
+                            </span>
+                            <span class="text-xs text-amber-200/80 font-medium">聚餐費用說明</span>
+                        </div>
+                        <div class="text-base sm:text-lg font-bold text-white mt-1.5 leading-snug">
+                            聚餐費用 600 元 - 700 元
+                            <span class="inline-block mt-1 sm:mt-0 sm:ml-2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 text-slate-950 text-xs sm:text-sm font-extrabold shadow-[0_0_12px_rgba(0,240,255,0.4)]">
+                                老師免費，多退少補
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 餐廳與地點 -->
+                <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-700/80 space-y-3">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.4)] mt-0.5">
+                            <i class="fa-solid fa-utensils text-lg"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <div class="text-xs text-emerald-400/90 font-mono">LOCATION // 聚餐地點</div>
+                            <div class="text-lg font-bold text-white mt-0.5">蚵庄海產餐廳</div>
+                            <p class="text-sm text-slate-300 mt-1 leading-snug">
+                                600嘉義市西區福全里博愛路二段396號
+                            </p>
+                            
+                            <!-- 地圖操作按鈕列 -->
+                            <div class="flex flex-wrap items-center gap-2.5 mt-3">
+                                <a href="https://maps.app.goo.gl/sYneEtyEnFtduVmE7" target="_blank" rel="noopener noreferrer" 
+                                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 text-xs sm:text-sm font-bold transition shadow-[0_0_15px_rgba(0,240,255,0.35)]">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span>開啟 Google Maps 導航</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                </a>
+                                <button type="button" onclick="copyAddress()" 
+                                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-xs sm:text-sm font-medium transition">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span>複製地址</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 內嵌 Google 地圖預覽 (深色科技邊框包裝) -->
+                    <div class="mt-3 rounded-xl overflow-hidden border border-cyan-500/30 shadow-[0_0_20px_rgba(0,240,255,0.12)] bg-slate-950 relative h-56 sm:h-64">
+                        <iframe 
+                            title="蚵庄海產 嘉義市西區博愛路二段396號 地圖"
+                            class="w-full h-full border-0 opacity-95"
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            src="https://maps.google.com/maps?q=蚵庄海產%20嘉義市西區博愛路二段396號&t=&z=16&ie=UTF8&iwloc=&output=embed">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 出席意願調查表單 -->
+        <section class="glass-card rounded-2xl overflow-hidden transition-all duration-300">
+            <div class="bg-slate-900/70 px-6 py-4 border-b border-cyan-500/20">
+                <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2.5">
+                    <i class="fa-solid fa-terminal text-purple-400"></i>
+                    <span>出席意願登記表單</span>
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">請輸入您的出席資訊，系統將即時同步計算總桌數</p>
+            </div>
+
+            <form id="rsvpForm" class="p-6 space-y-6" novalidate>
+                <!-- 欄位 1: 姓名 (必填) -->
+                <div>
+                    <label for="guestName" class="block text-sm font-bold text-slate-200 mb-2">
+                        1. 您的姓名 / 稱謂 <span class="text-cyan-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-cyan-400/80">
+                            <i class="fa-solid fa-user-astronaut"></i>
+                        </div>
+                        <input type="text" id="guestName" name="guestName" required
+                               placeholder="例如：王小明 或 陳老師"
+                               class="w-full pl-10 pr-4 py-3.5 rounded-xl border border-slate-700 bg-slate-950/75 text-white placeholder-slate-500 focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent focus:shadow-[0_0_15px_rgba(0,240,255,0.25)] transition text-base">
+                    </div>
+                    <p id="nameError" class="hidden text-xs text-rose-400 mt-1.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>請輸入您的姓名</span>
+                    </p>
+                </div>
+
+                <!-- 欄位 2: 出席狀態 (卡片式單選按鈕，大尺寸好點擊) -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-200 mb-2">
+                        2. 出席狀態 <span class="text-cyan-400">*</span>
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <!-- 選項 A: 參加 -->
+                        <label class="cursor-pointer relative group">
+                            <input type="radio" name="attendance" value="參加" class="peer sr-only" onchange="toggleGuestCount(true)">
+                            <div class="p-4 rounded-xl border-2 border-slate-700/90 bg-slate-900/60 hover:border-cyan-500/50 peer-checked:border-cyan-400 peer-checked:bg-cyan-950/50 peer-checked:shadow-[0_0_20px_rgba(0,240,255,0.25)] transition flex items-center gap-3.5">
+                                <div class="w-9 h-9 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center peer-checked:bg-cyan-400 peer-checked:text-slate-950 transition shrink-0">
+                                    <i class="fa-solid fa-check font-bold"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-white text-base">參加</div>
+                                    <div class="text-xs text-cyan-300/80">準時出席同樂</div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- 選項 B: 不克參加 -->
+                        <label class="cursor-pointer relative group">
+                            <input type="radio" name="attendance" value="不克參加" class="peer sr-only" onchange="toggleGuestCount(false)">
+                            <div class="p-4 rounded-xl border-2 border-slate-700/90 bg-slate-900/60 hover:border-purple-500/50 peer-checked:border-purple-400 peer-checked:bg-purple-950/40 peer-checked:shadow-[0_0_20px_rgba(139,92,246,0.25)] transition flex items-center gap-3.5">
+                                <div class="w-9 h-9 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center peer-checked:bg-purple-500 peer-checked:text-white transition shrink-0">
+                                    <i class="fa-solid fa-xmark font-bold"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-white text-base">不克參加</div>
+                                    <div class="text-xs text-slate-400">心意與祝福同在</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <p id="attendanceError" class="hidden text-xs text-rose-400 mt-1.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>請選擇您的出席狀態</span>
+                    </p>
+                </div>
+
+                <!-- 欄位 3: 參加人數 (1-9人，選擇「參加」時平滑展開並試算預估費用) -->
+                <div id="guestCountSection" class="hidden transition-all duration-300 overflow-hidden">
+                    <div class="p-4 rounded-xl bg-cyan-950/35 border border-cyan-400/40 space-y-3 shadow-[inset_0_0_20px_rgba(0,240,255,0.08)]">
+                        <label for="guestCount" class="block text-sm font-bold text-cyan-300">
+                            3. 參加人數（含本人，1-9人） <span class="text-cyan-400">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-cyan-400">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <select id="guestCount" name="guestCount" onchange="updateFeeEstimate()"
+                                    class="w-full pl-10 pr-10 py-3.5 rounded-xl border border-cyan-500/40 bg-slate-950 text-white font-medium focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition text-base appearance-none cursor-pointer">
+                                <option value="1" selected>1 人（僅本人出席）</option>
+                                <option value="2">2 人</option>
+                                <option value="3">3 人</option>
+                                <option value="4">4 人</option>
+                                <option value="5">5 人</option>
+                                <option value="6">6 人</option>
+                                <option value="7">7 人</option>
+                                <option value="8">8 人</option>
+                                <option value="9">9 人</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-cyan-400">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+
+                        <!-- 即時預估餐費參考 -->
+                        <div class="p-3 rounded-lg bg-slate-900/80 border border-amber-400/30 flex items-center justify-between gap-2 text-xs sm:text-sm">
+                            <span class="text-slate-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-calculator text-amber-400"></i>
+                                <span>預估餐費參考：</span>
+                            </span>
+                            <span id="feeEstimateText" class="font-mono font-bold text-amber-300">
+                                NT$ 600 ~ 700 元
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-info text-cyan-400"></i>
+                            <span>註：聚餐費用 600 元 - 700 元（老師免費，多退少補）</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 送出按鈕 -->
+                <div class="pt-2">
+                    <button type="submit" id="submitBtn"
+                            class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 hover:from-cyan-400 hover:via-blue-400 hover:to-purple-500 active:scale-[0.99] text-slate-950 font-black text-base sm:text-lg shadow-[0_0_25px_rgba(0,240,255,0.35)] hover:shadow-[0_0_32px_rgba(0,240,255,0.55)] transition flex items-center justify-center gap-2.5">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>送出登記資料</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- 3. 即時報名名單與總人數統計預覽 -->
+        <section class="glass-card rounded-2xl overflow-hidden transition-all duration-300">
+            <div class="bg-slate-900/70 px-6 py-4 border-b border-cyan-500/20 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2.5">
+                        <i class="fa-solid fa-chart-network text-purple-400"></i>
+                        <span>即時出席統計儀表板</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">即時統計紀錄，支援一鍵複製 LINE 名單或匯出 CSV</p>
+                </div>
+                
+                <!-- 匯出與複製功能按鈕 -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="copySummaryList()" 
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 text-xs font-bold transition">
+                        <i class="fa-regular fa-clipboard"></i>
+                        <span>複製 LINE 名單</span>
+                    </button>
+                    <button type="button" onclick="exportCSV()" 
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-400/40 text-xs font-bold transition">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>匯出 CSV</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 數據儀表板 -->
+            <div class="grid grid-cols-3 divide-x divide-cyan-500/20 border-b border-cyan-500/20 bg-slate-950/50">
+                <div class="p-4 text-center">
+                    <div class="text-[11px] sm:text-xs text-slate-400 font-medium">總出席人數</div>
+                    <div class="font-tech text-2xl sm:text-3xl font-bold text-cyan-400 neon-text-cyan mt-1" id="totalAttendingCount">0</div>
+                    <div class="text-[11px] text-cyan-500/80 font-mono mt-0.5">PEOPLE</div>
+                </div>
+                <div class="p-4 text-center">
+                    <div class="text-[11px] sm:text-xs text-slate-400 font-medium">報名筆數</div>
+                    <div class="font-tech text-2xl sm:text-3xl font-bold text-emerald-400 mt-1" id="attendingEntriesCount">0</div>
+                    <div class="text-[11px] text-emerald-500/80 font-mono mt-0.5">JOINED</div>
+                </div>
+                <div class="p-4 text-center">
+                    <div class="text-[11px] sm:text-xs text-slate-400 font-medium">不克參加</div>
+                    <div class="font-tech text-2xl sm:text-3xl font-bold text-purple-400 mt-1" id="notAttendingCount">0</div>
+                    <div class="text-[11px] text-purple-500/80 font-mono mt-0.5">ABSENT</div>
+                </div>
+            </div>
+
+            <!-- 名單列表 -->
+            <div class="p-6">
+                <div id="emptyListPlaceholder" class="text-center py-8 text-slate-500">
+                    <i class="fa-solid fa-satellite text-3xl mb-2.5 text-cyan-500/40"></i>
+                    <p class="text-sm">系統待命中，歡迎成為第一位完成登記的夥伴！</p>
+                </div>
+
+                <div id="rsvpListContainer" class="hidden space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                    <!-- 動態插入清單項目 -->
+                </div>
+
+                <!-- 清除測試資料按鈕 -->
+                <div id="clearListWrapper" class="hidden mt-4 pt-3 border-t border-slate-800 flex justify-end">
+                    <button type="button" onclick="clearLocalRecords()" 
+                            class="text-xs text-slate-500 hover:text-rose-400 transition flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg hover:bg-rose-950/30">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>清除本機統計紀錄</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="relative z-10 bg-slate-950/90 border-t border-cyan-500/20 text-slate-400 py-6 px-4 text-center text-xs space-y-1.5 backdrop-blur-md">
+        <p class="text-cyan-300 font-medium">11月20日 謝師宴及同學結業聚餐籌備小組</p>
+        <p>地點：蚵庄海產餐廳（嘉義市西區福全里博愛路二段396號）｜晚上 6:31 開桌</p>
+    </footer>
+
+    <!-- 自訂 Toast 提示訊息框 (取代 alert) -->
+    <div id="toastNotification" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none max-w-sm w-[90%]">
+        <div class="bg-slate-900/95 text-white px-4 py-3.5 rounded-xl shadow-[0_0_25px_rgba(0,240,255,0.3)] border border-cyan-400/50 flex items-center gap-3 text-sm backdrop-blur-md">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-cyan-400 text-base shrink-0"></i>
+            <span id="toastMessage" class="leading-snug">操作成功</span>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * 1. 動態 AI 神經網絡粒子連線背景 (Neural Network Particle Constellation)
+         * ============================================================================
+         */
+        (function initAINetworkCanvas() {
+            const canvas = document.getElementById("aiNetworkCanvas");
+            const ctx = canvas.getContext("2d");
+            let width, height;
+            let particles = [];
+            const pointer = { x: null, y: null, radius: 140 };
+
+            function resizeCanvas() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                createParticles();
+            }
+
+            function createParticles() {
+                particles = [];
+                // 依據螢幕面積動態決定粒子數量，兼顧手機效能與桌面視覺豐富度
+                const area = width * height;
+                const count = Math.min(85, Math.max(32, Math.floor(area / 16000)));
+                const colors = ["rgba(0, 240, 255, ", "rgba(139, 92, 246, ", "rgba(56, 189, 248, "];
+
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.55,
+                        vy: (Math.random() - 0.5) * 0.55,
+                        size: Math.random() * 2 + 1.2,
+                        colorBase: colors[i % colors.length]
+                    });
+                }
+            }
+
+            window.addEventListener("resize", resizeCanvas);
+            window.addEventListener("mousemove", (e) => {
+                pointer.x = e.clientX;
+                pointer.y = e.clientY;
+            });
+            window.addEventListener("touchmove", (e) => {
+                if (e.touches.length > 0) {
+                    pointer.x = e.touches[0].clientX;
+                    pointer.y = e.touches[0].clientY;
+                }
+            }, { passive: true });
+            window.addEventListener("touchend", () => {
+                pointer.x = null;
+                pointer.y = null;
+            });
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                // 若有滑鼠或觸控位置，繪製柔和互動光暈
+                if (pointer.x !== null && pointer.y !== null) {
+                    const grad = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, pointer.radius * 1.4);
+                    grad.addColorStop(0, "rgba(0, 240, 255, 0.12)");
+                    grad.addColorStop(0.5, "rgba(139, 92, 246, 0.05)");
+                    grad.addColorStop(1, "rgba(5, 8, 22, 0)");
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(pointer.x, pointer.y, pointer.radius * 1.4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 更新與繪製節點
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > width) p.vx *= -1;
+                    if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = p.colorBase + "0.75)";
+                    ctx.fill();
+
+                    // 節點之間神經網絡連線
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const p2 = particles[j];
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const maxDist = 135;
+
+                        if (dist < maxDist) {
+                            const alpha = (1 - dist / maxDist) * 0.28;
+                            ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
+                            ctx.lineWidth = 0.8;
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.stroke();
+                        }
+                    }
+
+                    // 節點與滑鼠/觸控游標連線
+                    if (pointer.x !== null && pointer.y !== null) {
+                        const dx = p.x - pointer.x;
+                        const dy = p.y - pointer.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < pointer.radius) {
+                            const alpha = (1 - dist / pointer.radius) * 0.55;
+                            ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
+                            ctx.lineWidth = 1.1;
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(pointer.x, pointer.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            resizeCanvas();
+            animate();
+        })();
+
+        /**
+         * ============================================================================
+         * 2. Google Apps Script (GAS) 雲端試算表串接設定區
+         * ============================================================================
+         * 若要將所有人的表單自動寫入同一份 Google 試算表，請依照以下步驟設定：
+         * 1. 開啟 Google 試算表 -> 擴充功能 -> Apps Script。
+         * 2. 貼上 doPost(e) 接收程式並部署為「網頁應用程式 (Web App)」，權限設為「所有人」。
+         * 3. 將產生的部署網址貼入下方 GAS_WEB_APP_URL 引號中即可啟用雲端同步！
+         */
+        const GAS_WEB_APP_URL = ""; // 例如: "https://script.google.com/macros/s/AKfycbx.../exec"
+
+        // 本機儲存鍵值
+        const STORAGE_KEY = "banquet_rsvp_records_1120";
+        let rsvpRecords = [];
+
+        // 頁面載入初始化
+        document.addEventListener("DOMContentLoaded", () => {
+            loadRecords();
+            renderSummary();
+            updateFeeEstimate();
+        });
+
+        // 動態切換「參加人數 (1-9人)」區塊顯示/隱藏
+        function toggleGuestCount(isAttending) {
+            const section = document.getElementById("guestCountSection");
+            const attendanceError = document.getElementById("attendanceError");
+            attendanceError.classList.add("hidden");
+
+            if (isAttending) {
+                section.classList.remove("hidden");
+                updateFeeEstimate();
+            } else {
+                section.classList.add("hidden");
+            }
+        }
+
+        // 即時更新預估餐費試算
+        function updateFeeEstimate() {
+            const count = parseInt(document.getElementById("guestCount").value, 10) || 1;
+            const minTotal = count * 600;
+            const maxTotal = count * 700;
+            const feeEstimateText = document.getElementById("feeEstimateText");
+            feeEstimateText.textContent = `NT$ ${minTotal.toLocaleString()} ~ ${maxTotal.toLocaleString()} 元 (${count}人)`;
+        }
+
+        // 顯示自訂 Toast 提示 (不使用 alert)
+        let toastTimer;
+        function showToast(message, type = "success") {
+            const toast = document.getElementById("toastNotification");
+            const icon = document.getElementById("toastIcon");
+            const msg = document.getElementById("toastMessage");
+
+            msg.textContent = message;
+            if (type === "error") {
+                icon.className = "fa-solid fa-circle-exclamation text-rose-400 text-base shrink-0";
+            } else if (type === "info") {
+                icon.className = "fa-solid fa-circle-info text-amber-400 text-base shrink-0";
+            } else {
+                icon.className = "fa-solid fa-circle-check text-cyan-400 text-base shrink-0";
+            }
+
+            toast.classList.remove("translate-y-20", "opacity-0");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add("translate-y-20", "opacity-0");
+            }, 3200);
+        }
+
+        // 複製餐廳地址到剪貼簿
+        function copyAddress() {
+            const addressText = "600嘉義市西區福全里博愛路二段396號 (蚵庄海產)";
+            copyToClipboardFallback(addressText, "已複製餐廳地址！可直接貼上導航");
+        }
+
+        // 通用剪貼簿複製函式 (相容 iFrame 與手機瀏覽器)
+        function copyToClipboardFallback(text, successMsg) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand("copy");
+                showToast(successMsg, "success");
+            } catch (err) {
+                showToast("複製失敗，請手動選取文字複製", "error");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // 表單送出處理
+        document.getElementById("rsvpForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const nameInput = document.getElementById("guestName");
+            const nameError = document.getElementById("nameError");
+            const attendanceError = document.getElementById("attendanceError");
+            const selectedRadio = document.querySelector('input[name="attendance"]:checked');
+            const guestCountSelect = document.getElementById("guestCount");
+
+            let isValid = true;
+            const trimmedName = nameInput.value.trim();
+
+            // 驗證姓名
+            if (!trimmedName) {
+                nameError.classList.remove("hidden");
+                nameInput.focus();
+                isValid = false;
+            } else {
+                nameError.classList.add("hidden");
+            }
+
+            // 驗證出席狀態
+            if (!selectedRadio) {
+                attendanceError.classList.remove("hidden");
+                isValid = false;
+            } else {
+                attendanceError.classList.add("hidden");
+            }
+
+            if (!isValid) {
+                showToast("請確認必填欄位皆已填寫完整", "error");
+                return;
+            }
+
+            const attendanceStatus = selectedRadio.value;
+            const count = attendanceStatus === "參加" ? parseInt(guestCountSelect.value, 10) : 0;
+            const timestamp = new Date().toLocaleString("zh-TW", {
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+            const newRecord = {
+                id: Date.now(),
+                name: trimmedName,
+                status: attendanceStatus,
+                count: count,
+                timestamp: timestamp
+            };
+
+            // 若有設定 GAS_WEB_APP_URL，同步傳送至 Google 試算表
+            if (GAS_WEB_APP_URL && GAS_WEB_APP_URL.trim() !== "") {
+                const submitBtn = document.getElementById("submitBtn");
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>資料傳送中...</span>';
+
+                try {
+                    await fetch(GAS_WEB_APP_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(newRecord)
+                    });
+                } catch (err) {
+                    console.error("GAS 傳送錯誤:", err);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>送出登記資料</span>';
+                }
+            }
+
+            // 儲存至本機即時統計（若同名則更新，否則新增）
+            const existingIndex = rsvpRecords.findIndex(item => item.name === trimmedName);
+            if (existingIndex > -1) {
+                rsvpRecords[existingIndex] = newRecord;
+                showToast(`已更新「${trimmedName}」的出席登記！`, "success");
+            } else {
+                rsvpRecords.unshift(newRecord);
+                showToast(`感謝「${trimmedName}」完成登記！`, "success");
+            }
+
+            saveRecords();
+            renderSummary();
+
+            // 重設表單
+            this.reset();
+            toggleGuestCount(false);
+        });
+
+        // 刪除單筆紀錄
+        function deleteSingleRecord(id) {
+            const target = rsvpRecords.find(item => item.id === id);
+            rsvpRecords = rsvpRecords.filter(item => item.id !== id);
+            saveRecords();
+            renderSummary();
+            if (target) {
+                showToast(`已移除「${target.name}」的紀錄`, "info");
+            }
+        }
+
+        // 讀取本機紀錄
+        function loadRecords() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    rsvpRecords = JSON.parse(saved);
+                }
+            } catch (e) {
+                rsvpRecords = [];
+            }
+        }
+
+        // 儲存本機紀錄
+        function saveRecords() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(rsvpRecords));
+            } catch (e) {
+                console.warn("無法寫入 localStorage", e);
+            }
+        }
+
+        // 渲染統計儀表板與名單
+        function renderSummary() {
+            const totalAttendingEl = document.getElementById("totalAttendingCount");
+            const attendingEntriesEl = document.getElementById("attendingEntriesCount");
+            const notAttendingEl = document.getElementById("notAttendingCount");
+            const emptyPlaceholder = document.getElementById("emptyListPlaceholder");
+            const listContainer = document.getElementById("rsvpListContainer");
+            const clearWrapper = document.getElementById("clearListWrapper");
+
+            let totalPeople = 0;
+            let attendingEntries = 0;
+            let notAttendingEntries = 0;
+
+            rsvpRecords.forEach(item => {
+                if (item.status === "參加") {
+                    totalPeople += item.count;
+                    attendingEntries += 1;
+                } else {
+                    notAttendingEntries += 1;
+                }
+            });
+
+            totalAttendingEl.textContent = totalPeople;
+            attendingEntriesEl.textContent = attendingEntries;
+            notAttendingEl.textContent = notAttendingEntries;
+
+            if (rsvpRecords.length === 0) {
+                emptyPlaceholder.classList.remove("hidden");
+                listContainer.classList.add("hidden");
+                clearWrapper.classList.add("hidden");
+                return;
+            }
+
+            emptyPlaceholder.classList.add("hidden");
+            listContainer.classList.remove("hidden");
+            clearWrapper.classList.remove("hidden");
+
+            listContainer.innerHTML = rsvpRecords.map(item => {
+                const isJoin = item.status === "參加";
+                const badgeClass = isJoin
+                    ? "bg-cyan-500/15 text-cyan-300 border-cyan-400/40"
+                    : "bg-purple-500/15 text-purple-300 border-purple-400/40";
+                const countBadge = isJoin
+                    ? `<span class="font-mono font-bold text-white ml-1.5">${item.count}人</span>`
+                    : "";
+
+                return `
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/70 border border-slate-700/80 hover:border-cyan-500/40 transition group">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-full ${isJoin ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40' : 'bg-purple-500/20 text-purple-300 border border-purple-400/40'} flex items-center justify-center font-bold text-xs shrink-0">
+                                ${escapeHTML(item.name.charAt(0))}
+                            </div>
+                            <div class="truncate">
+                                <div class="font-bold text-white text-sm truncate">${escapeHTML(item.name)}</div>
+                                <div class="text-[11px] text-slate-400 font-mono">SYNC // ${escapeHTML(item.timestamp)}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 ml-2">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium border ${badgeClass}">
+                                ${escapeHTML(item.status)}${countBadge}
+                            </span>
+                            <button type="button" onclick="deleteSingleRecord(${item.id})" title="刪除此筆紀錄"
+                                    class="w-7 h-7 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 flex items-center justify-center transition">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        // 防範 XSS 字串跳脫
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // 複製文字版統計名單 (方便貼回 LINE 群組)
+        function copySummaryList() {
+            if (rsvpRecords.length === 0) {
+                showToast("目前尚無名單可複製", "info");
+                return;
+            }
+
+            let totalPeople = 0;
+            const attendingLines = [];
+            const notAttendingLines = [];
+
+            rsvpRecords.forEach(item => {
+                if (item.status === "參加") {
+                    totalPeople += item.count;
+                    attendingLines.push(`・${item.name}（${item.count}人）`);
+                } else {
+                    notAttendingLines.push(`・${item.name}`);
+                }
+            });
+
+            let summaryText = `【11/20 謝師宴及同學結業聚餐統計】\n`;
+            summaryText += `時間：11月20日 晚上6:31開桌\n`;
+            summaryText += `地點：蚵庄海產（嘉義市西區博愛路二段396號）\n`;
+            summaryText += `備註：聚餐費用600元-700元(老師免費,多退少補)\n`;
+            summaryText += `------------------------\n`;
+            summaryText += `✅ 參加名單（共 ${totalPeople} 人）：\n`;
+            summaryText += attendingLines.length > 0 ? attendingLines.join("\n") : "（尚無）";
+            if (notAttendingLines.length > 0) {
+                summaryText += `\n\n❌ 不克參加：\n${notAttendingLines.join("\n")}`;
+            }
+
+            copyToClipboardFallback(summaryText, "已複製完整統計名單，可直接貼上 LINE 群組！");
+        }
+
+        // 匯出 CSV 檔案
+        function exportCSV() {
+            if (rsvpRecords.length === 0) {
+                showToast("目前尚無資料可匯出", "info");
+                return;
+            }
+
+            // 加入 UTF-8 BOM 確保 Excel 開啟中文不亂碼
+            let csvContent = "\uFEFF姓名,出席狀態,參加人數,登記時間\n";
+            rsvpRecords.forEach(item => {
+                const safeName = `"${item.name.replace(/"/g, '""')}"`;
+                csvContent += `${safeName},${item.status},${item.count},"${item.timestamp}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "11月20日謝師宴聚餐統計表.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast("已成功匯出 CSV 統計表！", "success");
+        }
+
+        // 清除本機紀錄 (兩段式按鈕確認，不使用 confirm)
+        let clearConfirmState = false;
+        let clearConfirmTimer;
+        function clearLocalRecords() {
+            const btn = document.querySelector("#clearListWrapper button");
+            if (!clearConfirmState) {
+                clearConfirmState = true;
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-400"></i><span class="text-rose-400 font-bold">再按一次確認清除全部紀錄</span>';
+                clearConfirmTimer = setTimeout(() => {
+                    clearConfirmState = false;
+                    btn.innerHTML = '<i class="fa-solid fa-trash-can"></i><span>清除本機統計紀錄</span>';
+                }, 3500);
+            } else {
+                clearTimeout(clearConfirmTimer);
+                clearConfirmState = false;
+                rsvpRecords = [];
+                saveRecords();
+                renderSummary();
+                btn.innerHTML = '<i class="fa-solid fa-trash-can"></i><span>清除本機統計紀錄</span>';
+                showToast("已清除本機統計紀錄", "info");
+            }
+        }
+    </script>
+</body>
+</html>
