@@ -178,7 +178,7 @@
         <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2">
           <span>✍️</span> 填寫出席回覆單
         </h2>
-        <span class="text-xs text-slate-400">名單顯示將自動隱私遮罩（中間改為 ✕）</span>
+        <span class="text-xs text-slate-400">重複填寫相同學號姓名將自動更新原紀錄</span>
       </div>
 
       <form id="rsvpForm" class="space-y-5">
@@ -253,7 +253,7 @@
           <h2 class="text-xl font-black text-white flex items-center gap-2">
             <span>📊</span> 即時報名人員統計名單
           </h2>
-          <p class="text-xs text-slate-400 mt-1">即時同步雲端試算表（名字中間自動以 ✕ 顯示保護隱私）</p>
+          <p class="text-xs text-slate-400 mt-1">即時同步雲端試算表（完整顯示全名與學號）</p>
         </div>
         <div class="flex flex-wrap gap-2">
           <button type="button" onclick="fetchCloudRecords(true)"
@@ -289,7 +289,7 @@
 
       <!-- 關鍵字搜尋 -->
       <div>
-        <input type="text" id="searchInput" oninput="renderLists()" placeholder="🔍 輸入姓名搜尋名單..."
+        <input type="text" id="searchInput" oninput="renderLists()" placeholder="🔍 輸入學號或姓名搜尋名單..."
                class="cyber-input w-full px-4 py-2.5 rounded-xl text-sm" />
       </div>
 
@@ -387,27 +387,10 @@
 
     // === 2. GAS 網址與全域資料儲存 ===
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyT9UZ4RJvxGkB0ubNtUNU5AKxfM3QIY2z18XFbEj62m_eO6_BIotOXP704eKyNDmLJ/exec';
-    const CACHE_KEY = 'banquet_rsvp_cache_v5';
+    const CACHE_KEY = 'banquet_rsvp_cache_v6';
     let allRecords = [];
 
-    // === 3. 姓名隱私遮罩處理（將中間字元改為 ✕） ===
-    function maskName(name) {
-      if (!name) return '';
-      const str = String(name).trim();
-      if (str.length <= 1) return str;
-      if (str.length === 2) {
-        return str[0] + '✕';
-      }
-      // 3字或以上：保留首尾，中間全部換成 ✕
-      let masked = str[0];
-      for (let i = 1; i < str.length - 1; i++) {
-        masked += '✕';
-      }
-      masked += str[str.length - 1];
-      return masked;
-    }
-
-    // === 4. 從 Google 試算表讀取歷史報名資料 ===
+    // === 3. 從 Google 試算表讀取歷史報名資料 ===
     async function fetchCloudRecords(showNotify = false) {
       const badge = document.getElementById('cloudStatusBadge');
       badge.className = 'text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40';
@@ -444,7 +427,7 @@
       }
     }
 
-    // === 5. 表單互動與費用試算 ===
+    // === 4. 表單互動與費用試算 ===
     function toggleCountBox() {
       const status = document.querySelector('input[name="attendStatus"]:checked').value;
       const wrapper = document.getElementById('attendCountWrapper');
@@ -458,7 +441,7 @@
       document.getElementById('feeEstimateText').textContent = `NT$ ${minFee.toLocaleString()} ~ ${maxFee.toLocaleString()} 元`;
     }
 
-    // === 6. 送出並寫入 Google 試算表 ===
+    // === 5. 送出並寫入 Google 試算表 ===
     document.getElementById('rsvpForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const name = document.getElementById('userName').value.trim();
@@ -516,7 +499,7 @@
       }
     });
 
-    // === 7. 名單渲染、複製與匯出 ===
+    // === 6. 名單渲染、複製與匯出 ===
     function renderLists() {
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
@@ -539,7 +522,7 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="text-xs font-cyber text-emerald-400">#${idx + 1}</span>
-              <span class="font-bold text-white">${escapeHtml(maskName(r.name))}</span>
+              <span class="font-bold text-white">${escapeHtml(r.name)}</span>
               <span class="px-2 py-0.5 text-xs rounded bg-emerald-500/20 text-emerald-300 font-bold">${r.count} 人</span>
             </div>
             <div class="text-xs text-slate-400 mt-1">
@@ -555,7 +538,7 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="text-xs font-cyber text-rose-400">#${idx + 1}</span>
-              <span class="font-bold text-slate-200">${escapeHtml(maskName(r.name))}</span>
+              <span class="font-bold text-slate-200">${escapeHtml(r.name)}</span>
               <span class="px-2 py-0.5 text-xs rounded bg-rose-500/20 text-rose-300">不克參加</span>
             </div>
             <div class="text-xs text-slate-400 mt-1">
@@ -577,12 +560,12 @@
       text += `💰 費用：600元-700元（老師免費，多退少補）\n`;
       text += `━━━━━━━━━━━━━━\n`;
       text += `✅ 參加名單（共 ${totalPeople} 人）：\n`;
-      text += attend.length ? attend.map((r, i) => `${i + 1}. ${maskName(r.name)} (${r.count}人)`).join('\n') : '（尚無人登記）';
+      text += attend.length ? attend.map((r, i) => `${i + 1}. ${r.name} (${r.count}人)`).join('\n') : '（尚無人登記）';
       text += `\n\n❌ 不克參加（${absent.length} 人）：\n`;
-      text += absent.length ? absent.map((r, i) => `${i + 1}. ${maskName(r.name)}`).join('\n') : '（無）';
+      text += absent.length ? absent.map((r, i) => `${i + 1}. ${r.name}`).join('\n') : '（無）';
 
       navigator.clipboard.writeText(text).then(() => {
-        showToast('📋 已複製 LINE 群組接龍統計名單（姓名已含隱私遮罩）！');
+        showToast('📋 已複製 LINE 群組接龍統計名單！');
       });
     }
 
