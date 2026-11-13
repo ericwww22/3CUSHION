@@ -91,10 +91,6 @@
   <canvas id="ai-canvas"></canvas>
   <div class="cyber-grid"></div>
 
-  <!-- 隱藏表單用於無阻礙寫入 Google Forms -->
-  <iframe name="hidden_gform_iframe" id="hidden_gform_iframe" style="display:none;"></iframe>
-  <form id="hiddenGoogleForm" method="POST" target="hidden_gform_iframe" style="display:none;"></form>
-
   <!-- 主容器 -->
   <main class="relative z-10 max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-6">
 
@@ -118,8 +114,8 @@
         <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2">
           <span>📅</span> 活動時間與地點資訊
         </h2>
-        <span id="formSyncBadge" class="text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40">
-          ⚠️ 尚未綁定 Google 表單
+        <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+          ✅ 已連線 Google 雲端試算表
         </span>
       </div>
 
@@ -181,10 +177,6 @@
         <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2">
           <span>✍️</span> 填寫出席回覆單
         </h2>
-        <button type="button" onclick="openConfigModal()"
-                class="text-xs px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/35 border border-purple-400/50 text-purple-200 font-medium transition flex items-center gap-1.5">
-          <span>⚙️</span> Google 表單寫入設定
-        </button>
       </div>
 
       <form id="rsvpForm" class="space-y-5">
@@ -247,19 +239,19 @@
         <!-- 送出按鈕 -->
         <button type="submit" id="submitBtn"
                 class="cyber-btn w-full py-3.5 px-6 rounded-xl text-white font-black text-lg tracking-wider flex items-center justify-center gap-2">
-          <span>🚀</span> 確認送出並寫入 Google 表單
+          <span>🚀</span> 確認送出並寫入雲端試算表
         </button>
       </form>
     </section>
 
-    <!-- 網頁最下方：雙欄即時人員名單統計看板 -->
+    <!-- 網頁最下方：即時人員名單統計看板 -->
     <section class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-cyan-500/20 pb-4">
         <div>
           <h2 class="text-xl font-black text-white flex items-center gap-2">
             <span>📊</span> 即時報名人員統計名單
           </h2>
-          <p class="text-xs text-slate-400 mt-1">即時顯示已登記參加與不克參加人員（資料同步寫入 Google 表單）</p>
+          <p class="text-xs text-slate-400 mt-1">即時顯示已登記參加與不克參加人員（資料自動同步寫入 Google 試算表）</p>
         </div>
         <div class="flex flex-wrap gap-2">
           <button type="button" onclick="copyLineSummary()"
@@ -326,51 +318,6 @@
     </section>
   </main>
 
-  <!-- Google 表單設定彈窗 -->
-  <div id="configModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="glass-card rounded-2xl max-w-lg w-full p-6 space-y-4 border border-purple-400/50 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
-        <h3 class="text-lg font-bold text-purple-300">⚙️ Google 表單自動寫入綁定設定</h3>
-        <button type="button" onclick="closeConfigModal()" class="text-slate-400 hover:text-white text-xl">&times;</button>
-      </div>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        請將 Google Apps Script 執行記錄產出的 <code class="text-cyan-300">formResponse</code> 網址與 4 個 <code class="text-cyan-300">entry.xxxxxxx</code> 代碼貼入下方並儲存：
-      </p>
-      <div class="space-y-3 text-sm">
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">1. Google 表單提交網址 (formResponse)</label>
-          <input type="url" id="cfgFormUrl" placeholder="https://docs.google.com/forms/d/e/.../formResponse" class="cyber-input w-full px-3 py-2 rounded-lg text-xs" />
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">2. 姓名 Entry ID</label>
-            <input type="text" id="cfgEntryName" placeholder="entry.12345678" class="cyber-input w-full px-3 py-2 rounded-lg text-xs" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">3. 出席狀態 Entry ID</label>
-            <input type="text" id="cfgEntryStatus" placeholder="entry.23456789" class="cyber-input w-full px-3 py-2 rounded-lg text-xs" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">4. 參加人數 Entry ID</label>
-            <input type="text" id="cfgEntryCount" placeholder="entry.34567890" class="cyber-input w-full px-3 py-2 rounded-lg text-xs" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">5. 預估餐費 Entry ID</label>
-            <input type="text" id="cfgEntryFee" placeholder="entry.45678901" class="cyber-input w-full px-3 py-2 rounded-lg text-xs" />
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col sm:flex-row gap-2 pt-2">
-        <button type="button" onclick="saveFormConfig()" class="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition">
-          💾 儲存綁定設定
-        </button>
-        <button type="button" onclick="copyShareUrlWithConfig()" class="flex-1 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm transition">
-          🔗 複製含設定的分享網址
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast 提示訊息 -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-5 py-3 rounded-xl bg-slate-900/95 border border-cyan-400 text-cyan-200 font-bold text-sm shadow-2xl"></div>
 
@@ -432,88 +379,9 @@
     }
     animateAI();
 
-    // === 2. Google 表單設定與網址參數自動載入 ===
-    const CONFIG_KEY = 'banquet_gform_config_v2';
-    const DATA_KEY = 'banquet_rsvp_records_v2';
-
-    // 預設可在此填入您的專屬 Google 表單代碼，即可免設定直接生效
-    let formConfig = {
-      formUrl: '',
-      entryName: '',
-      entryStatus: '',
-      entryCount: '',
-      entryFee: ''
-    };
-
-    function loadConfig() {
-      const saved = localStorage.getItem(CONFIG_KEY);
-      if (saved) {
-        try { formConfig = { ...formConfig, ...JSON.parse(saved) }; } catch (e) {}
-      }
-      // 支援透過網址參數傳遞綁定設定（方便 LINE 群組分享直接連動）
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('f')) formConfig.formUrl = params.get('f');
-      if (params.get('n')) formConfig.entryName = params.get('n');
-      if (params.get('s')) formConfig.entryStatus = params.get('s');
-      if (params.get('c')) formConfig.entryCount = params.get('c');
-      if (params.get('m')) formConfig.entryFee = params.get('m');
-      if (params.get('f')) localStorage.setItem(CONFIG_KEY, JSON.stringify(formConfig));
-
-      updateSyncBadge();
-    }
-
-    function updateSyncBadge() {
-      const badge = document.getElementById('formSyncBadge');
-      if (formConfig.formUrl && formConfig.entryName) {
-        badge.className = 'text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40';
-        badge.textContent = '✅ 已連線 Google 表單寫入';
-      } else {
-        badge.className = 'text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40';
-        badge.textContent = '⚠️ 點擊設定綁定 Google 表單';
-      }
-    }
-
-    function openConfigModal() {
-      document.getElementById('cfgFormUrl').value = formConfig.formUrl || '';
-      document.getElementById('cfgEntryName').value = formConfig.entryName || '';
-      document.getElementById('cfgEntryStatus').value = formConfig.entryStatus || '';
-      document.getElementById('cfgEntryCount').value = formConfig.entryCount || '';
-      document.getElementById('cfgEntryFee').value = formConfig.entryFee || '';
-      document.getElementById('configModal').classList.remove('hidden');
-      document.getElementById('configModal').classList.add('flex');
-    }
-
-    function closeConfigModal() {
-      document.getElementById('configModal').classList.add('hidden');
-      document.getElementById('configModal').classList.remove('flex');
-    }
-
-    function saveFormConfig() {
-      formConfig = {
-        formUrl: document.getElementById('cfgFormUrl').value.trim(),
-        entryName: document.getElementById('cfgEntryName').value.trim(),
-        entryStatus: document.getElementById('cfgEntryStatus').value.trim(),
-        entryCount: document.getElementById('cfgEntryCount').value.trim(),
-        entryFee: document.getElementById('cfgEntryFee').value.trim()
-      };
-      localStorage.setItem(CONFIG_KEY, JSON.stringify(formConfig));
-      updateSyncBadge();
-      closeConfigModal();
-      showToast('✅ Google 表單綁定設定已儲存！');
-    }
-
-    function copyShareUrlWithConfig() {
-      saveFormConfig();
-      const url = new URL(window.location.href.split('?')[0]);
-      if (formConfig.formUrl) url.searchParams.set('f', formConfig.formUrl);
-      if (formConfig.entryName) url.searchParams.set('n', formConfig.entryName);
-      if (formConfig.entryStatus) url.searchParams.set('s', formConfig.entryStatus);
-      if (formConfig.entryCount) url.searchParams.set('c', formConfig.entryCount);
-      if (formConfig.entryFee) url.searchParams.set('m', formConfig.entryFee);
-      navigator.clipboard.writeText(url.toString()).then(() => {
-        showToast('🔗 已複製含設定的專屬分享網址！可直接貼到 LINE 群組');
-      });
-    }
+    // === 2. GAS 網址與資料儲存 Key ===
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyT9UZ4RJvxGkB0ubNtUNU5AKxfM3QIY2z18XFbEj62m_eO6_BIotOXP704eKyNDmLJ/exec';
+    const DATA_KEY = 'banquet_rsvp_records_v3';
 
     // === 3. 表單互動與費用試算 ===
     function toggleCountBox() {
@@ -529,38 +397,35 @@
       document.getElementById('feeEstimateText').textContent = `NT$ ${minFee.toLocaleString()} ~ ${maxFee.toLocaleString()} 元`;
     }
 
-    // === 4. 送出並寫入 Google 表單 ===
-    function submitToGoogleForm(record) {
-      if (!formConfig.formUrl || !formConfig.entryName) return false;
-      const hiddenForm = document.getElementById('hiddenGoogleForm');
-      hiddenForm.action = formConfig.formUrl;
-      hiddenForm.innerHTML = '';
+    // === 4. 非同步送出並寫入 Google 試算表 (fetch API) ===
+    async function submitToGAS(record) {
+      try {
+        const formData = new URLSearchParams();
+        formData.append('name', record.name);
+        formData.append('status', record.status);
+        formData.append('count', String(record.count));
+        formData.append('fee', record.feeText);
 
-      const fields = [
-        { name: formConfig.entryName, value: record.name },
-        { name: formConfig.entryStatus, value: record.status },
-        { name: formConfig.entryCount, value: String(record.count) },
-        { name: formConfig.entryFee, value: record.feeText }
-      ];
-
-      fields.forEach(f => {
-        if (f.name) {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = f.name;
-          input.value = f.value;
-          hiddenForm.appendChild(input);
-        }
-      });
-
-      hiddenForm.submit();
-      return true;
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          body: formData,
+          mode: 'no-cors' // Google Apps Script Web App 跨網域標準設定
+        });
+        return true;
+      } catch (err) {
+        console.error('GAS 寫入失敗:', err);
+        return false;
+      }
     }
 
-    document.getElementById('rsvpForm').addEventListener('submit', function(e) {
+    document.getElementById('rsvpForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const name = document.getElementById('userName').value.trim();
       if (!name) return;
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ 正在寫入雲端試算表...';
 
       const status = document.querySelector('input[name="attendStatus"]:checked').value;
       const count = status === '參加' ? parseInt(document.getElementById('attendCount').value, 10) : 0;
@@ -572,14 +437,14 @@
         status,
         count,
         feeText,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+        synced: true
       };
 
-      const synced = submitToGoogleForm(newRecord);
-      newRecord.synced = synced;
+      // 呼叫 GAS 寫入
+      await submitToGAS(newRecord);
 
       const records = getRecords();
-      // 若同名覆蓋更新，避免重複
       const existingIdx = records.findIndex(r => r.name === name);
       if (existingIdx > -1) {
         records[existingIdx] = newRecord;
@@ -591,11 +456,10 @@
       document.getElementById('userName').value = '';
       renderLists();
 
-      if (synced) {
-        showToast(`🚀 已為「${name}」登記並同步寫入 Google 表單！`);
-      } else {
-        showToast(`✅ 已為「${name}」登記於下方名單！（提醒：尚未綁定 Google 表單網址）`);
-      }
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>🚀</span> 確認送出並寫入雲端試算表';
+
+      showToast(`🚀 已成功為「${name}」登記並同步寫入 Google 試算表！`);
     });
 
     // === 5. 名單讀取、渲染與匯出 ===
@@ -642,7 +506,7 @@
               <span class="px-2 py-0.5 text-xs rounded bg-emerald-500/20 text-emerald-300 font-bold">${r.count} 人</span>
             </div>
             <div class="text-xs text-slate-400 mt-1">
-              預估餐費：${r.feeText} ・ ${r.synced ? '☁️ 已寫入表單' : '📱 本機暫存'} (${r.time})
+              預估餐費：${r.feeText} ・ ☁️ 已同步雲端 (${r.time})
             </div>
           </div>
           <button onclick="deleteRecord(${r.id})" title="刪除" class="text-slate-500 hover:text-rose-400 px-2 py-1 text-sm">✕</button>
@@ -659,7 +523,7 @@
               <span class="px-2 py-0.5 text-xs rounded bg-rose-500/20 text-rose-300">不克參加</span>
             </div>
             <div class="text-xs text-slate-400 mt-1">
-              ${r.synced ? '☁️ 已寫入表單' : '📱 本機暫存'} (${r.time})
+              ☁️ 已同步雲端 (${r.time})
             </div>
           </div>
           <button onclick="deleteRecord(${r.id})" title="刪除" class="text-slate-500 hover:text-rose-400 px-2 py-1 text-sm">✕</button>
@@ -714,8 +578,6 @@
       window._toastTimer = setTimeout(() => t.classList.add('hidden'), 3500);
     }
 
-    // 初始化
-    loadConfig();
     renderLists();
   </script>
 </body>
