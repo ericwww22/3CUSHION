@@ -178,17 +178,26 @@
         <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2">
           <span>✍️</span> 填寫出席回覆單
         </h2>
-        <span class="text-xs text-slate-400">重複填寫相同學號姓名將自動更新原紀錄</span>
+        <span class="text-xs text-slate-400">重複填寫相同學號與姓名將自動更新原紀錄</span>
       </div>
 
       <form id="rsvpForm" class="space-y-5">
-        <!-- 姓名 -->
-        <div>
-          <label for="userName" class="block text-sm font-bold text-slate-200 mb-2">
-            您的姓名 <span class="text-rose-400">*</span>
-          </label>
-          <input type="text" id="userName" required placeholder="請輸入學號+您的真實姓名（例如：31 王小明）"
-                 class="cyber-input w-full px-4 py-3 rounded-xl text-base" />
+        <!-- 學號與姓名（獨立雙欄） -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="studentId" class="block text-sm font-bold text-slate-200 mb-2">
+              學號 <span class="text-rose-400">*</span>
+            </label>
+            <input type="text" id="studentId" required placeholder="例如：31"
+                   class="cyber-input w-full px-4 py-3 rounded-xl text-base" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="userName" class="block text-sm font-bold text-slate-200 mb-2">
+              您的真實姓名 <span class="text-rose-400">*</span>
+            </label>
+            <input type="text" id="userName" required placeholder="例如：王小明"
+                   class="cyber-input w-full px-4 py-3 rounded-xl text-base" />
+          </div>
         </div>
 
         <!-- 出席狀態 -->
@@ -253,7 +262,7 @@
           <h2 class="text-xl font-black text-white flex items-center gap-2">
             <span>📊</span> 即時報名人員統計名單
           </h2>
-          <p class="text-xs text-slate-400 mt-1">即時同步雲端試算表（完整顯示全名與學號）</p>
+          <p class="text-xs text-slate-400 mt-1">即時同步雲端試算表（完整顯示學號與全名）</p>
         </div>
         <div class="flex flex-wrap gap-2">
           <button type="button" onclick="fetchCloudRecords(true)"
@@ -387,7 +396,7 @@
 
     // === 2. GAS 網址與全域資料儲存 ===
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyT9UZ4RJvxGkB0ubNtUNU5AKxfM3QIY2z18XFbEj62m_eO6_BIotOXP704eKyNDmLJ/exec';
-    const CACHE_KEY = 'banquet_rsvp_cache_v6';
+    const CACHE_KEY = 'banquet_rsvp_cache_v7';
     let allRecords = [];
 
     // === 3. 從 Google 試算表讀取歷史報名資料 ===
@@ -423,7 +432,7 @@
           allRecords = [];
         }
         renderLists();
-        if (showNotify) showToast('⚠️ 無法連線雲端讀取，請確認網路或 GAS 狀態');
+        if (showNotify) showToast('⚠️ 無法連線雲端讀取，請確認 GAS 是否已部署新版本');
       }
     }
 
@@ -444,8 +453,9 @@
     // === 5. 送出並寫入 Google 試算表 ===
     document.getElementById('rsvpForm').addEventListener('submit', async function(e) {
       e.preventDefault();
+      const studentId = document.getElementById('studentId').value.trim();
       const name = document.getElementById('userName').value.trim();
-      if (!name) return;
+      if (!studentId || !name) return;
 
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
@@ -456,6 +466,7 @@
       const feeText = status === '參加' ? `${count * 600}-${count * 700}元` : '0元';
 
       const formData = new URLSearchParams();
+      formData.append('studentId', studentId);
       formData.append('name', name);
       formData.append('status', status);
       formData.append('count', String(count));
@@ -470,6 +481,7 @@
 
         const newRecord = {
           id: Date.now(),
+          studentId,
           name,
           status,
           count,
@@ -477,7 +489,7 @@
           time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
           synced: true
         };
-        const existingIdx = allRecords.findIndex(r => r.name === name);
+        const existingIdx = allRecords.findIndex(r => r.studentId === studentId && r.name === name);
         if (existingIdx > -1) {
           allRecords[existingIdx] = newRecord;
         } else {
@@ -486,8 +498,9 @@
         localStorage.setItem(CACHE_KEY, JSON.stringify(allRecords));
         renderLists();
 
+        document.getElementById('studentId').value = '';
         document.getElementById('userName').value = '';
-        showToast(`🚀 已為「${name}」完成登記並同步至 Google 試算表！`);
+        showToast(`🚀 已為「${studentId}號 ${name}」完成登記並同步至 Google 試算表！`);
 
         setTimeout(() => fetchCloudRecords(false), 1200);
       } catch (err) {
@@ -513,15 +526,22 @@
       document.getElementById('badgeAttendCount').textContent = `共 ${totalPeople} 人 (${attendAll.length} 筆)`;
       document.getElementById('badgeAbsentCount').textContent = `${absentAll.length} 人`;
 
-      const filteredAttend = attendAll.filter(r => r.name.toLowerCase().includes(keyword));
-      const filteredAbsent = absentAll.filter(r => r.name.toLowerCase().includes(keyword));
+      const matchFilter = (r) => {
+        const sId = String(r.studentId || '').toLowerCase();
+        const sName = String(r.name || '').toLowerCase();
+        return sId.includes(keyword) || sName.includes(keyword);
+      };
+
+      const filteredAttend = attendAll.filter(matchFilter);
+      const filteredAbsent = absentAll.filter(matchFilter);
 
       const attendBox = document.getElementById('attendListContainer');
       attendBox.innerHTML = filteredAttend.length ? filteredAttend.map((r, idx) => `
         <div class="p-3 rounded-lg bg-slate-800/80 border border-emerald-500/25 flex items-center justify-between gap-2">
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="text-xs font-cyber text-emerald-400">#${idx + 1}</span>
+              ${r.studentId ? `<span class="px-2 py-0.5 text-xs rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 font-cyber">${escapeHtml(r.studentId)}號</span>` : ''}
               <span class="font-bold text-white">${escapeHtml(r.name)}</span>
               <span class="px-2 py-0.5 text-xs rounded bg-emerald-500/20 text-emerald-300 font-bold">${r.count} 人</span>
             </div>
@@ -536,8 +556,9 @@
       absentBox.innerHTML = filteredAbsent.length ? filteredAbsent.map((r, idx) => `
         <div class="p-3 rounded-lg bg-slate-800/80 border border-rose-500/25 flex items-center justify-between gap-2">
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="text-xs font-cyber text-rose-400">#${idx + 1}</span>
+              ${r.studentId ? `<span class="px-2 py-0.5 text-xs rounded bg-slate-700 text-slate-300 font-cyber">${escapeHtml(r.studentId)}號</span>` : ''}
               <span class="font-bold text-slate-200">${escapeHtml(r.name)}</span>
               <span class="px-2 py-0.5 text-xs rounded bg-rose-500/20 text-rose-300">不克參加</span>
             </div>
@@ -560,9 +581,9 @@
       text += `💰 費用：600元-700元（老師免費，多退少補）\n`;
       text += `━━━━━━━━━━━━━━\n`;
       text += `✅ 參加名單（共 ${totalPeople} 人）：\n`;
-      text += attend.length ? attend.map((r, i) => `${i + 1}. ${r.name} (${r.count}人)`).join('\n') : '（尚無人登記）';
+      text += attend.length ? attend.map((r, i) => `${i + 1}. ${r.studentId ? r.studentId + '號 ' : ''}${r.name} (${r.count}人)`).join('\n') : '（尚無人登記）';
       text += `\n\n❌ 不克參加（${absent.length} 人）：\n`;
-      text += absent.length ? absent.map((r, i) => `${i + 1}. ${r.name}`).join('\n') : '（無）';
+      text += absent.length ? absent.map((r, i) => `${i + 1}. ${r.studentId ? r.studentId + '號 ' : ''}${r.name}`).join('\n') : '（無）';
 
       navigator.clipboard.writeText(text).then(() => {
         showToast('📋 已複製 LINE 群組接龍統計名單！');
@@ -571,9 +592,9 @@
 
     function exportCSV() {
       if (!allRecords.length) return showToast('⚠️ 目前沒有資料可匯出');
-      let csv = '\uFEFF姓名,出席狀態,參加人數,預估餐費,登記時間\n';
+      let csv = '\uFEFF學號,姓名,出席狀態,參加人數,預估餐費,登記時間\n';
       allRecords.forEach(r => {
-        csv += `"${r.name}","${r.status}",${r.count},"${r.feeText}","${r.time}"\n`;
+        csv += `"${r.studentId || ''}","${r.name}","${r.status}",${r.count},"${r.feeText}","${r.time}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
