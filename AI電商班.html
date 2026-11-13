@@ -13,7 +13,7 @@
       --neon-emerald: #10b981;
       --neon-rose: #f43f5e;
       --neon-amber: #f59e0b;
-    }2
+    }
     body {
       font-family: 'Noto Sans TC', sans-serif;
       background-color: #050814;
@@ -24,7 +24,6 @@
     .font-cyber {
       font-family: 'Orbitron', 'Noto Sans TC', sans-serif;
     }
-    /* AI 科技感動態背景與網格 */
     #ai-canvas {
       position: fixed;
       inset: 0;
@@ -42,7 +41,6 @@
       background-size: 40px 40px;
       mask-image: radial-gradient(circle at 50% 30%, black 40%, transparent 90%);
     }
-    /* 毛玻璃擬態卡片 */
     .glass-card {
       background: rgba(13, 20, 42, 0.72);
       backdrop-filter: blur(16px);
@@ -64,9 +62,13 @@
       box-shadow: 0 0 20px rgba(6, 182, 212, 0.45);
       transition: all 0.25s ease;
     }
-    .cyber-btn:hover {
+    .cyber-btn:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 0 28px rgba(0, 243, 255, 0.75);
+    }
+    .cyber-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
     .cyber-input {
       background: rgba(6, 11, 25, 0.8);
@@ -79,7 +81,6 @@
       border-color: #00f3ff;
       box-shadow: 0 0 14px rgba(0, 243, 255, 0.35);
     }
-    /* 自訂捲軸 */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #070b19; }
     ::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.35); border-radius: 999px; }
@@ -110,12 +111,12 @@
 
     <!-- 活動詳情與地圖卡片 -->
     <section class="glass-card rounded-2xl p-6 space-y-5">
-      <div class="flex items-center justify-between border-b border-cyan-500/20 pb-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-500/20 pb-3">
         <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2">
           <span>📅</span> 活動時間與地點資訊
         </h2>
-        <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
-          ✅ 已連線 Google 雲端試算表
+        <span id="cloudStatusBadge" class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
+          🔄 正在連線雲端試算表...
         </span>
       </div>
 
@@ -177,6 +178,7 @@
         <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2">
           <span>✍️</span> 填寫出席回覆單
         </h2>
+        <span class="text-xs text-slate-400">名單顯示將自動隱私遮罩（中間改為 ✕）</span>
       </div>
 
       <form id="rsvpForm" class="space-y-5">
@@ -185,7 +187,7 @@
           <label for="userName" class="block text-sm font-bold text-slate-200 mb-2">
             您的姓名 <span class="text-rose-400">*</span>
           </label>
-          <input type="text" id="userName" required placeholder="請輸入您的真實姓名或群組暱稱"
+          <input type="text" id="userName" required placeholder="請輸入您的真實姓名（例如：王小明）"
                  class="cyber-input w-full px-4 py-3 rounded-xl text-base" />
         </div>
 
@@ -239,7 +241,7 @@
         <!-- 送出按鈕 -->
         <button type="submit" id="submitBtn"
                 class="cyber-btn w-full py-3.5 px-6 rounded-xl text-white font-black text-lg tracking-wider flex items-center justify-center gap-2">
-          <span>🚀</span> 確認送出並寫入雲端試算表
+          <span>🚀</span> 確認送出並同步雲端名單
         </button>
       </form>
     </section>
@@ -251,9 +253,13 @@
           <h2 class="text-xl font-black text-white flex items-center gap-2">
             <span>📊</span> 即時報名人員統計名單
           </h2>
-          <p class="text-xs text-slate-400 mt-1">即時顯示已登記參加與不克參加人員（資料自動同步寫入 Google 試算表）</p>
+          <p class="text-xs text-slate-400 mt-1">即時同步雲端試算表（名字中間自動以 ✕ 顯示保護隱私）</p>
         </div>
         <div class="flex flex-wrap gap-2">
+          <button type="button" onclick="fetchCloudRecords(true)"
+                  class="px-3.5 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/50 text-purple-300 text-xs sm:text-sm font-bold transition">
+            🔄 重新整理名單
+          </button>
           <button type="button" onclick="copyLineSummary()"
                   class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 text-emerald-300 text-xs sm:text-sm font-bold transition">
             📋 複製 LINE 接龍名單
@@ -269,15 +275,15 @@
       <div class="grid grid-cols-3 gap-3 text-center">
         <div class="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
           <div class="text-xs text-emerald-300">確定出席總人數</div>
-          <div id="statTotalPeople" class="text-2xl sm:text-3xl font-black text-emerald-400 font-cyber mt-1">0</div>
+          <div id="statTotalPeople" class="text-2xl sm:text-3xl font-black text-emerald-400 font-cyber mt-1">-</div>
         </div>
         <div class="p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30">
           <div class="text-xs text-cyan-300">報名出席組數</div>
-          <div id="statAttendGroups" class="text-2xl sm:text-3xl font-black text-cyan-400 font-cyber mt-1">0</div>
+          <div id="statAttendGroups" class="text-2xl sm:text-3xl font-black text-cyan-400 font-cyber mt-1">-</div>
         </div>
         <div class="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30">
           <div class="text-xs text-rose-300">不克參加人數</div>
-          <div id="statAbsentCount" class="text-2xl sm:text-3xl font-black text-rose-400 font-cyber mt-1">0</div>
+          <div id="statAbsentCount" class="text-2xl sm:text-3xl font-black text-rose-400 font-cyber mt-1">-</div>
         </div>
       </div>
 
@@ -295,10 +301,10 @@
             <h3 class="font-bold text-emerald-300 flex items-center gap-2">
               <span>✅</span> 參加人員名單
             </h3>
-            <span id="badgeAttendCount" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 font-bold">0 人</span>
+            <span id="badgeAttendCount" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 font-bold">載入中...</span>
           </div>
           <div id="attendListContainer" class="p-3 space-y-2 max-h-96 overflow-y-auto flex-1">
-            <!-- 動態渲染 -->
+            <div class="text-center text-cyan-300 text-sm py-8 animate-pulse">⏳ 正在從雲端載入名單...</div>
           </div>
         </div>
 
@@ -308,10 +314,10 @@
             <h3 class="font-bold text-rose-300 flex items-center gap-2">
               <span>❌</span> 不克參加人員名單
             </h3>
-            <span id="badgeAbsentCount" class="text-xs px-2.5 py-0.5 rounded-full bg-rose-500/30 text-rose-200 font-bold">0 人</span>
+            <span id="badgeAbsentCount" class="text-xs px-2.5 py-0.5 rounded-full bg-rose-500/30 text-rose-200 font-bold">載入中...</span>
           </div>
           <div id="absentListContainer" class="p-3 space-y-2 max-h-96 overflow-y-auto flex-1">
-            <!-- 動態渲染 -->
+            <div class="text-center text-cyan-300 text-sm py-8 animate-pulse">⏳ 正在從雲端載入名單...</div>
           </div>
         </div>
       </div>
@@ -379,11 +385,66 @@
     }
     animateAI();
 
-    // === 2. GAS 網址與資料儲存 Key ===
+    // === 2. GAS 網址與全域資料儲存 ===
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyT9UZ4RJvxGkB0ubNtUNU5AKxfM3QIY2z18XFbEj62m_eO6_BIotOXP704eKyNDmLJ/exec';
-    const DATA_KEY = 'banquet_rsvp_records_v3';
+    const CACHE_KEY = 'banquet_rsvp_cache_v5';
+    let allRecords = [];
 
-    // === 3. 表單互動與費用試算 ===
+    // === 3. 姓名隱私遮罩處理（將中間字元改為 ✕） ===
+    function maskName(name) {
+      if (!name) return '';
+      const str = String(name).trim();
+      if (str.length <= 1) return str;
+      if (str.length === 2) {
+        return str[0] + '✕';
+      }
+      // 3字或以上：保留首尾，中間全部換成 ✕
+      let masked = str[0];
+      for (let i = 1; i < str.length - 1; i++) {
+        masked += '✕';
+      }
+      masked += str[str.length - 1];
+      return masked;
+    }
+
+    // === 4. 從 Google 試算表讀取歷史報名資料 ===
+    async function fetchCloudRecords(showNotify = false) {
+      const badge = document.getElementById('cloudStatusBadge');
+      badge.className = 'text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40';
+      badge.textContent = '🔄 同步雲端資料中...';
+
+      try {
+        const res = await fetch(`${GAS_URL}?t=${Date.now()}`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        const data = await res.json();
+
+        if (data.result === 'success' && Array.isArray(data.records)) {
+          allRecords = data.records;
+          localStorage.setItem(CACHE_KEY, JSON.stringify(allRecords));
+          badge.className = 'text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40';
+          badge.textContent = `✅ 已同步雲端試算表 (${allRecords.length} 筆)`;
+          renderLists();
+          if (showNotify) showToast('🔄 已成功從 Google 試算表更新最新名單！');
+        } else {
+          throw new Error(data.message || '資料格式錯誤');
+        }
+      } catch (err) {
+        console.error('讀取雲端名單失敗:', err);
+        badge.className = 'text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40';
+        badge.textContent = '⚠️ 顯示本機快取名單';
+        try {
+          allRecords = JSON.parse(localStorage.getItem(CACHE_KEY)) || [];
+        } catch (e) {
+          allRecords = [];
+        }
+        renderLists();
+        if (showNotify) showToast('⚠️ 無法連線雲端讀取，請確認網路或 GAS 狀態');
+      }
+    }
+
+    // === 5. 表單互動與費用試算 ===
     function toggleCountBox() {
       const status = document.querySelector('input[name="attendStatus"]:checked').value;
       const wrapper = document.getElementById('attendCountWrapper');
@@ -397,27 +458,7 @@
       document.getElementById('feeEstimateText').textContent = `NT$ ${minFee.toLocaleString()} ~ ${maxFee.toLocaleString()} 元`;
     }
 
-    // === 4. 非同步送出並寫入 Google 試算表 (fetch API) ===
-    async function submitToGAS(record) {
-      try {
-        const formData = new URLSearchParams();
-        formData.append('name', record.name);
-        formData.append('status', record.status);
-        formData.append('count', String(record.count));
-        formData.append('fee', record.feeText);
-
-        const response = await fetch(GAS_URL, {
-          method: 'POST',
-          body: formData,
-          mode: 'no-cors' // Google Apps Script Web App 跨網域標準設定
-        });
-        return true;
-      } catch (err) {
-        console.error('GAS 寫入失敗:', err);
-        return false;
-      }
-    }
-
+    // === 6. 送出並寫入 Google 試算表 ===
     document.getElementById('rsvpForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const name = document.getElementById('userName').value.trim();
@@ -431,60 +472,56 @@
       const count = status === '參加' ? parseInt(document.getElementById('attendCount').value, 10) : 0;
       const feeText = status === '參加' ? `${count * 600}-${count * 700}元` : '0元';
 
-      const newRecord = {
-        id: Date.now(),
-        name,
-        status,
-        count,
-        feeText,
-        time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
-        synced: true
-      };
+      const formData = new URLSearchParams();
+      formData.append('name', name);
+      formData.append('status', status);
+      formData.append('count', String(count));
+      formData.append('fee', feeText);
 
-      // 呼叫 GAS 寫入
-      await submitToGAS(newRecord);
+      try {
+        await fetch(GAS_URL, {
+          method: 'POST',
+          body: formData,
+          mode: 'no-cors'
+        });
 
-      const records = getRecords();
-      const existingIdx = records.findIndex(r => r.name === name);
-      if (existingIdx > -1) {
-        records[existingIdx] = newRecord;
-      } else {
-        records.unshift(newRecord);
+        const newRecord = {
+          id: Date.now(),
+          name,
+          status,
+          count,
+          feeText,
+          time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+          synced: true
+        };
+        const existingIdx = allRecords.findIndex(r => r.name === name);
+        if (existingIdx > -1) {
+          allRecords[existingIdx] = newRecord;
+        } else {
+          allRecords.unshift(newRecord);
+        }
+        localStorage.setItem(CACHE_KEY, JSON.stringify(allRecords));
+        renderLists();
+
+        document.getElementById('userName').value = '';
+        showToast(`🚀 已為「${name}」完成登記並同步至 Google 試算表！`);
+
+        setTimeout(() => fetchCloudRecords(false), 1200);
+      } catch (err) {
+        console.error('寫入錯誤:', err);
+        showToast('❌ 寫入時發生網路錯誤，請稍後再試');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>🚀</span> 確認送出並同步雲端名單';
       }
-      localStorage.setItem(DATA_KEY, JSON.stringify(records));
-
-      document.getElementById('userName').value = '';
-      renderLists();
-
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>🚀</span> 確認送出並寫入雲端試算表';
-
-      showToast(`🚀 已成功為「${name}」登記並同步寫入 Google 試算表！`);
     });
 
-    // === 5. 名單讀取、渲染與匯出 ===
-    function getRecords() {
-      try {
-        return JSON.parse(localStorage.getItem(DATA_KEY)) || [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function deleteRecord(id) {
-      if (!confirm('確定要移除這筆登記紀錄嗎？')) return;
-      const updated = getRecords().filter(r => r.id !== id);
-      localStorage.setItem(DATA_KEY, JSON.stringify(updated));
-      renderLists();
-      showToast('🗑️ 已移除該筆紀錄');
-    }
-
+    // === 7. 名單渲染、複製與匯出 ===
     function renderLists() {
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-      const records = getRecords();
 
-      const attendAll = records.filter(r => r.status === '參加');
-      const absentAll = records.filter(r => r.status === '不克參加');
+      const attendAll = allRecords.filter(r => r.status === '參加');
+      const absentAll = allRecords.filter(r => r.status === '不克參加');
 
       const totalPeople = attendAll.reduce((sum, r) => sum + (Number(r.count) || 1), 0);
       document.getElementById('statTotalPeople').textContent = totalPeople;
@@ -502,14 +539,13 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="text-xs font-cyber text-emerald-400">#${idx + 1}</span>
-              <span class="font-bold text-white">${escapeHtml(r.name)}</span>
+              <span class="font-bold text-white">${escapeHtml(maskName(r.name))}</span>
               <span class="px-2 py-0.5 text-xs rounded bg-emerald-500/20 text-emerald-300 font-bold">${r.count} 人</span>
             </div>
             <div class="text-xs text-slate-400 mt-1">
-              預估餐費：${r.feeText} ・ ☁️ 已同步雲端 (${r.time})
+              預估餐費：${escapeHtml(r.feeText)} ・ ☁️ 雲端同步 (${escapeHtml(r.time)})
             </div>
           </div>
-          <button onclick="deleteRecord(${r.id})" title="刪除" class="text-slate-500 hover:text-rose-400 px-2 py-1 text-sm">✕</button>
         </div>
       `).join('') : `<div class="text-center text-slate-500 text-sm py-8">目前尚無符合條件的參加名單</div>`;
 
@@ -519,22 +555,20 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="text-xs font-cyber text-rose-400">#${idx + 1}</span>
-              <span class="font-bold text-slate-200">${escapeHtml(r.name)}</span>
+              <span class="font-bold text-slate-200">${escapeHtml(maskName(r.name))}</span>
               <span class="px-2 py-0.5 text-xs rounded bg-rose-500/20 text-rose-300">不克參加</span>
             </div>
             <div class="text-xs text-slate-400 mt-1">
-              ☁️ 已同步雲端 (${r.time})
+              ☁️ 雲端同步 (${escapeHtml(r.time)})
             </div>
           </div>
-          <button onclick="deleteRecord(${r.id})" title="刪除" class="text-slate-500 hover:text-rose-400 px-2 py-1 text-sm">✕</button>
         </div>
       `).join('') : `<div class="text-center text-slate-500 text-sm py-8">目前尚無不克參加人員</div>`;
     }
 
     function copyLineSummary() {
-      const records = getRecords();
-      const attend = records.filter(r => r.status === '參加');
-      const absent = records.filter(r => r.status === '不克參加');
+      const attend = allRecords.filter(r => r.status === '參加');
+      const absent = allRecords.filter(r => r.status === '不克參加');
       const totalPeople = attend.reduce((s, r) => s + (Number(r.count) || 1), 0);
 
       let text = `🎓【11月20日 謝師宴及同學結業聚餐統計】\n`;
@@ -543,20 +577,19 @@
       text += `💰 費用：600元-700元（老師免費，多退少補）\n`;
       text += `━━━━━━━━━━━━━━\n`;
       text += `✅ 參加名單（共 ${totalPeople} 人）：\n`;
-      text += attend.length ? attend.map((r, i) => `${i + 1}. ${r.name} (${r.count}人)`).join('\n') : '（尚無人登記）';
+      text += attend.length ? attend.map((r, i) => `${i + 1}. ${maskName(r.name)} (${r.count}人)`).join('\n') : '（尚無人登記）';
       text += `\n\n❌ 不克參加（${absent.length} 人）：\n`;
-      text += absent.length ? absent.map((r, i) => `${i + 1}. ${r.name}`).join('\n') : '（無）';
+      text += absent.length ? absent.map((r, i) => `${i + 1}. ${maskName(r.name)}`).join('\n') : '（無）';
 
       navigator.clipboard.writeText(text).then(() => {
-        showToast('📋 已複製 LINE 群組接龍統計名單！');
+        showToast('📋 已複製 LINE 群組接龍統計名單（姓名已含隱私遮罩）！');
       });
     }
 
     function exportCSV() {
-      const records = getRecords();
-      if (!records.length) return showToast('⚠️ 目前沒有資料可匯出');
+      if (!allRecords.length) return showToast('⚠️ 目前沒有資料可匯出');
       let csv = '\uFEFF姓名,出席狀態,參加人數,預估餐費,登記時間\n';
-      records.forEach(r => {
+      allRecords.forEach(r => {
         csv += `"${r.name}","${r.status}",${r.count},"${r.feeText}","${r.time}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -567,7 +600,7 @@
     }
 
     function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
     }
 
     function showToast(msg) {
@@ -578,7 +611,8 @@
       window._toastTimer = setTimeout(() => t.classList.add('hidden'), 3500);
     }
 
-    renderLists();
+    // 網頁載入時自動讀取雲端試算表歷史名單
+    fetchCloudRecords(false);
   </script>
 </body>
 </html>
