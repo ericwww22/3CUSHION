@@ -925,25 +925,31 @@
 
       <!-- 頁籤列 -->
       <div class="no-print flex flex-wrap items-center justify-between gap-2 bg-slate-900 border border-slate-800 rounded-2xl p-2">
-        <div class="flex items-center gap-1.5">
-          <button type="button" onclick="switchMainTab('bracket')" id="tabBtnBracket"
-            class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition bg-emerald-500 text-slate-950 shadow">
-            <i class="fa-solid fa-sitemap"></i> 紙本賽程對戰表
-          </button>
-          <button type="button" onclick="switchMainTab('standings')" id="tabBtnStandings"
-            class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-300 hover:bg-slate-800">
-            <i class="fa-solid fa-ranking-star"></i> 目前比分與名次
-          </button>
+        <div class="flex flex-wrap items-center gap-2 min-w-0">
+          <div id="mainTabList" class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="賽事頁面" onkeydown="handleMainTabKeydown(event)">
+            <button type="button" role="tab" aria-selected="true" aria-controls="viewBracketSection viewStandingsSection" tabindex="0" data-tab="bracket" onclick="switchMainTab('bracket')" id="tabBtnBracket"
+              class="main-tab px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition bg-emerald-500 text-slate-950 shadow">
+              <i class="fa-solid fa-sitemap"></i> 紙本賽程對戰表
+            </button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="viewStandingsSection" tabindex="-1" data-tab="standings" onclick="switchMainTab('standings')" id="tabBtnStandings"
+              class="main-tab px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-300 hover:bg-slate-800">
+              <i class="fa-solid fa-ranking-star"></i> 目前比分與名次
+            </button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="viewPlayerRankingSection" tabindex="-1" data-tab="players" onclick="switchMainTab('players')" id="tabBtnPlayerRanking"
+              class="main-tab px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-300 hover:bg-slate-800">
+              <i class="fa-solid fa-chart-simple"></i> 球員戰績排行
+            </button>
+          </div>
 
           <!-- 賽事表觀看方向二擇一切換（直向觀看 / 橫向觀看） -->
-          <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-700/90 ml-1" title="切換賽程表觀看方向">
-            <button type="button" onclick="setBracketOrientation('vertical')" id="btnViewVertical"
-              class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-emerald-500 text-slate-950 shadow">
+          <div id="bracketOrientationControls" class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-700/90 ml-1" title="切換賽程表觀看方向">
+            <button type="button" aria-pressed="true" onclick="setBracketOrientation('vertical')" id="btnViewVertical"
+              class="orientation-toggle px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-emerald-500 text-slate-950 shadow">
               <i class="fa-solid fa-arrows-up-down"></i>
               <span>直向觀看</span>
             </button>
-            <button type="button" onclick="setBracketOrientation('horizontal')" id="btnViewHorizontal"
-              class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white">
+            <button type="button" aria-pressed="false" onclick="setBracketOrientation('horizontal')" id="btnViewHorizontal"
+              class="orientation-toggle px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white">
               <i class="fa-solid fa-arrows-left-right"></i>
               <span>橫向觀看</span>
             </button>
@@ -987,7 +993,7 @@
       <div class="mobile-scroll-hint md:hidden no-print"><i class="fa-solid fa-arrows-left-right mr-1.5"></i>手機左右滑動籤表，可檢視完整輪次與對戰</div>
 
       <!-- 區塊 A：賽程對戰預覽圖 -->
-      <div id="viewBracketSection" class="print-only-area bg-slate-900/60 border border-slate-800 rounded-2xl p-2 sm:p-4 overflow-x-auto">
+      <div id="viewBracketSection" class="print-only-area bg-slate-900/60 border border-slate-800 rounded-2xl p-2 sm:p-4 overflow-x-auto" role="tabpanel" aria-labelledby="tabBtnBracket" tabindex="0">
         <div id="paperCanvas" class="tournament-paper theme-felt rounded-xl p-3 sm:p-6 lg:p-8 min-w-[640px] sm:min-w-[760px] lg:min-w-[820px] mx-auto relative">
 
           <!-- 紙本頂部標題與賽會資訊區 -->
@@ -1033,7 +1039,7 @@
       </div>
 
       <!-- 區塊 B：即時戰況儀表板與最終得名榜 -->
-      <div id="viewStandingsSection" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+      <div id="viewStandingsSection" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl" role="tabpanel" aria-labelledby="tabBtnStandings" tabindex="0">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
           <h2 class="text-base font-bold text-amber-400 flex items-center gap-2">
             <i class="fa-solid fa-medal"></i> 即時戰況與名次統計表
@@ -1058,6 +1064,83 @@
           </table>
         </div>
       </div>
+
+      <!-- 區塊 C：互動球員戰績排行 -->
+      <section id="viewPlayerRankingSection" class="player-ranking-section hidden" role="tabpanel" aria-labelledby="tabBtnPlayerRanking" tabindex="0">
+        <div class="player-ranking-heading">
+          <div>
+            <p class="player-ranking-kicker">TOURNAMENT PLAYER STATS</p>
+            <h2><i class="fa-solid fa-ranking-star" aria-hidden="true"></i> 球員戰績排行</h2>
+            <p class="player-ranking-description">依目前賽事比分即時整理排名、勝敗與對戰紀錄。</p>
+          </div>
+          <button type="button" class="ranking-reset-button" onclick="resetPlayerRankingFilters()">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> 清除篩選
+          </button>
+        </div>
+
+        <div class="player-ranking-summary" aria-label="賽事摘要">
+          <div class="ranking-summary-card"><span>參賽球員</span><strong id="rankingTotalPlayers">0</strong></div>
+          <div class="ranking-summary-card"><span>已完成場次</span><strong id="rankingCompletedMatches">0</strong></div>
+          <div class="ranking-summary-card"><span>目前得名資格</span><strong id="rankingPrizePlayers">0</strong></div>
+        </div>
+
+        <div id="rankingToolbar" class="ranking-toolbar">
+          <label class="ranking-search-field" for="rankingSearchInput">
+            <span>搜尋球員</span>
+            <input id="rankingSearchInput" type="search" placeholder="輸入球員姓名…" oninput="renderPlayerRanking()" autocomplete="off" />
+          </label>
+          <label for="rankingFilterSelect">
+            <span>篩選狀態</span>
+            <select id="rankingFilterSelect" onchange="renderPlayerRanking()">
+              <option value="all">所有球員</option>
+              <option value="active">晉級中</option>
+              <option value="eliminated">已淘汰</option>
+              <option value="prize">得名資格</option>
+              <option value="noshow">未到棄權</option>
+            </select>
+          </label>
+          <label for="rankingSortSelect">
+            <span>排序方式</span>
+            <select id="rankingSortSelect" onchange="renderPlayerRanking()">
+              <option value="rank">目前名次</option>
+              <option value="wins">勝場數</option>
+              <option value="winrate">勝率</option>
+            </select>
+          </label>
+        </div>
+
+        <p id="rankingResultSummary" class="ranking-result-summary" role="status" aria-live="polite"></p>
+        <div class="ranking-table-scroll" role="region" aria-label="球員戰績排行表，可左右捲動查看所有欄位" tabindex="0">
+          <table id="playerRankingTable" class="player-ranking-table">
+            <thead>
+              <tr>
+                <th scope="col">名次</th>
+                <th scope="col">球員</th>
+                <th scope="col">勝 / 敗</th>
+                <th scope="col">勝率</th>
+                <th scope="col">賽況</th>
+                <th scope="col">對戰紀錄</th>
+              </tr>
+            </thead>
+            <tbody id="rankingTableBody"></tbody>
+          </table>
+        </div>
+        <p class="ranking-scroll-hint"><i class="fa-solid fa-arrows-left-right" aria-hidden="true"></i> 手機可在排行表內左右滑動查看欄位</p>
+
+        <section id="rankingPlayerDetail" class="ranking-player-detail hidden" aria-live="polite" aria-labelledby="rankingDetailTitle">
+          <div class="ranking-detail-heading">
+            <div>
+              <span class="player-ranking-kicker">PLAYER MATCH HISTORY</span>
+              <h3 id="rankingDetailTitle">選擇球員查看對戰紀錄</h3>
+            </div>
+            <button type="button" class="ranking-detail-close" onclick="closePlayerRankingDetail()" aria-label="關閉球員對戰紀錄">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div id="rankingDetailSummary" class="ranking-detail-summary"></div>
+          <div id="rankingDetailMatches" class="ranking-match-list"></div>
+        </section>
+      </section>
     </section>
   </main>
 
