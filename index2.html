@@ -1863,8 +1863,19 @@
       }
     }
 
+    const VIEWER_STANDALONE_URL = 'https://ericwww22.github.io/3CUSHION/view.html';
+
     function setViewerMode(isReadOnly) {
       const nextReadOnly = Boolean(isReadOnly);
+      if (nextReadOnly) {
+        const isAlreadyOnViewPage = window.location.pathname.endsWith('/view.html') || window.location.href.startsWith(VIEWER_STANDALONE_URL);
+        if (!isAlreadyOnViewPage) {
+          const targetUrl = buildViewerShareUrl() || `${VIEWER_STANDALONE_URL}?view=1`;
+          window.location.assign(targetUrl);
+          return;
+        }
+      }
+
       if (!nextReadOnly && state.viewerShareLocked) {
         showToast('此分享連結為唯讀觀戰頁；請由裁判控制台管理原始賽事');
         return;
@@ -4495,16 +4506,15 @@
     }
 
     function buildViewerShareUrl() {
-      const base = window.location.href.split('#')[0].split('?')[0];
       const includeSnap = Boolean(document.getElementById('shareIncludeSnapshot')?.checked);
       if (!includeSnap) {
-        return `${base}?view=1`;
+        return `${VIEWER_STANDALONE_URL}?view=1`;
       }
       try {
         const snap = serializeTournamentPayload();
         const encoded = encodeSnapshotBase64Url(snap);
         if (encoded.length <= 2400) {
-          return `${base}?view=1#snap=${encoded}`;
+          return `${VIEWER_STANDALONE_URL}?view=1#snap=${encoded}`;
         }
         showToast('快照超過網址長度上限，已停止產生分享連結；請改傳 JSON 備份，或取消快照後再分享精簡入口。');
         return '';
@@ -4884,8 +4894,10 @@
     }
 
     function previewReadOnlyModeNow() {
+      const targetUrl = buildViewerShareUrl();
+      if (!targetUrl) return;
       closeViewerShareModal();
-      setViewerMode(true);
+      window.location.assign(targetUrl);
     }
 
 
