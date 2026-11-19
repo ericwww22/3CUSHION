@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣撞球賽程系統_黑馬行銷整合_16人版(免費版)</title>
+  <title>台灣撞球賽程系統_黑馬國際行銷_16人版(免費版)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
@@ -235,7 +235,7 @@
         </div>
         <div class="min-w-0">
           <h1 class="text-base sm:text-xl font-black tracking-wide text-white flex items-center gap-1.5 sm:gap-2 truncate">
-            <span class="truncate">台灣撞球賽程系統_黑馬行銷整合_16人版(免費版)請用IPA或筆電做完整呈現</span>
+            <span class="truncate">台灣撞球賽程系統_黑馬國際行銷_16人版(免費版)</span>
             <span class="hidden md:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 shrink-0">經典紙本金字塔版</span>
           </h1>
           <p class="text-[11px] sm:text-xs text-slate-400 hidden sm:block truncate">支援單敗淘汰（由下往上金字塔）、雙敗淘汰、循環賽、未到保送與自動輪空</p>
@@ -390,74 +390,20 @@
     <!-- 左側設定與選手管理欄 -->
     <aside id="editorSidebar" class="no-print xl:col-span-3 flex flex-col gap-4">
 
-      <!-- 1. 賽會資訊設定 -->
+      <!-- 1. 獨立「賽事設定」按鈕區（含帳號密碼驗證，預設皆為 test） -->
       <section class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xl">
-        <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2 mb-3">
-          <i class="fa-solid fa-trophy"></i> 賽會資訊與賽制設定
-        </h2>
-        <div class="space-y-2.5 text-xs sm:text-sm">
+        <div class="flex items-center justify-between gap-2">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">賽會名稱</label>
-            <input type="text" id="metaTitle" value="115年黑馬盃-9號球大賽" oninput="updateMeta()"
-              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+            <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+              <i class="fa-solid fa-gear"></i> 賽事設定
+            </h2>
+            <p id="eventAuthStatusText" class="text-[11px] text-slate-400 mt-0.5">需帳號密碼驗證（預設 test / test）</p>
           </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">主辦單位</label>
-              <input type="text" id="metaHost" value="黑馬音樂頻道&黑馬三顆星" oninput="updateMeta()"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">比賽日期</label>
-              <input type="text" id="metaDate" value="" oninput="updateMeta()"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">比賽地點</label>
-              <input type="text" id="metaLocation" value="黑馬撞球會館" oninput="updateMeta()"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">比賽項目</label>
-              <select id="metaEventSelect" onchange="handleMetaEventSelectChange(this.value)"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-400 mb-1">
-                <option value="9號球讓局賽">9號球</option>
-                <option value="10號球讓局賽">10號球</option>
-                <option value="8號球讓局賽">8號球</option>
-                <option value="美式落球賽">美式落球 (Straight Pool)</option>
-                <option value="斯洛克積分賽">斯洛克 (Snooker)</option>
-                <option value="開侖三顆星賽">開侖三顆星</option>
-                <option value="台灣235四粒仔">台灣 235</option>
-                <option value="custom">自訂項目...</option>
-              </select>
-              <input type="text" id="metaEvent" value="9號球讓局賽" oninput="updateMeta()"
-                class="hidden w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-amber-400">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">比賽賽制</label>
-              <select id="tournamentFormat" onchange="changeFormat(this.value)"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-400">
-                <option value="single">單敗淘汰制 (含季軍)</option>
-                <option value="double">雙敗淘汰制 (勝/敗部)</option>
-                <option value="roundrobin">循環賽制 (全對戰)</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">錄取/得名名額</label>
-              <select id="prizeTopN" onchange="renderDashboardAndStandings()"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-emerald-300 focus:outline-none focus:border-amber-400">
-                <option value="1">取前 1 名 (冠軍)</option>
-                <option value="2">取前 2 名 (冠亞軍)</option>
-                <option value="3">取前 3 名 (前三名)</option>
-                <option value="4" selected>取前 4 名 (冠亞季殿)</option>
-              </select>
-            </div>
-          </div>
+          <button type="button" onclick="openEventSettingsModal()" id="btnOpenEventSettings"
+            class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-black flex items-center gap-1.5 shadow transition shrink-0">
+            <i class="fa-solid fa-lock"></i>
+            <span>賽事設定</span>
+          </button>
         </div>
       </section>
 
@@ -874,6 +820,138 @@
       <!-- 預覽畫布區 -->
       <div class="flex-1 overflow-auto p-3 sm:p-5 bg-slate-950/70">
         <div id="printPreviewPaperHost" class="mx-auto w-fit"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 賽事設定帳號密碼驗證視窗 (Modal) -->
+  <div id="eventAuthModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black">權限驗證</span>
+          <h3 class="text-base font-black text-white">賽事設定登入</h3>
+        </div>
+        <button type="button" onclick="closeEventAuthModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleEventAuthSubmit(event)" class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label for="eventAuthAccount" class="block text-xs text-slate-400 mb-1">帳號</label>
+          <input type="text" id="eventAuthAccount" value="test" autocomplete="username" required
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <div>
+          <label for="eventAuthPassword" class="block text-xs text-slate-400 mb-1">密碼</label>
+          <input type="password" id="eventAuthPassword" value="test" autocomplete="current-password" required
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <p id="eventAuthError" class="hidden text-xs font-bold text-rose-400">帳號或密碼錯誤，預設帳號與密碼皆為 test</p>
+        <p class="text-[11px] text-slate-400">預設帳號：<span class="font-mono text-amber-300">test</span>／預設密碼：<span class="font-mono text-amber-300">test</span></p>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeEventAuthModal()"
+            class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">
+            取消
+          </button>
+          <button type="submit"
+            class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black shadow">
+            驗證並開啟設定
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 賽事設定視窗 (Modal) -->
+  <div id="eventSettingsModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black">已驗證</span>
+          <h3 class="text-base font-black text-white">賽會資訊與賽制設定</h3>
+        </div>
+        <button type="button" onclick="closeEventSettingsModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">賽會名稱</label>
+          <input type="text" id="metaTitle" value="115年黑馬盃-9號球大賽" oninput="updateMeta()"
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">主辦單位</label>
+            <input type="text" id="metaHost" value="黑馬音樂頻道&黑馬三顆星" oninput="updateMeta()"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">比賽日期</label>
+            <input type="text" id="metaDate" value="" oninput="updateMeta()"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">比賽地點</label>
+            <input type="text" id="metaLocation" value="黑馬撞球會館" oninput="updateMeta()"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">比賽項目</label>
+            <select id="metaEventSelect" onchange="handleMetaEventSelectChange(this.value)"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-400 mb-1">
+              <option value="9號球讓局賽">9號球</option>
+              <option value="10號球讓局賽">10號球</option>
+              <option value="8號球讓局賽">8號球</option>
+              <option value="美式落球賽">美式落球 (Straight Pool)</option>
+              <option value="斯洛克積分賽">斯洛克 (Snooker)</option>
+              <option value="開侖三顆星賽">開侖三顆星</option>
+              <option value="台灣235四粒仔">台灣 235</option>
+              <option value="custom">自訂項目...</option>
+            </select>
+            <input type="text" id="metaEvent" value="9號球讓局賽" oninput="updateMeta()"
+              class="hidden w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">比賽賽制</label>
+            <select id="tournamentFormat" onchange="changeFormat(this.value)"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-400">
+              <option value="single">單敗淘汰制 (含季軍)</option>
+              <option value="double">雙敗淘汰制 (勝/敗部)</option>
+              <option value="roundrobin">循環賽制 (全對戰)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">錄取/得名名額</label>
+            <select id="prizeTopN" onchange="renderDashboardAndStandings(); saveStateToLocalStorage();"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-emerald-300 focus:outline-none focus:border-amber-400">
+              <option value="1">取前 1 名 (冠軍)</option>
+              <option value="2">取前 2 名 (冠亞軍)</option>
+              <option value="3">取前 3 名 (前三名)</option>
+              <option value="4" selected>取前 4 名 (冠亞季殿)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+          <button type="button" onclick="lockEventSettings()"
+            class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 text-xs font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-lock"></i> 鎖定設定
+          </button>
+          <button type="button" onclick="saveAndCloseEventSettings()"
+            class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black shadow">
+            完成並儲存設定
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -3761,18 +3839,109 @@
       }, { passive: false });
     })();
 
+    // =========================================================================
+    // 賽事設定獨立按鈕與帳號密碼控制（預設皆為 test）
+    // =========================================================================
+    const EVENT_SETTINGS_CREDENTIAL = {
+      account: 'test',
+      password: 'test'
+    };
+    let eventSettingsAuthenticated = false;
+
+    function updateEventAuthUi() {
+      const statusEl = document.getElementById('eventAuthStatusText');
+      const btn = document.getElementById('btnOpenEventSettings');
+      if (statusEl) {
+        statusEl.textContent = eventSettingsAuthenticated
+          ? '已驗證解鎖（可編輯賽會與賽制）'
+          : '需帳號密碼驗證（預設 test / test）';
+      }
+      if (btn) {
+        btn.innerHTML = eventSettingsAuthenticated
+          ? '<i class="fa-solid fa-unlock"></i><span>賽事設定</span>'
+          : '<i class="fa-solid fa-lock"></i><span>賽事設定</span>';
+      }
+    }
+
+    function openEventSettingsModal() {
+      if (!assertEditable()) return;
+      if (!eventSettingsAuthenticated) {
+        openEventAuthModal();
+        return;
+      }
+      document.getElementById('eventSettingsModal')?.classList.remove('hidden');
+    }
+
+    function openEventAuthModal() {
+      const accInput = document.getElementById('eventAuthAccount');
+      const pwdInput = document.getElementById('eventAuthPassword');
+      const errEl = document.getElementById('eventAuthError');
+      if (accInput) accInput.value = 'test';
+      if (pwdInput) pwdInput.value = 'test';
+      if (errEl) errEl.classList.add('hidden');
+      document.getElementById('eventAuthModal')?.classList.remove('hidden');
+      setTimeout(() => accInput?.focus(), 40);
+    }
+
+    function closeEventAuthModal() {
+      document.getElementById('eventAuthModal')?.classList.add('hidden');
+    }
+
+    function handleEventAuthSubmit(e) {
+      e.preventDefault();
+      const acc = (document.getElementById('eventAuthAccount')?.value || '').trim();
+      const pwd = document.getElementById('eventAuthPassword')?.value || '';
+      const errEl = document.getElementById('eventAuthError');
+
+      if (acc === EVENT_SETTINGS_CREDENTIAL.account && pwd === EVENT_SETTINGS_CREDENTIAL.password) {
+        eventSettingsAuthenticated = true;
+        updateEventAuthUi();
+        closeEventAuthModal();
+        document.getElementById('eventSettingsModal')?.classList.remove('hidden');
+        showToast('驗證成功，已開啟賽事設定！');
+      } else {
+        if (errEl) errEl.classList.remove('hidden');
+        showToast('帳號或密碼錯誤（預設皆為 test）');
+      }
+    }
+
+    function closeEventSettingsModal() {
+      document.getElementById('eventSettingsModal')?.classList.add('hidden');
+    }
+
+    function saveAndCloseEventSettings() {
+      updateMeta();
+      renderDashboardAndStandings();
+      saveStateToLocalStorage();
+      closeEventSettingsModal();
+      showToast('已儲存賽事設定！');
+    }
+
+    function lockEventSettings() {
+      eventSettingsAuthenticated = false;
+      updateEventAuthUi();
+      closeEventSettingsModal();
+      showToast('已重新鎖定賽事設定（再次開啟需輸入帳號密碼）');
+    }
+
     // 支援 Esc 關閉彈窗
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const printModal = document.getElementById('printPreviewModal');
         const shareModal = document.getElementById('viewerShareModal');
         const matchModal = document.getElementById('matchModal');
+        const settingsModal = document.getElementById('eventSettingsModal');
+        const authModal = document.getElementById('eventAuthModal');
         if (printModal && !printModal.classList.contains('hidden')) {
           closePrintPreviewModal();
         } else if (shareModal && !shareModal.classList.contains('hidden')) {
           closeViewerShareModal();
         } else if (matchModal && !matchModal.classList.contains('hidden')) {
           closeMatchModal();
+        } else if (settingsModal && !settingsModal.classList.contains('hidden')) {
+          closeEventSettingsModal();
+        } else if (authModal && !authModal.classList.contains('hidden')) {
+          closeEventAuthModal();
         }
       }
     });
