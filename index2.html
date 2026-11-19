@@ -51,6 +51,57 @@
       border: 2px solid #334155;
     }
 
+    .tournament-paper.theme-neon {
+      background-color: #050a14;
+      background-image:
+        radial-gradient(circle at 18% 15%, rgba(0, 245, 212, 0.16), transparent 36%),
+        radial-gradient(circle at 84% 22%, rgba(56, 189, 248, 0.15), transparent 40%),
+        linear-gradient(rgba(34, 211, 238, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.08) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+      color: #67f9ff;
+      border: 2px solid #22d3ee;
+      box-shadow: 0 0 28px rgba(34, 211, 238, 0.22), inset 0 0 24px rgba(14, 165, 233, 0.12);
+      text-shadow: 0 0 8px rgba(34, 211, 238, 0.55);
+    }
+
+    .theme-neon .paper-box {
+      background-color: rgba(6, 24, 38, 0.68);
+      border-color: rgba(103, 249, 255, 0.75);
+      box-shadow: inset 0 0 10px rgba(34, 211, 238, 0.12);
+    }
+
+    .theme-neon .paper-box:hover {
+      background-color: rgba(12, 44, 66, 0.85);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.35), inset 0 0 12px rgba(103, 249, 255, 0.18);
+    }
+
+    .theme-neon .race-corner-box {
+      background-color: rgba(103, 249, 255, 0.92);
+      color: #041019;
+      text-shadow: none;
+    }
+
+    .theme-neon .horiz-match-card {
+      background-color: rgba(6, 22, 36, 0.78);
+      border-color: rgba(103, 249, 255, 0.72);
+    }
+
+    .theme-neon .horiz-match-card.losers-card {
+      background-color: rgba(14, 116, 144, 0.28);
+      border-color: #38bdf8;
+    }
+
+    .theme-neon .horiz-match-card.final-card {
+      background-color: rgba(16, 42, 66, 0.88);
+      border-color: #4ade80;
+    }
+
+    .theme-neon .player-lookup-highlight {
+      outline: 3px solid #4ade80 !important;
+      background-color: rgba(74, 222, 128, 0.24) !important;
+    }
+
     .tournament-paper.theme-custom {
       background-color: var(--custom-paper-bg, #1e293b);
       color: var(--custom-paper-fg, #f8fafc);
@@ -758,6 +809,9 @@
           </button>
           <button type="button" onclick="setPaperTheme('black')" id="btnThemeBlack" class="px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white">
             <span class="w-2.5 h-2.5 rounded-full bg-slate-950 border border-white"></span><span>黑底白字</span>
+          </button>
+          <button type="button" onclick="setPaperTheme('neon')" id="btnThemeNeon" class="px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-cyan-200 hover:text-white">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 border border-cyan-100 shadow-[0_0_6px_#22d3ee]"></span><span>科技感背景螢光字</span>
           </button>
           <div class="flex items-center gap-1 pl-1.5 ml-0.5 border-l border-slate-700" title="自定義賽事版底色與字色">
             <button type="button" onclick="setPaperTheme('custom')" id="btnThemeCustom" class="px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white">
@@ -2034,7 +2088,7 @@
     function setPaperTheme(themeName) {
       state.theme = themeName;
       const canvas = document.getElementById('paperCanvas');
-      canvas.classList.remove('theme-pink', 'theme-felt', 'theme-white', 'theme-black', 'theme-custom');
+      canvas.classList.remove('theme-pink', 'theme-felt', 'theme-white', 'theme-black', 'theme-neon', 'theme-custom');
       canvas.classList.add(`theme-${themeName}`);
 
       const bg = document.getElementById('customPaperBgInput')?.value || state.customTheme?.bg || '#1e293b';
@@ -2047,13 +2101,16 @@
       const btnFelt = document.getElementById('btnThemeFelt');
       const btnWhite = document.getElementById('btnThemeWhite');
       const btnBlack = document.getElementById('btnThemeBlack');
+      const btnNeon = document.getElementById('btnThemeNeon');
       const btnCustom = document.getElementById('btnThemeCustom');
 
       const baseInactive = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white';
+      const neonInactive = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-cyan-200 hover:text-white';
       if (btnPink) btnPink.className = baseInactive;
       if (btnFelt) btnFelt.className = baseInactive;
       if (btnWhite) btnWhite.className = baseInactive;
       if (btnBlack) btnBlack.className = baseInactive;
+      if (btnNeon) btnNeon.className = neonInactive;
       if (btnCustom) btnCustom.className = 'px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white';
 
       if (themeName === 'pink' && btnPink) {
@@ -2064,6 +2121,8 @@
         btnWhite.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-white text-slate-950 shadow';
       } else if (themeName === 'black' && btnBlack) {
         btnBlack.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-slate-950 text-white border border-slate-400 shadow';
+      } else if (themeName === 'neon' && btnNeon) {
+        btnNeon.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-cyan-400 text-slate-950 border border-cyan-200 shadow';
       } else if (themeName === 'custom' && btnCustom) {
         btnCustom.className = 'px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-amber-400 text-slate-950 shadow';
       }
@@ -4323,7 +4382,7 @@
         }
       }
 
-      if (payload.theme && ['pink', 'felt', 'white', 'black', 'custom'].includes(payload.theme)) {
+      if (payload.theme && ['pink', 'felt', 'white', 'black', 'neon', 'custom'].includes(payload.theme)) {
         setPaperTheme(payload.theme);
       }
 
