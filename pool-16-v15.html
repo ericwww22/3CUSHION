@@ -3,7 +3,182 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣撞球賽程系統(黑馬國際行銷) - 經典紙本金字塔版</title>
+  <title>台灣撞球賽程系統_黑馬國際行銷_16人版(免費版)</title>
+  <!-- Google Analytics (GA4) 流量追蹤 -->
+  <script>
+    window.__GA_DEFAULT_ID__ = 'G-XXXXXXXXXX';
+    window.__GA_STORAGE_KEY__ = 'tw_billiard_ga4_measurement_id';
+    window.__LOCAL_TRAFFIC_KEY__ = 'tw_billiard_local_traffic_stats_v1';
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    function getActiveGaMeasurementId() {
+      try {
+        const saved = (localStorage.getItem(window.__GA_STORAGE_KEY__) || '').trim();
+        if (/^G-[A-Z0-9]+$/i.test(saved)) return saved.toUpperCase();
+      } catch (e) {}
+      if (typeof window.__GA_DEFAULT_ID__ === 'string' && /^G-[A-Z0-9]+$/i.test(window.__GA_DEFAULT_ID__) && window.__GA_DEFAULT_ID__ !== 'G-XXXXXXXXXX') {
+        return window.__GA_DEFAULT_ID__.toUpperCase();
+      }
+      return '';
+    }
+
+    function getTodayDateKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function readLocalTrafficStats() {
+      const fallback = {
+        totalPageViews: 0,
+        totalVisits: 0,
+        dailyViews: {},
+        lastVisitAt: '',
+        eventsCount: 0
+      };
+      try {
+        const raw = localStorage.getItem(window.__LOCAL_TRAFFIC_KEY__);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return {
+          totalPageViews: Number(parsed.totalPageViews) || 0,
+          totalVisits: Number(parsed.totalVisits) || 0,
+          dailyViews: (parsed.dailyViews && typeof parsed.dailyViews === 'object') ? parsed.dailyViews : {},
+          lastVisitAt: String(parsed.lastVisitAt || ''),
+          eventsCount: Number(parsed.eventsCount) || 0
+        };
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function writeLocalTrafficStats(stats) {
+      try {
+        localStorage.setItem(window.__LOCAL_TRAFFIC_KEY__, JSON.stringify(stats));
+      } catch (e) {}
+    }
+
+    function recordLocalVisitAndPageView(isNewSession = false) {
+      const stats = readLocalTrafficStats();
+      const today = getTodayDateKey();
+      stats.totalPageViews += 1;
+      if (isNewSession) {
+        stats.totalVisits += 1;
+      }
+      stats.dailyViews[today] = (Number(stats.dailyViews[today]) || 0) + 1;
+      stats.lastVisitAt = new Date().toLocaleString('zh-TW', { hour12: false });
+      writeLocalTrafficStats(stats);
+      refreshLocalTrafficSummaryUi();
+    }
+
+    function resetLocalTrafficStats() {
+      const fresh = {
+        totalPageViews: 0,
+        totalVisits: 0,
+        dailyViews: {},
+        lastVisitAt: '',
+        eventsCount: 0
+      };
+      writeLocalTrafficStats(fresh);
+      refreshLocalTrafficSummaryUi();
+      if (typeof showToast === 'function') {
+        showToast('已重設本機瀏覽計數（不影響 Google Analytics 後台歷史報表）');
+      }
+    }
+
+    function refreshLocalTrafficSummaryUi() {
+      const stats = readLocalTrafficStats();
+      const today = getTodayDateKey();
+      const todayViews = Number(stats.dailyViews[today]) || 0;
+      const pvEl = document.getElementById('localTotalPageViews');
+      const visitsEl = document.getElementById('localTotalVisits');
+      const todayEl = document.getElementById('localTodayViews');
+      const eventsEl = document.getElementById('localEventsCount');
+      const lastEl = document.getElementById('localLastVisitAt');
+      if (pvEl) pvEl.textContent = String(stats.totalPageViews);
+      if (visitsEl) visitsEl.textContent = String(stats.totalVisits);
+      if (todayEl) todayEl.textContent = String(todayViews);
+      if (eventsEl) eventsEl.textContent = String(stats.eventsCount);
+      if (lastEl) lastEl.textContent = stats.lastVisitAt || '尚無紀錄';
+    }
+
+    function initGoogleAnalytics(customId) {
+      const measurementId = (customId || getActiveGaMeasurementId() || '').trim().toUpperCase();
+      if (!/^G-[A-Z0-9]+$/i.test(measurementId)) {
+        updateGaStatusBadge(false, '尚未設定衡量 ID (G-XXXXXXX)');
+        return false;
+      }
+      try {
+        localStorage.setItem(window.__GA_STORAGE_KEY__, measurementId);
+      } catch (e) {}
+
+      if (window.__GA_LOADED_ID__ !== measurementId) {
+        window.__GA_LOADED_ID__ = measurementId;
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(measurementId);
+        document.head.appendChild(script);
+      }
+
+      gtag('js', new Date());
+      gtag('config', measurementId, {
+        page_title: document.title,
+        page_location: window.location.href
+      });
+      updateGaStatusBadge(true, '已啟用 GA4：' + measurementId);
+      return true;
+    }
+
+    function trackGaEvent(eventName, params = {}) {
+      try {
+        const stats = readLocalTrafficStats();
+        stats.eventsCount += 1;
+        writeLocalTrafficStats(stats);
+        refreshLocalTrafficSummaryUi();
+      } catch (e) {}
+
+      const measurementId = getActiveGaMeasurementId();
+      if (!measurementId || typeof gtag !== 'function') return;
+      try {
+        gtag('event', eventName, {
+          send_to: measurementId,
+          ...params
+        });
+      } catch (e) {}
+    }
+
+    function updateGaStatusBadge(enabled, labelText) {
+      const badge = document.getElementById('gaTrackingStatusBadge');
+      if (!badge) return;
+      if (enabled) {
+        badge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        badge.textContent = labelText;
+      } else {
+        badge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30';
+        badge.textContent = labelText;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      let isNewSession = false;
+      try {
+        if (!sessionStorage.getItem('tw_billiard_ga_session_counted')) {
+          sessionStorage.setItem('tw_billiard_ga_session_counted', '1');
+          isNewSession = true;
+        }
+      } catch (e) {
+        isNewSession = true;
+      }
+      recordLocalVisitAndPageView(isNewSession);
+
+      const inputEl = document.getElementById('gaMeasurementIdInput');
+      const activeId = getActiveGaMeasurementId();
+      if (inputEl && activeId) {
+        inputEl.value = activeId;
+      }
+      initGoogleAnalytics(activeId);
+    });
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
@@ -42,6 +217,18 @@
       border: 2px solid #cbd5e1;
     }
 
+    .tournament-paper.theme-black {
+      background-color: #090d16;
+      color: #f8fafc;
+      border: 2px solid #334155;
+    }
+
+    .tournament-paper.theme-custom {
+      background-color: var(--custom-paper-bg, #1e293b);
+      color: var(--custom-paper-fg, #f8fafc);
+      border: 2px solid var(--custom-paper-border, #64748b);
+    }
+
     .paper-box {
       position: relative;
       border: 1.5px solid currentColor;
@@ -50,7 +237,9 @@
       user-select: none;
     }
 
-    .theme-felt .paper-box {
+    .theme-felt .paper-box,
+    .theme-black .paper-box,
+    .theme-custom .paper-box {
       background-color: rgba(255, 255, 255, 0.12);
     }
 
@@ -64,7 +253,9 @@
       background-color: rgba(255, 255, 255, 0.65);
     }
 
-    .theme-felt .paper-box:hover {
+    .theme-felt .paper-box:hover,
+    .theme-black .paper-box:hover,
+    .theme-custom .paper-box:hover {
       background-color: rgba(255, 255, 255, 0.24);
     }
 
@@ -95,8 +286,10 @@
       color: #111827;
     }
 
-    .theme-felt .race-corner-box {
-      background-color: rgba(254, 240, 138, 0.9);
+    .theme-felt .race-corner-box,
+    .theme-black .race-corner-box,
+    .theme-custom .race-corner-box {
+      background-color: rgba(254, 240, 138, 0.92);
       color: #0f172a;
     }
 
@@ -123,7 +316,9 @@
       z-index: 15;
     }
 
-    .theme-felt .player-lookup-highlight {
+    .theme-felt .player-lookup-highlight,
+    .theme-black .player-lookup-highlight,
+    .theme-custom .player-lookup-highlight {
       outline: 3px solid #fde047 !important;
       background-color: rgba(250, 204, 21, 0.35) !important;
     }
@@ -180,6 +375,22 @@
         min-width: 720px;
       }
     }
+    /* 限制右鍵、快捷鍵與拖曳（保留輸入框與可編輯欄位正常操作） */
+    body {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+    img, a, svg, canvas, .paper-box {
+      -webkit-user-drag: none;
+      user-drag: none;
+    }
+    input, textarea, select, [contenteditable="true"] {
+      -webkit-user-select: text;
+      user-select: text;
+      -webkit-touch-callout: default;
+    }
+
   </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
@@ -199,7 +410,7 @@
         </div>
         <div class="min-w-0">
           <h1 class="text-base sm:text-xl font-black tracking-wide text-white flex items-center gap-1.5 sm:gap-2 truncate">
-            <span class="truncate">台灣撞球賽程系統(黑馬國際行銷)</span>
+            <span class="truncate">台灣撞球賽程系統_黑馬國際行銷_16人版(免費版)</span>
             <span class="hidden md:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 shrink-0">經典紙本金字塔版</span>
           </h1>
           <p class="text-[11px] sm:text-xs text-slate-400 hidden sm:block truncate">支援單敗淘汰（由下往上金字塔）、雙敗淘汰、循環賽、未到保送與自動輪空</p>
@@ -222,7 +433,7 @@
 
       <!-- 工具列 -->
       <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-end">
-        <div class="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700" title="切換賽程表底色風格">
+        <div class="flex flex-wrap items-center bg-slate-800 p-1 rounded-xl border border-slate-700 gap-0.5" title="切換賽程表底色風格">
           <button type="button" onclick="setPaperTheme('pink')" id="btnThemePink" class="px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-pink-400 text-slate-950 shadow">
             <span class="w-2.5 h-2.5 rounded-full bg-pink-200 border border-slate-800"></span><span>粉紅紙</span>
           </button>
@@ -232,6 +443,24 @@
           <button type="button" onclick="setPaperTheme('white')" id="btnThemeWhite" class="px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white">
             <span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-600"></span><span>白底</span>
           </button>
+          <button type="button" onclick="setPaperTheme('black')" id="btnThemeBlack" class="px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white">
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-950 border border-white"></span><span>黑底白字</span>
+          </button>
+          <div class="flex items-center gap-1 pl-1.5 ml-0.5 border-l border-slate-700" title="自定義賽事版底色與字色">
+            <button type="button" onclick="setPaperTheme('custom')" id="btnThemeCustom" class="px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white">
+              <i class="fa-solid fa-palette text-[11px]"></i><span>自定義</span>
+            </button>
+            <label class="flex items-center gap-0.5 text-[10px] text-slate-300 cursor-pointer" title="自定義底色">
+              <span>底</span>
+              <input type="color" id="customPaperBgInput" value="#1e293b" oninput="applyCustomPaperColors()"
+                class="w-5 h-5 rounded cursor-pointer bg-transparent border border-slate-600 p-0">
+            </label>
+            <label class="flex items-center gap-0.5 text-[10px] text-slate-300 cursor-pointer" title="自定義文字顏色">
+              <span>字</span>
+              <input type="color" id="customPaperFgInput" value="#f8fafc" oninput="applyCustomPaperColors()"
+                class="w-5 h-5 rounded cursor-pointer bg-transparent border border-slate-600 p-0">
+            </label>
+          </div>
         </div>
 
         <div class="flex items-center bg-slate-800 px-1.5 sm:px-2 py-1 rounded-xl border border-slate-700 gap-0.5 sm:gap-1">
@@ -240,6 +469,20 @@
           <button type="button" onclick="adjustZoom(0.1)" class="p-1 text-slate-300 hover:text-white" title="放大"><i class="fa-solid fa-magnifying-glass-plus text-xs"></i></button>
           <button type="button" onclick="resetZoom()" class="text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200">重設</button>
         </div>
+
+        <button type="button" onclick="quickHeaderAutoConnect()" id="btnHeaderAutoConnect"
+          class="px-2.5 py-1.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow transition"
+          title="一鍵自動串聯 GA4">
+          <i class="fa-solid fa-link"></i>
+          <span>自動串聯</span>
+        </button>
+
+        <button type="button" onclick="openTrafficStatsModal()" id="btnHeaderTrafficStats"
+          class="px-2.5 py-1.5 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black flex items-center gap-1.5 shadow transition"
+          title="查看本機瀏覽與 GA4 流量狀態">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>流量查看</span>
+        </button>
 
         <button type="button" onclick="openViewerShareModal()" class="px-2.5 py-1.5 sm:py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold flex items-center gap-1.5 shadow transition" title="產生觀戰連結與 QR 碼">
           <i class="fa-solid fa-qrcode"></i>
@@ -305,12 +548,24 @@
           <span>分享連結 / QR碼</span>
         </button>
 
+        <button type="button" onclick="openTrafficStatsModal()"
+          class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black flex items-center gap-1.5 shadow transition shrink-0"
+          title="查看本機瀏覽與 GA4 流量狀態">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>流量查看</span>
+        </button>
+
         <button type="button" onclick="syncReadOnlyView()"
           class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shadow transition shrink-0">
           <i class="fa-solid fa-rotate"></i>
           <span>立即同步戰況</span>
         </button>
       </div>
+    </div>
+
+    <div id="playerLiveBoardStrip" class="max-w-[1600px] mx-auto mt-2.5 pt-2.5 border-t border-indigo-500/20 flex flex-wrap items-center gap-2 text-xs">
+      <span class="font-bold text-indigo-300 shrink-0"><i class="fa-solid fa-bolt mr-1"></i>待進行場次：</span>
+      <div id="playerLiveMatchChips" class="flex flex-wrap items-center gap-1.5"></div>
     </div>
 
     <div id="playerPersonalStatusCard" class="hidden max-w-[1600px] mx-auto mt-3 pt-3 border-t border-indigo-500/25 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
@@ -331,77 +586,20 @@
     <!-- 左側設定與選手管理欄 -->
     <aside id="editorSidebar" class="no-print xl:col-span-3 flex flex-col gap-4">
 
-      <!-- 1. 賽會資訊設定 -->
+      <!-- 1. 獨立「賽事設定」按鈕區（含帳號密碼驗證，預設皆為 test） -->
       <section class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xl">
-        <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2 mb-3">
-          <i class="fa-solid fa-trophy"></i> 賽會資訊與賽制設定
-        </h2>
-        <div class="space-y-2.5 text-xs sm:text-sm">
+        <div class="flex items-center justify-between gap-2">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">賽會名稱</label>
-            <input type="text" id="metaTitle" value="黑馬盃撞球公開賽" oninput="updateMeta()"
-              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+            <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+              <i class="fa-solid fa-gear"></i> 賽事設定
+            </h2>
+            <p id="eventAuthStatusText" class="text-[11px] text-slate-400 mt-0.5">需帳號密碼驗證（預設 test / test）</p>
           </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">主辦單位</label>
-              <input type="text" id="metaHost" value="黑馬音樂頻道&黑馬三顆星" oninput="updateMeta()"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">比賽日期</label>
-              <input type="text" id="metaDate" value="" oninput="updateMeta()"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">比賽地點</label>
-              <input type="text" id="metaLocation" value="黑馬撞球會館" oninput="updateMeta()"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">比賽項目</label>
-              <select id="metaEventSelect" onchange="handleMetaEventSelectChange(this.value)"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-400 mb-1">
-                <option value="9號球讓局賽">9號球</option>
-                <option value="10號球讓局賽">10號球</option>
-                <option value="8號球讓局賽">8號球</option>
-                <option value="美式落球賽">美式落球 (Straight Pool)</option>
-                <option value="斯洛克積分賽">斯洛克 (Snooker)</option>
-                <option value="開侖三顆星賽">開侖三顆星</option>
-                <option value="台灣235四粒仔">台灣 235</option>
-                <option value="custom">自訂項目...</option>
-              </select>
-              <input type="text" id="metaEvent" value="9號球讓局賽" oninput="updateMeta()"
-                class="hidden w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-amber-400">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">比賽賽制</label>
-              <select id="tournamentFormat" onchange="changeFormat(this.value)"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-400">
-                <option value="single">單敗淘汰制 (含季軍)</option>
-                <option value="double">雙敗淘汰制 (勝/敗部)</option>
-                <option value="roundrobin">循環賽制 (全對戰)</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">錄取/得名名額</label>
-              <select id="prizeTopN" onchange="renderDashboardAndStandings()"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-emerald-300 focus:outline-none focus:border-amber-400">
-                <option value="1">取前 1 名 (冠軍)</option>
-                <option value="2">取前 2 名 (冠亞軍)</option>
-                <option value="3">取前 3 名 (前三名)</option>
-                <option value="4" selected>取前 4 名 (冠亞季殿)</option>
-                <option value="8">取前 8 名 (八強)</option>
-                <option value="12">取前 12 名 (十二強)</option>
-                <option value="16">取前 16 名 (十六強)</option>
-              </select>
-            </div>
-          </div>
+          <button type="button" onclick="openEventSettingsModal()" id="btnOpenEventSettings"
+            class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-black flex items-center gap-1.5 shadow transition shrink-0">
+            <i class="fa-solid fa-lock"></i>
+            <span>賽事設定</span>
+          </button>
         </div>
       </section>
 
@@ -417,43 +615,66 @@
           </button>
         </div>
 
-        <!-- 快速範例與自訂人數按鈕 -->
+        <!-- 16人版本說明與快速範例 -->
         <div class="space-y-2 mb-3">
-          <div class="flex flex-wrap gap-1.5">
-            <button type="button" onclick="loadSample(8)" class="text-xs px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">8人範例</button>
-            <button type="button" onclick="loadSample(13)" class="text-xs px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40">13人(16籤輪空)</button>
-            <button type="button" onclick="loadSample(16)" class="text-xs px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">16人範例</button>
-            <button type="button" onclick="loadSample(32)" class="text-xs px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">32人範例</button>
-            <button type="button" onclick="toggleBatchBox()" class="text-xs px-2 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 ml-auto">
-              <i class="fa-solid fa-paste mr-1"></i>批次匯入
-            </button>
+          <div class="text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl px-2.5 py-2 leading-relaxed">
+            免費版上限 16 人（16 人以內免費使用；如需超過 16 人、多人或自訂人數版本，請洽 0912-757574 黃先生）
           </div>
-
-          <!-- 3. 人數不足自動輪空保送：自訂實際到場人數 -->
-          <div class="flex items-center gap-1.5 bg-slate-800/80 border border-slate-700/80 rounded-xl px-2.5 py-1.5">
-            <label for="customPlayerCount" class="text-xs text-slate-300 font-bold shrink-0">自訂人數：</label>
-            <input type="number" id="customPlayerCount" min="2" max="128" value="64"
-              onkeydown="if (event.key === 'Enter') { event.preventDefault(); applyCustomPlayerCount(); }"
-              class="w-16 bg-slate-900 border border-slate-600 rounded-lg px-2 py-1 text-xs font-mono text-white text-center focus:outline-none focus:border-amber-400">
-            <span id="byeHintBadge" class="text-[11px] text-amber-300 truncate">無輪空</span>
-            <button type="button" onclick="applyCustomPlayerCount()"
-              class="ml-auto text-xs px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shrink-0 transition">
-              套用開賽
-            </button>
+          <div class="flex flex-wrap items-center justify-between gap-1.5">
+            <span id="byeHintBadge" class="text-[11px] text-amber-300 font-bold">16籤滿編</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" onclick="loadSample(8)" class="text-xs px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">8人範例</button>
+              <button type="button" onclick="loadSample(13)" class="text-xs px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40">13人(16籤輪空)</button>
+              <button type="button" onclick="loadSample(16)" class="text-xs px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">16人範例</button>
+              <button type="button" onclick="toggleBatchBox()" class="text-xs px-2 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40">
+                <i class="fa-solid fa-paste mr-1"></i>批次匯入
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- 批次貼上名單區塊 -->
+        <!-- 新增：隨機產生人數、姓名與搶幾局（上限 16 人） -->
+        <div class="mb-3 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/35 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label for="randomPlayerCount" class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> 隨機產生選手（上限 16 人）
+            </label>
+            <span class="text-[11px] text-amber-200/80">1 ~ 16 人</span>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1">
+              <span class="text-[11px] text-slate-400 mr-1 shrink-0">人數</span>
+              <input type="number" id="randomPlayerCount" value="16" min="1" max="16"
+                class="w-full bg-transparent text-xs sm:text-sm font-bold text-white text-center focus:outline-none">
+            </div>
+            <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1">
+              <span class="text-[11px] text-slate-400 mr-1 shrink-0">局數</span>
+              <input type="text" id="randomRaceRange" value="5-9" placeholder="如 7 或 5-9"
+                title="可輸入單一局數（如 7）或隨機區間（如 5-9），系統會自動限制在 1~30 局"
+                class="w-full bg-transparent text-xs sm:text-sm font-bold text-amber-300 text-center focus:outline-none">
+            </div>
+          </div>
+          <button type="button" onclick="generateRandomPlayersAndBracket()"
+            class="w-full py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center justify-center gap-1.5 shadow transition">
+            <i class="fa-solid fa-dice"></i>
+            <span>隨機產生名單與賽程</span>
+          </button>
+          <p class="text-[11px] text-slate-300/85 leading-snug">
+            局數可填固定數字（如 <span class="text-amber-300 font-mono">7</span>）或範圍（如 <span class="text-amber-300 font-mono">5-9</span>）；本免費版嚴格上限 16 人，輸入超過 16 人會自動上限 16 人（如需多人版本請洽 0912-757574 黃先生）。
+          </p>
+        </div>
+
         <div id="batchImportBox" class="hidden mb-3 p-2.5 rounded-xl bg-slate-800/90 border border-indigo-500/40 space-y-2">
           <div class="flex items-center justify-between text-xs text-indigo-200">
-            <span>每行一位（格式：姓名 搶局數，如「林桂民 7」）</span>
+            <span>每行一位（格式：姓名 搶局數，如「黑馬哥 7」）</span>
             <div class="flex items-center gap-1">
               <span>預設搶</span>
               <input type="number" id="batchDefaultRace" value="7" min="1" max="30" class="w-11 bg-slate-900 border border-slate-600 rounded px-1.5 py-0.5 text-center text-white">
               <span>局</span>
             </div>
           </div>
-          <textarea id="batchTextarea" rows="4" placeholder="林桂民 7&#10;賴俊翰 7&#10;張瓈謄 6"
+          <textarea id="batchTextarea" rows="4" placeholder="陳宇軒 7&#10;林宥辰 7&#10;周怡君 6"
             class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-indigo-400"></textarea>
           <div class="flex justify-end gap-1.5">
             <button type="button" onclick="applyBatchPlayers('append')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-white">追加名單</button>
@@ -479,9 +700,16 @@
         <div id="playerListContainer" class="space-y-1.5 max-h-[380px] overflow-y-auto pr-1"></div>
 
         <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
-          <button type="button" onclick="resetAllScores()" class="text-xs px-3 py-1.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-200 border border-rose-800/60 flex items-center gap-1.5">
-            <i class="fa-solid fa-rotate-left"></i> 清除比數重設
-          </button>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="undoLastAction()" id="btnUndoAction" disabled
+              class="text-xs px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-amber-300 border border-slate-700 flex items-center gap-1 transition"
+              title="復原上一步操作（最多記住 12 步）">
+              <i class="fa-solid fa-arrow-rotate-left"></i> 復原上一步
+            </button>
+            <button type="button" onclick="resetAllScores()" class="text-xs px-2.5 py-1.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-200 border border-rose-800/60 flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate-left"></i> 清除重設
+            </button>
+          </div>
           <span class="text-[11px] text-slate-400">點擊賽程格可計分或保送</span>
         </div>
       </section>
@@ -504,6 +732,18 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-2 text-xs">
+          <button type="button" onclick="quickHeaderAutoConnect()"
+            class="px-2.5 py-1.5 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 transition"
+            title="一鍵自動串聯 GA4">
+            <i class="fa-solid fa-link"></i>
+            <span>自動串聯</span>
+          </button>
+          <button type="button" onclick="openTrafficStatsModal()"
+            class="px-2.5 py-1.5 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1 transition"
+            title="查看即時流量與觀測數據">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>流量查看</span>
+          </button>
           <div class="flex items-center gap-1">
             <span class="text-slate-400">參賽：</span>
             <strong id="statTotalPlayers" class="text-white font-mono">8</strong>
@@ -528,7 +768,7 @@
             <div class="flex items-baseline gap-2 pt-1 sm:pt-2 min-w-0">
               <span class="font-bold text-sm sm:text-lg tracking-wider shrink-0">賽會名稱：</span>
               <span id="displayTitle" class="handwriting-font text-lg sm:text-2xl lg:text-3xl font-black tracking-widest border-b border-current px-2 sm:px-3 pb-0.5 truncate">
-                115年時代球館公開賽
+                115年黑馬盃-9號球大賽
               </span>
             </div>
 
@@ -792,6 +1032,263 @@
     </div>
   </div>
 
+  <!-- 賽事設定帳號密碼驗證視窗 (Modal) -->
+  <div id="eventAuthModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black">權限驗證</span>
+          <h3 id="eventAuthModalTitle" class="text-base font-black text-white">裁判控制台 / 賽事設定登入</h3>
+        </div>
+        <button type="button" onclick="closeEventAuthModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleEventAuthSubmit(event)" class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label for="eventAuthAccount" class="block text-xs text-slate-400 mb-1">帳號</label>
+          <input type="text" id="eventAuthAccount" value="test" autocomplete="username" required
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <div>
+          <label for="eventAuthPassword" class="block text-xs text-slate-400 mb-1">密碼</label>
+          <input type="password" id="eventAuthPassword" value="test" autocomplete="current-password" required
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <p id="eventAuthError" class="hidden text-xs font-bold text-rose-400">帳號或密碼錯誤，預設帳號與密碼皆為 test</p>
+        <p class="text-[11px] text-slate-400">預設帳號：<span class="font-mono text-amber-300">test</span>／預設密碼：<span class="font-mono text-amber-300">test</span></p>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeEventAuthModal()"
+            class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">
+            取消
+          </button>
+          <button type="submit"
+            class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black shadow">
+            驗證並開啟設定
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 賽事設定視窗 (Modal) -->
+  <div id="eventSettingsModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black">已驗證</span>
+          <h3 class="text-base font-black text-white">賽會資訊與賽制設定</h3>
+        </div>
+        <button type="button" onclick="closeEventSettingsModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">賽會名稱</label>
+          <input type="text" id="metaTitle" value="115年黑馬盃-9號球大賽" oninput="updateMeta()"
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">主辦單位</label>
+            <input type="text" id="metaHost" value="黑馬音樂頻道&黑馬三顆星" oninput="updateMeta()"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">比賽日期</label>
+            <input type="text" id="metaDate" value="" oninput="updateMeta()"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">比賽地點</label>
+            <input type="text" id="metaLocation" value="黑馬撞球會館" oninput="updateMeta()"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">比賽項目</label>
+            <select id="metaEventSelect" onchange="handleMetaEventSelectChange(this.value)"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-400 mb-1">
+              <option value="9號球讓局賽">9號球</option>
+              <option value="10號球讓局賽">10號球</option>
+              <option value="8號球讓局賽">8號球</option>
+              <option value="美式落球賽">美式落球 (Straight Pool)</option>
+              <option value="斯洛克積分賽">斯洛克 (Snooker)</option>
+              <option value="開侖三顆星賽">開侖三顆星</option>
+              <option value="台灣235四粒仔">台灣 235</option>
+              <option value="custom">自訂項目...</option>
+            </select>
+            <input type="text" id="metaEvent" value="9號球讓局賽" oninput="updateMeta()"
+              class="hidden w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:border-amber-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">比賽賽制</label>
+            <select id="tournamentFormat" onchange="changeFormat(this.value)"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-400">
+              <option value="single">單敗淘汰制 (含季軍)</option>
+              <option value="double">雙敗淘汰制 (勝/敗部)</option>
+              <option value="roundrobin">循環賽制 (全對戰)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">錄取/得名名額</label>
+            <select id="prizeTopN" onchange="renderDashboardAndStandings(); saveStateToLocalStorage();"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-bold text-emerald-300 focus:outline-none focus:border-amber-400">
+              <option value="1">取前 1 名 (冠軍)</option>
+              <option value="2">取前 2 名 (冠亞軍)</option>
+              <option value="3">取前 3 名 (前三名)</option>
+              <option value="4" selected>取前 4 名 (冠亞季殿)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label for="gaMeasurementIdInput" class="text-xs font-bold text-sky-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-chart-line"></i> Google Analytics (GA4) 流量分析衡量 ID
+            </label>
+            <span id="gaTrackingStatusBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              尚未設定衡量 ID (G-XXXXXXX)
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <input type="text" id="gaMeasurementIdInput" placeholder="輸入 G-XXXXXXXXXX（或點右鍵貼上）"
+              class="flex-1 min-w-[160px] bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-mono text-white focus:outline-none focus:border-sky-400">
+            <button type="button" onclick="autoConnectGaWorkflow()" id="btnAutoConnectGa"
+              class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shrink-0 flex items-center gap-1 shadow transition">
+              <i class="fa-solid fa-link"></i>
+              <span>一鍵自動串聯</span>
+            </button>
+            <button type="button" onclick="applyGaMeasurementIdFromInput()"
+              class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shrink-0">
+              套用 GA4
+            </button>
+          </div>
+          <div id="gaAutoConnectStatusBox" class="text-[11px] rounded-xl px-3 py-2 bg-slate-900/90 border border-slate-800 text-slate-300 flex items-center justify-between gap-2">
+            <span id="gaAutoConnectMessage">點擊「一鍵自動串聯」可自動讀取剪貼簿/已存 ID、初始化 GA4 並送出測試事件。</span>
+            <a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer"
+              class="text-sky-300 hover:text-sky-200 underline shrink-0 font-bold">開啟 GA 後台</a>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            填入您的 GA4 衡量 ID（例如 <span class="font-mono text-sky-300">G-ABC123DEF4</span>）後，即可在 Google Analytics 後台查看全站訪客數（Active Users）、即時在線人數（Realtime）與瀏覽紀錄。
+          </p>
+          <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-bold text-slate-300">本機瀏覽器觀測紀錄（僅供本機參考）</span>
+              <button type="button" onclick="resetLocalTrafficStats()" class="text-rose-300 hover:text-rose-200 underline">重設本機計數</button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px]">
+              <div class="bg-slate-900 rounded-lg px-2 py-1 border border-slate-800">
+                <div class="text-slate-400">本機開啟次數</div>
+                <div id="localTotalVisits" class="font-mono font-bold text-emerald-300">0</div>
+              </div>
+              <div class="bg-slate-900 rounded-lg px-2 py-1 border border-slate-800">
+                <div class="text-slate-400">本機累計瀏覽</div>
+                <div id="localTotalPageViews" class="font-mono font-bold text-sky-300">0</div>
+              </div>
+              <div class="bg-slate-900 rounded-lg px-2 py-1 border border-slate-800">
+                <div class="text-slate-400">今日本機瀏覽</div>
+                <div id="localTodayViews" class="font-mono font-bold text-amber-300">0</div>
+              </div>
+              <div class="bg-slate-900 rounded-lg px-2 py-1 border border-slate-800">
+                <div class="text-slate-400">互動事件數</div>
+                <div id="localEventsCount" class="font-mono font-bold text-indigo-300">0</div>
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500">最後開啟時間：<span id="localLastVisitAt" class="font-mono text-slate-400">尚無紀錄</span></div>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+          <button type="button" onclick="lockEventSettings()"
+            class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 text-xs font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-lock"></i> 鎖定設定
+          </button>
+          <button type="button" onclick="saveAndCloseEventSettings()"
+            class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black shadow">
+            完成並儲存設定
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 流量查看視窗 (Modal) -->
+  <div id="trafficStatsModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-black">即時流量觀測</span>
+          <h3 class="text-base font-black text-white">流量查看與 GA4 串聯狀態</h3>
+        </div>
+        <button type="button" onclick="closeTrafficStatsModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div>
+          <div class="text-slate-400">GA4 串聯狀態</div>
+          <div id="modalGaActiveIdText" class="font-mono font-bold text-amber-300 mt-0.5">尚未設定衡量 ID</div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button type="button" onclick="quickHeaderAutoConnect()"
+            class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1 transition">
+            <i class="fa-solid fa-link"></i> 立即自動串聯
+          </button>
+          <a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer"
+            class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition">
+            GA 後台
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+        <div class="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+          <div class="text-slate-400">本機開啟次數</div>
+          <div id="modalLocalTotalVisits" class="font-mono text-lg font-black text-emerald-300 mt-0.5">0</div>
+        </div>
+        <div class="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+          <div class="text-slate-400">本機累計瀏覽</div>
+          <div id="modalLocalTotalPageViews" class="font-mono text-lg font-black text-sky-300 mt-0.5">0</div>
+        </div>
+        <div class="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+          <div class="text-slate-400">今日本機瀏覽</div>
+          <div id="modalLocalTodayViews" class="font-mono text-lg font-black text-amber-300 mt-0.5">0</div>
+        </div>
+        <div class="bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+          <div class="text-slate-400">互動事件數</div>
+          <div id="modalLocalEventsCount" class="font-mono text-lg font-black text-indigo-300 mt-0.5">0</div>
+        </div>
+      </div>
+
+      <div class="text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2">
+        <span>最後開啟時間：<strong id="modalLocalLastVisitAt" class="font-mono text-slate-200">尚無紀錄</strong></span>
+        <button type="button" onclick="resetLocalTrafficStats(); refreshTrafficModalUi();"
+          class="text-rose-300 hover:text-rose-200 underline">重設本機計數</button>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button type="button" onclick="closeTrafficStatsModal(); openEventSettingsModal();"
+          class="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black">
+          修改 GA4 衡量 ID
+        </button>
+        <button type="button" onclick="closeTrafficStatsModal()"
+          class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">
+          關閉
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 輕量提示 Toast -->
   <div id="toastBox" class="fixed bottom-5 right-5 z-50 hidden bg-slate-800 border border-amber-400/50 text-white px-4 py-3 rounded-xl shadow-2xl text-sm flex items-center gap-2.5 max-w-[90vw]">
     <i class="fa-solid fa-circle-info text-amber-400 shrink-0"></i>
@@ -799,20 +1296,26 @@
   </div>
 
   <script>
+    const MAX_PLAYERS = 16;
     const SAMPLE_NAMES = [
-      { name: '林桂民', race: 7 }, { name: '賴俊翰', race: 7 }, { name: '張瓈謄', race: 7 }, { name: '劉政昌', race: 7 },
-      { name: '楊俊翔', race: 7 }, { name: '王柏舜', race: 7 }, { name: '莫元華', race: 7 }, { name: '江振彰', race: 8 },
-      { name: '張榮麟', race: 8 }, { name: '柯秉逸', race: 8 }, { name: '謝佳臻', race: 6 }, { name: '陳美惠', race: 6 },
-      { name: '呂孟宸', race: 7 }, { name: '邱昱翔', race: 7 }, { name: '林宗翰', race: 7 }, { name: '黃冠維', race: 7 },
-      { name: '吳坤霖', race: 7 }, { name: '鄭喻軒', race: 7 }, { name: '郭柏成', race: 7 }, { name: '李昆芳', race: 7 },
-      { name: '周婕妤', race: 6 }, { name: '魏子茜', race: 6 }, { name: '洪夢霞', race: 6 }, { name: '范育瑄', race: 6 },
-      { name: '蔡佩真', race: 6 }, { name: '羅立文', race: 7 }, { name: '許凱綸', race: 7 }, { name: '唐境霆', race: 7 },
-      { name: '劉日騰', race: 7 }, { name: '孫國峻', race: 7 }, { name: '游家瑋', race: 7 }, { name: '林達德', race: 7 }
+      { name: '虛我行', race: 7 }, { name: '豬門吹雪', race: 7 }, { name: '牛孤城', race: 7 }, { name: '鐵三藏', race: 7 },
+      { name: '張碧', race: 7 }, { name: '西陽鋒', race: 7 }, { name: '黃扇公主', race: 7 }, { name: '慕婉清', race: 8 },
+      { name: '洪青雲', race: 8 }, { name: '游慕白', race: 8 }, { name: '百不群', race: 6 }, { name: '北小寶', race: 6 },
+      { name: '鳩復', race: 7 }, { name: '楊摩智', race: 7 }, { name: '南狐沖', race: 7 }, { name: '唐魔王', race: 7 },
+      { name: '木悟淨', race: 7 }, { name: '東竹', race: 7 }, { name: '岳春秋', race: 7 }, { name: '喬無忌', race: 7 },
+      { name: '沙七公', race: 6 }, { name: '令靈', race: 6 }, { name: '韋飛狐', race: 6 }, { name: '孫過', race: 6 },
+      { name: '段坦之', race: 6 }, { name: '鍾峰', race: 7 }, { name: '歐求敗', race: 7 }, { name: '獨藥師', race: 7 },
+      { name: '軒譽', race: 7 }, { name: '郭悟能', race: 7 }, { name: '任驚鴻', race: 7 }, { name: '司悟空', race: 7 }
     ];
 
     const state = {
       format: 'single',
       theme: 'pink',
+      customTheme: {
+        bg: '#1e293b',
+        fg: '#f8fafc',
+        border: '#64748b'
+      },
       zoom: 1,
       readOnlyViewer: false,
       highlightedPlayerId: '',
@@ -832,13 +1335,19 @@
       roundrobin: {
         matches: []
       },
+      history: [],
       activeModalMatch: null
     };
 
     function generateSamplePlayers(count) {
+      const pool = [...SAMPLE_NAMES];
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
       const list = [];
       for (let i = 0; i < count; i++) {
-        const s = SAMPLE_NAMES[i];
+        const s = pool[i];
         list.push({
           id: `p_${i + 1}_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
           name: s ? s.name : `選手 ${i + 1}號`,
@@ -879,8 +1388,41 @@
       return true;
     }
 
+    let pendingAuthAction = null;
+
+    function applyEditorConsoleUi(announceToast = true) {
+      state.readOnlyViewer = false;
+      const bodyEl = document.body;
+      const sidebarEl = document.getElementById('editorSidebar');
+      const mobileToggleBtn = document.getElementById('mobileSidebarToggleBtn');
+      const bannerEl = document.getElementById('playerLiveBanner');
+      const btnEditor = document.getElementById('modeBtnEditor');
+      const btnViewer = document.getElementById('modeBtnViewer');
+
+      bodyEl.classList.remove('viewer-readonly');
+      sidebarEl.classList.remove('hidden');
+      sidebarEl.classList.add('flex');
+      if (mobileToggleBtn) mobileToggleBtn.classList.remove('hidden');
+      bannerEl.classList.add('hidden');
+
+      btnEditor.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-amber-500 text-slate-950 shadow';
+      btnViewer.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white';
+
+      renderAll();
+      if (announceToast) {
+        showToast('已切換為「裁判控制台（可編輯）」');
+      }
+    }
+
     function setViewerMode(isReadOnly) {
-      state.readOnlyViewer = Boolean(isReadOnly);
+      const nextReadOnly = Boolean(isReadOnly);
+      if (!nextReadOnly && !eventSettingsAuthenticated) {
+        pendingAuthAction = 'editor';
+        openEventAuthModal('裁判控制台登入');
+        return;
+      }
+
+      state.readOnlyViewer = nextReadOnly;
       const bodyEl = document.body;
       const sidebarEl = document.getElementById('editorSidebar');
       const mobileToggleBtn = document.getElementById('mobileSidebarToggleBtn');
@@ -903,20 +1445,10 @@
         populatePlayerLookupSelect();
         renderPlayerPersonalStatus();
         showToast('已切換為「選手即時觀戰模式（唯讀・不寫入任何資料）」');
+        renderAll();
       } else {
-        bodyEl.classList.remove('viewer-readonly');
-        sidebarEl.classList.remove('hidden');
-        sidebarEl.classList.add('flex');
-        if (mobileToggleBtn) mobileToggleBtn.classList.remove('hidden');
-        bannerEl.classList.add('hidden');
-
-        btnEditor.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-amber-500 text-slate-950 shadow';
-        btnViewer.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white';
-
-        showToast('已切換為「裁判控制台（可編輯）」');
+        applyEditorConsoleUi(true);
       }
-
-      renderAll();
     }
 
     function syncReadOnlyView() {
@@ -927,7 +1459,7 @@
     }
 
     function copyViewerShareInfo() {
-      const title = document.getElementById('metaTitle')?.value || '黑馬盃撞球公開賽';
+      const title = document.getElementById('metaTitle')?.value || '115年黑馬盃-9號球大賽';
       const msg = `【${title}】選手即時觀戰模式說明：請切換至上方「選手即時觀戰 (唯讀)」模式，即可查詢個人賽程、目前晉級/勝敗部狀態與最終名次（唯讀不寫入資料）。`;
       try {
         const tempInput = document.createElement('textarea');
@@ -980,6 +1512,8 @@
     }
 
     function renderPlayerPersonalStatus() {
+      renderLiveMatchChips();
+      updateUndoButtonState();
       const card = document.getElementById('playerPersonalStatusCard');
       if (!card) return;
       if (!state.readOnlyViewer || !state.highlightedPlayerId) {
@@ -1015,28 +1549,65 @@
       document.getElementById('lookupPlayerNextMatch').textContent = nextMatchText;
     }
 
+    function applyCustomPaperColors() {
+      const bgInput = document.getElementById('customPaperBgInput');
+      const fgInput = document.getElementById('customPaperFgInput');
+      const bg = bgInput?.value || state.customTheme?.bg || '#1e293b';
+      const fg = fgInput?.value || state.customTheme?.fg || '#f8fafc';
+      state.customTheme = {
+        bg,
+        fg,
+        border: fg
+      };
+      const canvas = document.getElementById('paperCanvas');
+      if (canvas) {
+        canvas.style.setProperty('--custom-paper-bg', bg);
+        canvas.style.setProperty('--custom-paper-fg', fg);
+        canvas.style.setProperty('--custom-paper-border', fg);
+      }
+      if (state.theme === 'custom') {
+        setPaperTheme('custom');
+      }
+      saveStateToLocalStorage();
+    }
+
     function setPaperTheme(themeName) {
       state.theme = themeName;
       const canvas = document.getElementById('paperCanvas');
-      canvas.classList.remove('theme-pink', 'theme-felt', 'theme-white');
+      canvas.classList.remove('theme-pink', 'theme-felt', 'theme-white', 'theme-black', 'theme-custom');
       canvas.classList.add(`theme-${themeName}`);
+
+      const bg = document.getElementById('customPaperBgInput')?.value || state.customTheme?.bg || '#1e293b';
+      const fg = document.getElementById('customPaperFgInput')?.value || state.customTheme?.fg || '#f8fafc';
+      canvas.style.setProperty('--custom-paper-bg', bg);
+      canvas.style.setProperty('--custom-paper-fg', fg);
+      canvas.style.setProperty('--custom-paper-border', fg);
 
       const btnPink = document.getElementById('btnThemePink');
       const btnFelt = document.getElementById('btnThemeFelt');
       const btnWhite = document.getElementById('btnThemeWhite');
+      const btnBlack = document.getElementById('btnThemeBlack');
+      const btnCustom = document.getElementById('btnThemeCustom');
 
       const baseInactive = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white';
-      btnPink.className = baseInactive;
-      btnFelt.className = baseInactive;
-      btnWhite.className = baseInactive;
+      if (btnPink) btnPink.className = baseInactive;
+      if (btnFelt) btnFelt.className = baseInactive;
+      if (btnWhite) btnWhite.className = baseInactive;
+      if (btnBlack) btnBlack.className = baseInactive;
+      if (btnCustom) btnCustom.className = 'px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition text-slate-300 hover:text-white';
 
-      if (themeName === 'pink') {
+      if (themeName === 'pink' && btnPink) {
         btnPink.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-pink-400 text-slate-950 shadow';
-      } else if (themeName === 'felt') {
+      } else if (themeName === 'felt' && btnFelt) {
         btnFelt.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-emerald-500 text-slate-950 shadow';
-      } else {
+      } else if (themeName === 'white' && btnWhite) {
         btnWhite.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-white text-slate-950 shadow';
+      } else if (themeName === 'black' && btnBlack) {
+        btnBlack.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-slate-950 text-white border border-slate-400 shadow';
+      } else if (themeName === 'custom' && btnCustom) {
+        btnCustom.className = 'px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1 transition bg-amber-400 text-slate-950 shadow';
       }
+      saveStateToLocalStorage();
     }
 
     function adjustZoom(delta) {
@@ -1076,7 +1647,7 @@
       if (selectEl && selectEl.value !== 'custom') {
         inputEl.value = selectEl.value;
       }
-      document.getElementById('displayTitle').textContent = document.getElementById('metaTitle').value || '黑馬盃撞球公開賽';
+      document.getElementById('displayTitle').textContent = document.getElementById('metaTitle').value || '115年黑馬盃-9號球大賽';
       document.getElementById('displayHost').textContent = document.getElementById('metaHost').value || '—';
       document.getElementById('displayDate').textContent = document.getElementById('metaDate').value || '—';
       document.getElementById('displayLocation').textContent = document.getElementById('metaLocation').value || '—';
@@ -1133,6 +1704,7 @@
     // =========================================================================
     function togglePlayerNoShow(playerId) {
       if (!assertEditable()) return;
+      pushHistorySnapshot();
       const p = getPlayer(playerId);
       if (!p) return;
 
@@ -1276,12 +1848,181 @@
 
     function loadSample(count) {
       if (!assertEditable()) return;
-      state.players = generateSamplePlayers(count);
-      const customInput = document.getElementById('customPlayerCount');
-      if (customInput) customInput.value = count;
+      const safeCount = Math.min(MAX_PLAYERS, Math.max(2, parseInt(count, 10) || 16));
+      state.players = generateSamplePlayers(safeCount);
       renderPlayerList();
       regenerateBracket();
-      showToast(`已載入 ${count} 位撞球選手範例名單！`);
+      showToast(`已載入 ${safeCount} 位撞球選手範例名單！`);
+    }
+
+
+    // =========================================================================
+    // 新增：隨機產生人數、姓名與局數（嚴格上限 16 人 + 內建置入性行銷名單）
+    // =========================================================================
+    const PLACEMENT_BRAND_NAMES = [
+      '黑馬哥',
+      '黑馬國際',
+      '黑馬行銷',
+      '黑馬音樂網',
+      '黑馬貼圖',
+      '黃大大',
+      '球王',
+      '老師傅',
+      '球聖',
+      '球神'
+    ];
+
+    const RANDOM_SURNAMES = [
+      '段', '喬', '虛', '慕', '游', '木', '鍾', '阿', '丁', '鳩',
+      '孫', '唐', '豬', '沙', '觀', '如', '太', '牛', '鐵', '紅',
+      '令', '楊', '郭', '張', '韋', '歐', '洪', '黃', '任', '岳',
+      '獨', '西', '東', '南', '北', '百', '司', '軒', '上', '赫'
+    ];
+    const RANDOM_GIVEN_NAMES = [
+      '譽', '峰', '竹', '復', '坦之', '婉清', '靈', '朱', '碧', '春秋',
+      '摩智', '悟空', '三藏', '悟能', '悟淨', '世音', '來佛', '白金星',
+      '魔王', '扇公主', '狐沖', '過', '康', '無忌', '小寶', '陽鋒',
+      '七公', '藥師', '我行', '不群', '求敗', '門吹雪', '孤城', '慕白',
+      '里花', '馬空群', '青雲', '飛狐', '若拙', '紫煙', '驚鴻', '千機'
+    ];
+
+    function shuffleInPlace(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function parseRaceInputToRange(rawVal) {
+      const cleaned = String(rawVal || '').trim();
+      if (!cleaned) {
+        return { min: 5, max: 9, fixed: null };
+      }
+      const rangeMatch = cleaned.match(/^(\d+)\s*[-~～至到]\s*(\d+)$/);
+      if (rangeMatch) {
+        let a = Math.max(1, Math.min(30, parseInt(rangeMatch[1], 10)));
+        let b = Math.max(1, Math.min(30, parseInt(rangeMatch[2], 10)));
+        if (a > b) [a, b] = [b, a];
+        return { min: a, max: b, fixed: a === b ? a : null };
+      }
+      const singleNum = parseInt(cleaned, 10);
+      if (!isNaN(singleNum)) {
+        const clamped = Math.max(1, Math.min(30, singleNum));
+        return { min: clamped, max: clamped, fixed: clamped };
+      }
+      return { min: 5, max: 9, fixed: null };
+    }
+
+    function pickRandomRace(rangeObj) {
+      if (rangeObj.fixed !== null) return rangeObj.fixed;
+      return Math.floor(Math.random() * (rangeObj.max - rangeObj.min + 1)) + rangeObj.min;
+    }
+
+    function generateUniqueRandomNames(count) {
+      const safeCount = Math.min(MAX_PLAYERS, Math.max(1, parseInt(count, 10) || 1));
+
+      const randomPool = [];
+      for (const s of RANDOM_SURNAMES) {
+        for (const g of RANDOM_GIVEN_NAMES) {
+          randomPool.push(`${s}${g}`);
+        }
+      }
+      shuffleInPlace(randomPool);
+
+      // 優先納入指定置入性行銷名稱（safeCount >= 9 時全數 9 位納入；< 9 時亦優先帶入至多 safeCount 位）
+      const shuffledPlacements = shuffleInPlace([...PLACEMENT_BRAND_NAMES]);
+      const priorityPlacements = shuffledPlacements.slice(0, Math.min(safeCount, shuffledPlacements.length));
+
+      const used = new Set();
+      const result = [];
+
+      for (const pName of priorityPlacements) {
+        if (result.length >= safeCount) break;
+        let candidate = pName;
+        if (used.has(candidate)) {
+          candidate = `${candidate}_${result.length + 1}`;
+        }
+        used.add(candidate);
+        result.push(candidate);
+      }
+
+      let rIdx = 0;
+      while (result.length < safeCount) {
+        let candidate = randomPool[rIdx % randomPool.length] || `選手${result.length + 1}號`;
+        rIdx += 1;
+        if (used.has(candidate)) {
+          candidate = `${candidate}${result.length + 1}`;
+        }
+        used.add(candidate);
+        result.push(candidate);
+      }
+
+      // 產出後再進行一次洗牌，讓置入性行銷名稱隨機分佈於賽程與對戰格中
+      return shuffleInPlace(result);
+    }
+
+    function generateRandomPlayersAndBracket() {
+      if (!assertEditable()) return;
+      if (!confirmIfScoresExist('重新隨機產生名單與賽程')) return;
+
+      const countInput = document.getElementById('randomPlayerCount');
+      const raceInput = document.getElementById('randomRaceRange');
+
+      let rawCount = parseInt(countInput?.value || '16', 10);
+      if (isNaN(rawCount) || rawCount < 1) {
+        rawCount = 1;
+      }
+
+      let cappedByMax = false;
+      if (rawCount > MAX_PLAYERS) {
+        rawCount = MAX_PLAYERS;
+        cappedByMax = true;
+      }
+      if (countInput) countInput.value = rawCount;
+
+      const raceRange = parseRaceInputToRange(raceInput?.value || '5-9');
+      if (raceInput) {
+        raceInput.value = raceRange.fixed !== null
+          ? String(raceRange.fixed)
+          : `${raceRange.min}-${raceRange.max}`;
+      }
+
+      const names = generateUniqueRandomNames(rawCount);
+      const stamp = Date.now();
+      state.players = names.map((name, idx) => ({
+        id: `p_rand_${idx + 1}_${stamp}_${Math.random().toString(36).slice(2, 5)}`,
+        name,
+        race: pickRandomRace(raceRange),
+        noShow: false
+      }));
+
+      if (state.highlightedPlayerId && !state.players.some(p => p.id === state.highlightedPlayerId)) {
+        state.highlightedPlayerId = '';
+      }
+
+      renderPlayerList();
+
+      if (state.players.length < 2) {
+        const root = document.getElementById('bracketRenderRoot');
+        if (root) {
+          root.innerHTML = `<div class="p-6 text-center font-bold opacity-80">目前僅有 1 位選手「${state.players[0].name}」（搶 ${state.players[0].race} 局），至少需 2 位選手才能產生對戰賽程。</div>`;
+        }
+        renderDashboardAndStandings();
+        saveStateToLocalStorage();
+      } else {
+        regenerateBracket();
+      }
+
+      const raceDesc = raceRange.fixed !== null
+        ? `搶 ${raceRange.fixed} 局`
+        : `搶 ${raceRange.min}~${raceRange.max} 局`;
+
+      if (cappedByMax) {
+        showToast(`人數上限為 ${MAX_PLAYERS} 人，已自動調整為 16 人隨機名單（${raceDesc}）！`);
+      } else {
+        showToast(`已隨機產生 ${rawCount} 位選手姓名與局數（${raceDesc}）！`);
+      }
     }
 
     // =========================================================================
@@ -1348,6 +2089,10 @@
       const race = parseInt(raceInput.value, 10) || 7;
       if (!name) return;
 
+      if (state.players.length >= MAX_PLAYERS) {
+        showToast('本版本上限為 16 人（16人以內免費使用,如需多人或自訂人數版本,請打0912-757574.黃先生）');
+        return;
+      }
       state.players.push({
         id: `p_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         name,
@@ -1355,7 +2100,6 @@
         noShow: false
       });
       nameInput.value = '';
-      document.getElementById('customPlayerCount').value = state.players.length;
       renderPlayerList();
       regenerateBracket();
       showToast(`已新增選手：${name} (搶${race}局)`);
@@ -1364,7 +2108,6 @@
     function removePlayer(id) {
       if (!assertEditable()) return;
       state.players = state.players.filter(p => p.id !== id);
-      document.getElementById('customPlayerCount').value = state.players.length;
       renderPlayerList();
       regenerateBracket();
     }
@@ -1432,7 +2175,7 @@
       const parsed = parseBatchText(raw, defaultRace);
 
       if (mode === 'replace' && parsed.length < 2) {
-        showToast('請至少貼上 2 位選手名單（例如：林桂民 7）');
+        showToast('請至少貼上 2 位選手名單（例如：黑馬哥 7）');
         return;
       }
       if (mode === 'append' && parsed.length < 1) {
@@ -1441,12 +2184,13 @@
       }
 
       if (mode === 'append') {
-        state.players = [...state.players, ...parsed].slice(0, 64);
+        state.players = [...state.players, ...parsed].slice(0, MAX_PLAYERS);
       } else {
-        state.players = parsed.slice(0, 64);
+        state.players = parsed.slice(0, MAX_PLAYERS);
       }
-
-      document.getElementById('customPlayerCount').value = state.players.length;
+      if (parsed.length > MAX_PLAYERS) {
+        showToast('本版本上限 16 人，已自動截取前 16 位選手（如需多人或自訂人數版本，請打 0912-757574 黃先生）');
+      }
       toggleBatchBox();
       renderPlayerList();
       regenerateBracket();
@@ -1741,18 +2485,38 @@
       const wFinal = wRounds[wRounds.length - 1]?.[0];
       const lFinal = lRounds[lRounds.length - 1]?.[0];
       if (state.double.grandFinal) {
-        state.double.grandFinal.p1Id = wFinal ? wFinal.winnerId : null;
-        state.double.grandFinal.p2Id = lFinal ? lFinal.winnerId : null;
+        const gf = state.double.grandFinal;
+        const nextGfP1 = wFinal ? wFinal.winnerId : null;
+        const nextGfP2 = lFinal ? lFinal.winnerId : null;
+        if (gf.p1Id !== nextGfP1 || gf.p2Id !== nextGfP2) {
+          gf.p1Id = nextGfP1;
+          gf.p2Id = nextGfP2;
+          if (gf.winnerId && gf.winnerId !== nextGfP1 && gf.winnerId !== nextGfP2) {
+            gf.winnerId = null;
+            gf.loserId = null;
+            gf.s1 = 0;
+            gf.s2 = 0;
+            gf.isWalkover = false;
+            gf.walkoverReason = '';
+          }
+        }
       }
 
       if (state.double.resetFinal && state.double.grandFinal) {
         const gf = state.double.grandFinal;
-        if (gf.winnerId && gf.winnerId === gf.p2Id) {
-          state.double.resetFinal.p1Id = gf.p1Id;
-          state.double.resetFinal.p2Id = gf.p2Id;
+        const rf = state.double.resetFinal;
+        if (gf.winnerId && gf.p2Id && gf.winnerId === gf.p2Id) {
+          rf.p1Id = gf.p1Id;
+          rf.p2Id = gf.p2Id;
         } else {
-          state.double.resetFinal.p1Id = null;
-          state.double.resetFinal.p2Id = null;
+          rf.p1Id = null;
+          rf.p2Id = null;
+          rf.winnerId = null;
+          rf.loserId = null;
+          rf.s1 = 0;
+          rf.s2 = 0;
+          rf.isWalkover = false;
+          rf.walkoverReason = '';
         }
       }
     }
@@ -2041,6 +2805,8 @@
         renderRoundRobinBracket(root);
       }
       renderDashboardAndStandings();
+      renderLiveMatchChips();
+      updateUndoButtonState();
       saveStateToLocalStorage();
     }
 
@@ -2087,6 +2853,7 @@
 
     function opponentNoShowWin(who) {
       if (!assertEditable()) return;
+      pushHistorySnapshot();
       const m = state.activeModalMatch;
       if (!m) return;
       const p1 = getPlayer(m.p1Id);
@@ -2107,6 +2874,7 @@
 
     function quickWin(who) {
       if (!assertEditable()) return;
+      pushHistorySnapshot();
       const m = state.activeModalMatch;
       if (!m) return;
       const p1 = getPlayer(m.p1Id);
@@ -2144,6 +2912,12 @@
         return;
       }
 
+      pushHistorySnapshot();
+      const p1Obj = getPlayer(m.p1Id);
+      const p2Obj = getPlayer(m.p2Id);
+      if ((p1Obj && s1 > p1Obj.race) || (p2Obj && s2 > p2Obj.race)) {
+        showToast('提示：輸入局數已超過設定搶局數，仍已為您儲存比數');
+      }
       m.isWalkover = false;
       m.walkoverReason = '';
       m.s1 = s1;
@@ -2163,6 +2937,7 @@
 
     function clearSingleMatch() {
       if (!assertEditable()) return;
+      pushHistorySnapshot();
       const m = state.activeModalMatch;
       if (!m) return;
       m.s1 = 0;
@@ -2174,6 +2949,83 @@
       afterMatchUpdated();
       closeMatchModal();
       showToast('已清除本場比賽結果');
+    }
+
+    function updateUndoButtonState() {
+      const btn = document.getElementById('btnUndoAction');
+      if (btn) {
+        btn.disabled = state.readOnlyViewer || !Array.isArray(state.history) || state.history.length === 0;
+      }
+    }
+
+    function pushHistorySnapshot() {
+      if (state.readOnlyViewer) return;
+      try {
+        const snap = {
+          format: state.format,
+          topN: document.getElementById('prizeTopN')?.value || '4',
+          players: JSON.parse(JSON.stringify(state.players)),
+          single: JSON.parse(JSON.stringify(state.single)),
+          double: JSON.parse(JSON.stringify(state.double)),
+          roundrobin: JSON.parse(JSON.stringify(state.roundrobin))
+        };
+        state.history.push(snap);
+        if (state.history.length > 12) {
+          state.history.shift();
+        }
+        updateUndoButtonState();
+      } catch (e) {}
+    }
+
+    function undoLastAction() {
+      if (!assertEditable()) return;
+      if (!Array.isArray(state.history) || state.history.length === 0) {
+        showToast('目前沒有可復原的上一步操作');
+        updateUndoButtonState();
+        return;
+      }
+      const prev = state.history.pop();
+      state.format = prev.format || state.format;
+      const fmtEl = document.getElementById('tournamentFormat');
+      if (fmtEl) fmtEl.value = state.format;
+      if (prev.topN) {
+        const topEl = document.getElementById('prizeTopN');
+        if (topEl) topEl.value = prev.topN;
+      }
+      state.players = prev.players || [];
+      state.single = prev.single || state.single;
+      state.double = prev.double || state.double;
+      state.roundrobin = prev.roundrobin || state.roundrobin;
+
+      renderPlayerList();
+      populatePlayerLookupSelect(document.getElementById('playerLookupSearch')?.value || '');
+      renderAll();
+      renderPlayerPersonalStatus();
+      updateUndoButtonState();
+      showToast('已復原上一步操作！');
+    }
+
+    function renderLiveMatchChips() {
+      const chipsHost = document.getElementById('playerLiveMatchChips');
+      if (!chipsHost) return;
+      const pending = getAllTournamentMatches()
+        .filter(m => m && !m.winnerId && !m.isBye && getPlayer(m.p1Id) && getPlayer(m.p2Id))
+        .slice(0, 6);
+
+      if (pending.length === 0) {
+        chipsHost.innerHTML = `<span class="text-slate-400">目前無待進行對戰</span>`;
+        return;
+      }
+
+      chipsHost.innerHTML = pending.map(m => {
+        const p1 = getPlayer(m.p1Id);
+        const p2 = getPlayer(m.p2Id);
+        return `
+          <span class="px-2 py-0.5 rounded-lg bg-indigo-900/60 border border-indigo-500/30 text-indigo-100 font-medium">
+            #${m.matchNo} ${p1.name}(搶${p1.race}) vs ${p2.name}(搶${p2.race})
+          </span>
+        `;
+      }).join('');
     }
 
     function afterMatchUpdated() {
@@ -2379,6 +3231,7 @@
         v: 5,
         format: state.format,
         theme: state.theme,
+        customTheme: state.customTheme,
         zoom: state.zoom,
         topN: document.getElementById('prizeTopN')?.value || '4',
         meta: {
@@ -2401,7 +3254,7 @@
         return false;
       }
 
-      state.players = payload.players.map((p, idx) => ({
+      state.players = payload.players.slice(0, MAX_PLAYERS).map((p, idx) => ({
         id: p.id || `p_${idx + 1}`,
         name: String(p.name || `選手 ${idx + 1}號`),
         race: Math.max(1, parseInt(p.race, 10) || 7),
@@ -2425,7 +3278,19 @@
         if (topEl) topEl.value = String(payload.topN);
       }
 
-      if (payload.theme && ['pink', 'felt', 'white'].includes(payload.theme)) {
+      if (payload.customTheme && typeof payload.customTheme === 'object') {
+        state.customTheme = {
+          bg: payload.customTheme.bg || '#1e293b',
+          fg: payload.customTheme.fg || '#f8fafc',
+          border: payload.customTheme.border || payload.customTheme.fg || '#f8fafc'
+        };
+        const bgInput = document.getElementById('customPaperBgInput');
+        const fgInput = document.getElementById('customPaperFgInput');
+        if (bgInput) bgInput.value = state.customTheme.bg;
+        if (fgInput) fgInput.value = state.customTheme.fg;
+      }
+
+      if (payload.theme && ['pink', 'felt', 'white', 'black', 'custom'].includes(payload.theme)) {
         setPaperTheme(payload.theme);
       }
 
@@ -2446,8 +3311,7 @@
         else badge.textContent = '賽制：循環賽制（交叉對戰矩陣）';
       }
 
-      const customInput = document.getElementById('customPlayerCount');
-      if (customInput) customInput.value = state.players.length;
+
 
       if (validFormat === 'single' && payload.single && Array.isArray(payload.single.rounds) && payload.single.rounds.length > 0) {
         state.single = payload.single;
@@ -2601,6 +3465,7 @@
         if (encoded.length <= 2400) {
           return `${base}?view=1#snap=${encoded}`;
         }
+        showToast('快照資料較長，已產生精簡觀戰連結（建議搭配 JSON 備份或本機同步）');
         return `${base}?view=1`;
       } catch (e) {
         return `${base}?view=1`;
@@ -2961,7 +3826,7 @@
     let __lastCapturedPngBlob = null;
 
     function getSanitizedTournamentFilename(ext) {
-      const title = (document.getElementById('metaTitle')?.value || '黑馬盃撞球公開賽').replace(/[\/:*?"<>|]/g, '_');
+      const title = (document.getElementById('metaTitle')?.value || '115年黑馬盃-9號球大賽').replace(/[\/:*?"<>|]/g, '_');
       const dateStr = (document.getElementById('metaDate')?.value || getTodayRocDateString()).replace(/[\/:*?"<>|]/g, '_');
       return `${title}_${dateStr}_賽程表.${ext}`;
     }
@@ -2987,6 +3852,9 @@
 
       const clonedPaper = paperEl.cloneNode(true);
       clonedPaper.id = 'previewClonedPaper';
+      clonedPaper.style.setProperty('--custom-paper-bg', paperEl.style.getPropertyValue('--custom-paper-bg') || state.customTheme?.bg || '#1e293b');
+      clonedPaper.style.setProperty('--custom-paper-fg', paperEl.style.getPropertyValue('--custom-paper-fg') || state.customTheme?.fg || '#f8fafc');
+      clonedPaper.style.setProperty('--custom-paper-border', paperEl.style.getPropertyValue('--custom-paper-border') || state.customTheme?.border || '#f8fafc');
       const zoomInner = clonedPaper.querySelector('#bracketZoomContainer');
       if (zoomInner) {
         zoomInner.id = 'previewClonedZoom';
@@ -3229,7 +4097,7 @@
     }
 
     async function sharePreviewFileOrLink() {
-      const title = document.getElementById('metaTitle')?.value || '黑馬盃撞球公開賽';
+      const title = document.getElementById('metaTitle')?.value || '115年黑馬盃-9號球大賽';
       const filename = getSanitizedTournamentFilename('png');
       const statusEl = document.getElementById('previewStatusText');
 
@@ -3283,18 +4151,322 @@
       }, 120);
     }
 
+    // =========================================================================
+    // 限制右鍵、快捷鍵與拖曳（防君子不防小人，保留表單輸入正常使用）
+    // =========================================================================
+    (function enableInteractionGuards() {
+      function isEditableElement(el) {
+        if (!el || !el.closest) return false;
+        return Boolean(el.closest('input, textarea, select, [contenteditable="true"]'));
+      }
+
+      document.addEventListener('contextmenu', function (e) {
+        if (isEditableElement(e.target)) return;
+        e.preventDefault();
+      }, { passive: false });
+
+      document.addEventListener('dragstart', function (e) {
+        e.preventDefault();
+      }, { passive: false });
+
+      document.addEventListener('keydown', function (e) {
+        const key = String(e.key || '').toLowerCase();
+        const isMod = e.ctrlKey || e.metaKey;
+        const editable = isEditableElement(e.target);
+
+        // 封鎖 F12、檢視原始碼 (Ctrl+U / Cmd+Option+U)、開發者工具快捷鍵 (Ctrl/Cmd+Shift+I/J/C)
+        if (
+          key === 'f12' ||
+          (isMod && key === 'u') ||
+          (e.metaKey && e.altKey && key === 'u') ||
+          (isMod && e.shiftKey && ['i', 'j', 'c'].includes(key))
+        ) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+
+        // 在非輸入欄位中封鎖儲存網頁 (Ctrl/Cmd+S)
+        if (!editable && isMod && key === 's') {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }, { passive: false });
+    })();
+
+    // =========================================================================
+    // 賽事設定獨立按鈕與帳號密碼控制（預設皆為 test）
+    // =========================================================================
+    const EVENT_SETTINGS_CREDENTIAL = {
+      account: 'test',
+      password: 'test'
+    };
+    let eventSettingsAuthenticated = false;
+
+    function updateEventAuthUi() {
+      const statusEl = document.getElementById('eventAuthStatusText');
+      const btn = document.getElementById('btnOpenEventSettings');
+      if (statusEl) {
+        statusEl.textContent = eventSettingsAuthenticated
+          ? '已驗證解鎖（可編輯賽會與賽制）'
+          : '需帳號密碼驗證（預設 test / test）';
+      }
+      if (btn) {
+        btn.innerHTML = eventSettingsAuthenticated
+          ? '<i class="fa-solid fa-unlock"></i><span>賽事設定</span>'
+          : '<i class="fa-solid fa-lock"></i><span>賽事設定</span>';
+      }
+    }
+
+    function openEventSettingsModal() {
+      if (!assertEditable()) return;
+      if (!eventSettingsAuthenticated) {
+        pendingAuthAction = 'settings';
+        openEventAuthModal('賽事設定登入');
+        return;
+      }
+      document.getElementById('eventSettingsModal')?.classList.remove('hidden');
+    }
+
+    function openEventAuthModal(titleText = '裁判控制台 / 賽事設定登入') {
+      const titleEl = document.getElementById('eventAuthModalTitle');
+      if (titleEl) titleEl.textContent = titleText;
+      const accInput = document.getElementById('eventAuthAccount');
+      const pwdInput = document.getElementById('eventAuthPassword');
+      const errEl = document.getElementById('eventAuthError');
+      if (accInput) accInput.value = 'test';
+      if (pwdInput) pwdInput.value = 'test';
+      if (errEl) errEl.classList.add('hidden');
+      document.getElementById('eventAuthModal')?.classList.remove('hidden');
+      setTimeout(() => accInput?.focus(), 40);
+    }
+
+    function closeEventAuthModal() {
+      pendingAuthAction = null;
+      document.getElementById('eventAuthModal')?.classList.add('hidden');
+    }
+
+    function handleEventAuthSubmit(e) {
+      e.preventDefault();
+      const acc = (document.getElementById('eventAuthAccount')?.value || '').trim();
+      const pwd = document.getElementById('eventAuthPassword')?.value || '';
+      const errEl = document.getElementById('eventAuthError');
+
+      if (acc === EVENT_SETTINGS_CREDENTIAL.account && pwd === EVENT_SETTINGS_CREDENTIAL.password) {
+        const nextAction = pendingAuthAction;
+        pendingAuthAction = null;
+        eventSettingsAuthenticated = true;
+        updateEventAuthUi();
+        document.getElementById('eventAuthModal')?.classList.add('hidden');
+
+        if (nextAction === 'editor') {
+          applyEditorConsoleUi(true);
+        } else if (nextAction === 'settings') {
+          applyEditorConsoleUi(false);
+          document.getElementById('eventSettingsModal')?.classList.remove('hidden');
+          showToast('驗證成功，已開啟賽事設定！');
+        } else {
+          showToast('驗證成功！');
+        }
+      } else {
+        if (errEl) errEl.classList.remove('hidden');
+        showToast('帳號或密碼錯誤（預設皆為 test）');
+      }
+    }
+
+    function closeEventSettingsModal() {
+      document.getElementById('eventSettingsModal')?.classList.add('hidden');
+    }
+
+    function setGaAutoConnectMessage(text, isSuccess = false) {
+      const msgEl = document.getElementById('gaAutoConnectMessage');
+      const boxEl = document.getElementById('gaAutoConnectStatusBox');
+      if (msgEl) msgEl.textContent = text;
+      if (boxEl) {
+        boxEl.className = isSuccess
+          ? 'text-[11px] rounded-xl px-3 py-2 bg-emerald-950/50 border border-emerald-500/40 text-emerald-200 flex items-center justify-between gap-2'
+          : 'text-[11px] rounded-xl px-3 py-2 bg-slate-900/90 border border-slate-800 text-slate-300 flex items-center justify-between gap-2';
+      }
+    }
+
+    function refreshTrafficModalUi() {
+      const stats = readLocalTrafficStats();
+      const today = getTodayDateKey();
+      const todayViews = Number(stats.dailyViews[today]) || 0;
+      const activeId = getActiveGaMeasurementId();
+      const idEl = document.getElementById('modalGaActiveIdText');
+      if (idEl) {
+        idEl.textContent = activeId ? `已啟用：${activeId}` : '尚未設定衡量 ID (G-XXXXXXX)';
+        idEl.className = activeId
+          ? 'font-mono font-bold text-emerald-300 mt-0.5'
+          : 'font-mono font-bold text-amber-300 mt-0.5';
+      }
+      const setTxt = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = String(v);
+      };
+      setTxt('modalLocalTotalVisits', stats.totalVisits);
+      setTxt('modalLocalTotalPageViews', stats.totalPageViews);
+      setTxt('modalLocalTodayViews', todayViews);
+      setTxt('modalLocalEventsCount', stats.eventsCount);
+      setTxt('modalLocalLastVisitAt', stats.lastVisitAt || '尚無紀錄');
+    }
+
+    function openTrafficStatsModal() {
+      refreshTrafficModalUi();
+      document.getElementById('trafficStatsModal')?.classList.remove('hidden');
+    }
+
+    function closeTrafficStatsModal() {
+      document.getElementById('trafficStatsModal')?.classList.add('hidden');
+    }
+
+    async function quickHeaderAutoConnect() {
+      const inputEl = document.getElementById('gaMeasurementIdInput');
+      let candidate = (inputEl?.value || '').trim().toUpperCase() || getActiveGaMeasurementId();
+
+      if (!candidate && navigator.clipboard && navigator.clipboard.readText) {
+        try {
+          const clipText = (await navigator.clipboard.readText() || '').trim().toUpperCase();
+          const matched = clipText.match(/G-[A-Z0-9]{4,}/i);
+          if (matched) {
+            candidate = matched[0].toUpperCase();
+          }
+        } catch (e) {}
+      }
+
+      if (candidate && /^G-[A-Z0-9]+$/i.test(candidate)) {
+        if (inputEl) inputEl.value = candidate;
+        initGoogleAnalytics(candidate);
+        recordLocalVisitAndPageView(false);
+        trackGaEvent('header_auto_connect', {
+          measurement_id: candidate,
+          page_title: document.title,
+          page_location: window.location.href,
+          event_source: 'header_or_main_button'
+        });
+        setGaAutoConnectMessage(`已自動串聯 ${candidate} 並送出測試事件，可至 GA4「即時總覽」確認線上人數。`, true);
+        refreshTrafficModalUi();
+        showToast('已完成自動串聯 GA4（' + candidate + '）！');
+        return;
+      }
+
+      showToast('尚未設定 GA4 衡量 ID，請在賽事設定輸入 G- 開頭 ID 或先複製 ID 後再點自動串聯');
+      openEventSettingsModal();
+    }
+
+    async function autoConnectGaWorkflow() {
+      const inputEl = document.getElementById('gaMeasurementIdInput');
+      let candidate = (inputEl?.value || '').trim().toUpperCase();
+
+      if (!candidate) {
+        candidate = getActiveGaMeasurementId();
+      }
+
+      if (!candidate && navigator.clipboard && navigator.clipboard.readText) {
+        try {
+          const clipText = (await navigator.clipboard.readText() || '').trim().toUpperCase();
+          const matched = clipText.match(/G-[A-Z0-9]{4,}/i);
+          if (matched) {
+            candidate = matched[0].toUpperCase();
+          }
+        } catch (e) {}
+      }
+
+      if (!candidate || !/^G-[A-Z0-9]+$/i.test(candidate)) {
+        setGaAutoConnectMessage('尚未偵測到 G-開頭衡量 ID，請先輸入或複製您的 GA4 衡量 ID 後再點一次「一鍵自動串聯」。', false);
+        showToast('請先輸入或複製您的 GA4 衡量 ID（例如 G-ABC123DEF4）');
+        inputEl?.focus();
+        return;
+      }
+
+      if (inputEl) inputEl.value = candidate;
+      const ok = initGoogleAnalytics(candidate);
+      if (!ok) {
+        setGaAutoConnectMessage('GA4 衡量 ID 格式無效，請確認為 G- 開頭的英數字組合。', false);
+        return;
+      }
+
+      recordLocalVisitAndPageView(false);
+      trackGaEvent('auto_connect_test', {
+        measurement_id: candidate,
+        page_title: document.title,
+        page_location: window.location.href,
+        event_source: 'one_click_auto_connect'
+      });
+
+      const statusMsg = `已自動串聯 ${candidate} 並送出測試事件，可至 GA4「即時總覽」確認線上人數。`;
+      setGaAutoConnectMessage(statusMsg, true);
+      refreshTrafficModalUi();
+      showToast('已完成一鍵自動串聯 GA4（' + candidate + '）並送出測試訊號！');
+    }
+
+    function applyGaMeasurementIdFromInput() {
+      const inputEl = document.getElementById('gaMeasurementIdInput');
+      const rawVal = (inputEl?.value || '').trim().toUpperCase();
+      if (!rawVal) {
+        try { localStorage.removeItem(window.__GA_STORAGE_KEY__); } catch (e) {}
+        window.__GA_LOADED_ID__ = '';
+        updateGaStatusBadge(false, '尚未設定衡量 ID (G-XXXXXXX)');
+        setGaAutoConnectMessage('已清除 GA4 衡量 ID。', false);
+        showToast('已清除 GA4 衡量 ID');
+        return;
+      }
+      if (!/^G-[A-Z0-9]+$/i.test(rawVal)) {
+        setGaAutoConnectMessage('衡量 ID 格式不正確，請輸入 G-XXXXXXXXXX。', false);
+        showToast('請輸入正確的 GA4 衡量 ID 格式（例如：G-XXXXXXXXXX）');
+        return;
+      }
+      if (inputEl) inputEl.value = rawVal;
+      initGoogleAnalytics(rawVal);
+      trackGaEvent('ga_configured', { measurement_id: rawVal });
+      setGaAutoConnectMessage(`已套用 GA4（${rawVal}）並送出設定事件。`, true);
+      showToast('已套用並啟用 GA4 流量分析：' + rawVal);
+    }
+
+    function saveAndCloseEventSettings() {
+      const inputEl = document.getElementById('gaMeasurementIdInput');
+      if (inputEl && inputEl.value.trim()) {
+        const val = inputEl.value.trim().toUpperCase();
+        if (/^G-[A-Z0-9]+$/i.test(val)) {
+          inputEl.value = val;
+          initGoogleAnalytics(val);
+        }
+      }
+      updateMeta();
+      renderDashboardAndStandings();
+      saveStateToLocalStorage();
+      closeEventSettingsModal();
+      showToast('已儲存賽事設定！');
+    }
+
+    function lockEventSettings() {
+      eventSettingsAuthenticated = false;
+      pendingAuthAction = null;
+      updateEventAuthUi();
+      closeEventSettingsModal();
+      showToast('已重新鎖定裁判控制台與賽事設定（再次切換或開啟需輸入帳號密碼）');
+    }
+
     // 支援 Esc 關閉彈窗
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const printModal = document.getElementById('printPreviewModal');
         const shareModal = document.getElementById('viewerShareModal');
         const matchModal = document.getElementById('matchModal');
+        const settingsModal = document.getElementById('eventSettingsModal');
+        const authModal = document.getElementById('eventAuthModal');
         if (printModal && !printModal.classList.contains('hidden')) {
           closePrintPreviewModal();
         } else if (shareModal && !shareModal.classList.contains('hidden')) {
           closeViewerShareModal();
         } else if (matchModal && !matchModal.classList.contains('hidden')) {
           closeMatchModal();
+        } else if (settingsModal && !settingsModal.classList.contains('hidden')) {
+          closeEventSettingsModal();
+        } else if (authModal && !authModal.classList.contains('hidden')) {
+          closeEventAuthModal();
         }
       }
     });
@@ -3322,7 +4494,7 @@
       const restored = loadStateFromLocalStorage();
       if (!restored) {
         state.startDate = getTodayRocDateString();
-        state.players = generateSamplePlayers(8);
+        state.players = generateSamplePlayers(16);
         initTournamentDateDefault(state.startDate);
         renderPlayerList();
         buildSingleElimination();
