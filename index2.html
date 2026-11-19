@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>黑馬撞球賽事系統｜裁判與選手賽程中心</title>
+  <meta name="description" content="黑馬撞球賽事裁判與選手賽程中心，支援單敗、雙敗、循環賽、搶局比分、備份與唯讀觀戰快照。" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <!-- 本版本不載入 GA4 追蹤；賽事資料僅保存在本機瀏覽器。 -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -321,49 +323,268 @@
       }
     }
 
-
-    :root { color-scheme: dark; }
-    body { background: radial-gradient(ellipse at 12% 0%, rgba(16, 84, 59, .24), transparent 40%), #07110f; }
-    header { background: rgba(7, 17, 15, .94) !important; border-color: rgba(71, 107, 91, .35) !important; }
-    main > section, #editorSidebar > section, #viewStandingsSection { border-color: rgba(71, 107, 91, .38) !important; }
-    .mobile-scroll-hint { color:#e6d49e; background:rgba(36,47,32,.7); border:1px solid rgba(197,155,78,.32); border-radius:12px; padding:8px 11px; font-size:11px; }
-    #viewBracketSection { -webkit-overflow-scrolling:touch; scrollbar-width:thin; scrollbar-color:#b3914f #13241c; }
-    .local-data-notice { display:flex; justify-content:space-between; align-items:center; gap:12px; max-width:1600px; width:calc(100% - 2rem); margin:10px auto 0; padding:9px 14px; color:#bfd4c8; background:rgba(17, 48, 37, .65); border:1px solid rgba(71, 119, 94, .48); border-radius:14px; font-size:12px; }
-    #localSaveStatus { color:#f3ca71; font-size:11px; }
-    #localSaveStatus.save-error { color:#fda4af; }
-    .match-spotlight { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:14px 18px; border:1px solid rgba(197, 155, 78, .52); border-radius:18px; background:linear-gradient(110deg, rgba(32, 46, 32, .96), rgba(14, 31, 25, .96)); box-shadow:0 12px 34px rgba(0,0,0,.2); }
-    .spotlight-kicker { padding:5px 9px; border-radius:999px; background:rgba(242, 191, 82, .15); color:#f5ce75; font-size:11px; font-weight:900; }
-    #matchSpotlightText { color:#fff8e7; font-family:'Noto Serif TC',serif; font-size:clamp(16px,2vw,22px); letter-spacing:.03em; }
-    .spotlight-note { margin-left:auto; color:#bbd3c7; font-size:12px; }
-    .score-stepper { width:44px; height:44px; border:1px solid #496653; border-radius:14px; background:#14291e; color:#f1cf79; font-size:22px; font-weight:900; touch-action:manipulation; }
-    .score-stepper:hover { background:#1d3a2a; }
-    button, select, input { accent-color:#d8ad57; }
-    button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid #f2c96d !important; outline-offset:2px; }
-    .tournament-paper.theme-felt { background-color:#0d4d36; border-color:#2a805d; }
-    .tournament-paper { border-radius:16px !important; }
-    #playerListContainer input { min-height:38px; }
-    @media (max-width:1279px) {
-      #editorSidebar { order:2; }
-      main > section { order:1; }
-      main { padding-top:10px !important; }
+    /* 全站共用視覺系統：賽程紙張主題與勝負／錯誤狀態維持各自語意。 */
+    :root {
+      color-scheme: dark;
+      --page-bg: #07110f;
+      --header-bg: rgba(7, 17, 15, .96);
+      --surface: #0e1b16;
+      --surface-raised: #13251d;
+      --surface-hover: #1a3025;
+      --surface-deep: #09130f;
+      --border: rgba(83, 125, 101, .38);
+      --border-strong: rgba(103, 148, 121, .52);
+      --text-primary: #e7eee9;
+      --text-muted: #a6b7ac;
+      --text-subtle: #81958a;
+      --accent-gold: #e4bd65;
+      --accent-gold-bright: #f1cf79;
+      --accent-green: #2f9a6d;
+      --accent-green-dark: #176747;
+      --accent-green-soft: #9bd2b1;
+      --font-ui: 'Noto Sans TC', sans-serif;
+      --font-display: 'Noto Serif TC', serif;
+      --layout-gap: 16px;
+      --panel-padding: 16px;
+      --panel-radius: 18px;
     }
-    @media (max-width:767px) {
-      .local-data-notice { width:calc(100% - 1rem); margin-top:8px; padding:9px 10px; align-items:flex-start; flex-direction:column; gap:4px; font-size:11px; }
-      .match-spotlight { gap:8px; padding:12px; }
-      .spotlight-note { width:100%; margin-left:0; }
-      header .max-w-\[1600px\] { gap:8px !important; }
+
+    html { font-size: 16px; background: var(--page-bg); }
+    body {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      line-height: 1.55;
+      letter-spacing: .005em;
+      color: var(--text-primary);
+      background: radial-gradient(ellipse at 12% 0%, rgba(16, 84, 59, .24), transparent 40%), var(--page-bg);
+      font-kerning: normal;
+    }
+    body button, body input, body select, body textarea { font-family: var(--font-ui); }
+    body h1, body h2, body h3 { line-height: 1.32; letter-spacing: .015em; }
+    .handwriting-font, #matchSpotlightText { font-family: var(--font-display); }
+
+    header {
+      background: var(--header-bg) !important;
+      border-color: var(--border) !important;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .18);
+    }
+    main { gap: var(--layout-gap) !important; padding: var(--layout-gap) !important; }
+    #editorSidebar { gap: var(--layout-gap) !important; }
+    #editorSidebar > section, #viewStandingsSection {
+      border-color: var(--border) !important;
+      border-radius: var(--panel-radius) !important;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .16);
+    }
+    #editorSidebar > section { padding: var(--panel-padding) !important; }
+    #viewBracketSection {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-gold) #13241c;
+    }
+    .mobile-scroll-hint {
+      color: #e6d49e;
+      background: rgba(36, 47, 32, .7);
+      border: 1px solid rgba(197, 155, 78, .32);
+      border-radius: 12px;
+      padding: 8px 11px;
+      font-size: 11px;
+    }
+    .local-data-notice {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      max-width: 1600px;
+      width: calc(100% - 2 * var(--layout-gap));
+      margin: 8px auto 0;
+      padding: 10px 14px;
+      color: #bfd4c8;
+      background: rgba(17, 48, 37, .65);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 12px;
+    }
+    #localSaveStatus { color: var(--accent-gold-bright); font-size: 11px; }
+    #localSaveStatus.save-error { color: #fda4af; }
+    .match-spotlight {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border: 1px solid rgba(197, 155, 78, .52);
+      border-radius: var(--panel-radius);
+      background: linear-gradient(110deg, rgba(32, 46, 32, .96), rgba(14, 31, 25, .96));
+      box-shadow: 0 12px 34px rgba(0, 0, 0, .2);
+    }
+    .spotlight-kicker {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(242, 191, 82, .15);
+      color: #f5ce75;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    #matchSpotlightText { color: #fff8e7; font-size: clamp(16px, 2vw, 22px); letter-spacing: .03em; }
+    .spotlight-note { margin-left: auto; color: #bbd3c7; font-size: 12px; }
+
+    /* 將舊 utility 色票映射到同一組森林綠、墨色與暖金；賽程紙張仍可獨立換色。 */
+    [class~="bg-slate-950"]:not(.tournament-paper *),
+    [class~="bg-slate-950/70"]:not(.tournament-paper *),
+    [class~="bg-slate-950/80"]:not(.tournament-paper *),
+    [class~="bg-slate-950/85"]:not(.tournament-paper *),
+    [class~="bg-slate-950/90"]:not(.tournament-paper *) { background-color: var(--surface-deep) !important; }
+    [class~="bg-slate-900"]:not(.tournament-paper *),
+    [class~="bg-slate-900/60"]:not(.tournament-paper *),
+    [class~="bg-slate-900/80"]:not(.tournament-paper *),
+    [class~="bg-slate-900/90"]:not(.tournament-paper *),
+    [class~="bg-slate-900/95"]:not(.tournament-paper *) { background-color: var(--surface) !important; }
+    [class~="bg-slate-800"]:not(.tournament-paper *),
+    [class~="bg-slate-800/40"]:not(.tournament-paper *),
+    [class~="bg-slate-800/70"]:not(.tournament-paper *),
+    [class~="bg-slate-800/75"]:not(.tournament-paper *),
+    [class~="bg-slate-800/80"]:not(.tournament-paper *),
+    [class~="bg-slate-800/90"]:not(.tournament-paper *) { background-color: var(--surface-raised) !important; }
+    [class~="bg-slate-600"]:not(.tournament-paper *),
+    [class~="bg-slate-700"]:not(.tournament-paper *) { background-color: var(--surface-hover) !important; }
+
+    [class~="bg-emerald-500"]:not(.tournament-paper *) { background-color: var(--accent-green) !important; }
+    [class~="bg-emerald-500/20"]:not(.tournament-paper *) { background-color: rgba(47, 154, 109, .18) !important; }
+    [class~="bg-emerald-600"]:not(.tournament-paper *),
+    [class~="bg-emerald-600/90"]:not(.tournament-paper *),
+    [class~="bg-emerald-700"]:not(.tournament-paper *),
+    [class~="bg-indigo-500"]:not(.tournament-paper *),
+    [class~="bg-indigo-600"]:not(.tournament-paper *),
+    [class~="bg-indigo-600/90"]:not(.tournament-paper *),
+    [class~="bg-sky-500"]:not(.tournament-paper *),
+    [class~="bg-sky-600"]:not(.tournament-paper *) { background-color: var(--accent-green-dark) !important; }
+    [class~="bg-indigo-500/20"]:not(.tournament-paper *),
+    [class~="bg-indigo-600/30"]:not(.tournament-paper *),
+    [class~="bg-indigo-600/50"]:not(.tournament-paper *),
+    [class~="bg-indigo-900/60"]:not(.tournament-paper *),
+    [class~="bg-emerald-950/30"]:not(.tournament-paper *),
+    [class~="bg-emerald-950/50"]:not(.tournament-paper *),
+    [class~="bg-sky-500/20"]:not(.tournament-paper *) { background-color: rgba(28, 91, 63, .78) !important; }
+    [class~="bg-amber-400"]:not(.tournament-paper *),
+    [class~="bg-amber-500"]:not(.tournament-paper *) { background-color: #d5ab4e !important; }
+    [class~="bg-amber-500/10"]:not(.tournament-paper *),
+    [class~="bg-amber-500/15"]:not(.tournament-paper *),
+    [class~="bg-amber-500/20"]:not(.tournament-paper *) { background-color: rgba(213, 171, 78, .16) !important; }
+    [class~="hover:bg-slate-600"]:hover:not(.tournament-paper *),
+    [class~="hover:bg-slate-700"]:hover:not(.tournament-paper *),
+    [class~="hover:bg-slate-800"]:hover:not(.tournament-paper *),
+    [class~="hover:bg-slate-800/40"]:hover:not(.tournament-paper *) { background-color: var(--surface-hover) !important; }
+    [class~="hover:bg-emerald-500"]:hover:not(.tournament-paper *),
+    [class~="hover:bg-emerald-600"]:hover:not(.tournament-paper *),
+    [class~="hover:bg-indigo-500"]:hover:not(.tournament-paper *),
+    [class~="hover:bg-indigo-600/50"]:hover:not(.tournament-paper *),
+    [class~="hover:bg-sky-500"]:hover:not(.tournament-paper *) { background-color: #258257 !important; }
+    [class~="hover:bg-amber-400"]:hover:not(.tournament-paper *) { background-color: var(--accent-gold-bright) !important; }
+
+    [class~="text-slate-200"]:not(.tournament-paper *),
+    [class~="text-slate-300"]:not(.tournament-paper *),
+    [class~="text-slate-300/85"]:not(.tournament-paper *) { color: var(--text-primary) !important; }
+    [class~="text-slate-400"]:not(.tournament-paper *),
+    [class~="text-slate-500"]:not(.tournament-paper *) { color: var(--text-muted) !important; }
+    [class~="text-amber-200"]:not(.tournament-paper *),
+    [class~="text-amber-200/80"]:not(.tournament-paper *),
+    [class~="text-amber-300"]:not(.tournament-paper *),
+    [class~="text-amber-300/90"]:not(.tournament-paper *),
+    [class~="text-amber-400"]:not(.tournament-paper *) { color: var(--accent-gold-bright) !important; }
+    [class~="text-emerald-200"]:not(.tournament-paper *),
+    [class~="text-emerald-300"]:not(.tournament-paper *),
+    [class~="text-emerald-400"]:not(.tournament-paper *),
+    [class~="text-indigo-100"]:not(.tournament-paper *),
+    [class~="text-indigo-200"]:not(.tournament-paper *),
+    [class~="text-indigo-300"]:not(.tournament-paper *),
+    [class~="text-sky-200"]:not(.tournament-paper *),
+    [class~="text-sky-300"]:not(.tournament-paper *),
+    [class~="text-sky-500"]:not(.tournament-paper *) { color: var(--accent-green-soft) !important; }
+
+    [class~="border-slate-200"]:not(.tournament-paper *),
+    [class~="border-slate-400"]:not(.tournament-paper *),
+    [class~="border-slate-600"]:not(.tournament-paper *),
+    [class~="border-slate-700"]:not(.tournament-paper *),
+    [class~="border-slate-700/70"]:not(.tournament-paper *),
+    [class~="border-slate-700/90"]:not(.tournament-paper *),
+    [class~="border-slate-800"]:not(.tournament-paper *) { border-color: var(--border) !important; }
+    [class~="border-emerald-400"]:not(.tournament-paper *),
+    [class~="border-emerald-400/30"]:not(.tournament-paper *),
+    [class~="border-emerald-400/40"]:not(.tournament-paper *),
+    [class~="border-emerald-500/30"]:not(.tournament-paper *),
+    [class~="border-emerald-500/40"]:not(.tournament-paper *),
+    [class~="border-indigo-400"]:not(.tournament-paper *),
+    [class~="border-indigo-500/20"]:not(.tournament-paper *),
+    [class~="border-indigo-500/25"]:not(.tournament-paper *),
+    [class~="border-indigo-500/30"]:not(.tournament-paper *),
+    [class~="border-indigo-500/40"]:not(.tournament-paper *),
+    [class~="border-sky-400"]:not(.tournament-paper *),
+    [class~="border-sky-400/30"]:not(.tournament-paper *),
+    [class~="border-sky-500/40"]:not(.tournament-paper *) { border-color: var(--border-strong) !important; }
+
+    #playerLiveBanner {
+      background: linear-gradient(110deg, var(--surface-deep), var(--surface)) !important;
+      border-color: var(--border-strong) !important;
+    }
+    #playerLiveBanner [class~="bg-emerald-500/20"] { background: rgba(47, 154, 109, .18) !important; }
+    .tournament-paper.theme-felt { background-color: #0d4d36; border-color: #2a805d; }
+    .tournament-paper { border-radius: 16px !important; }
+
+    input:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not(.tournament-paper *),
+    select:not(.tournament-paper *), textarea:not(.tournament-paper *) {
+      accent-color: var(--accent-gold);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+      border-radius: 10px;
+    }
+    #playerListContainer input { min-height: 40px; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--accent-gold-bright) !important;
+      outline-offset: 2px;
+    }
+    .score-stepper {
+      width: 44px;
+      height: 44px;
+      border: 1px solid #496653;
+      border-radius: 14px;
+      background: #14291e;
+      color: #f1cf79;
+      font-size: 22px;
+      font-weight: 900;
+      touch-action: manipulation;
+    }
+    .score-stepper:hover { background: #1d3a2a; }
+
+    @media (max-width: 1279px) {
+      #editorSidebar { order: 2; }
+      main > section { order: 1; }
+      main { padding-top: 12px !important; }
+    }
+    @media (max-width: 767px) {
+      :root { --layout-gap: 12px; --panel-padding: 14px; --panel-radius: 16px; }
+      .local-data-notice {
+        width: calc(100% - 2 * var(--layout-gap));
+        margin-top: 8px;
+        padding: 9px 10px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 11px;
+      }
+      .match-spotlight { gap: 8px; padding: 12px; }
+      .spotlight-note { width: 100%; margin-left: 0; }
+      header .max-w-\[1600px\] { gap: 8px !important; }
       #btnThemePink, #btnThemeWhite, #btnThemeBlack, #btnThemeCustom,
-      header label[title="自定義底色"], header label[title="自定義文字顏色"] { display:none !important; }
-      #playerListContainer { max-height:280px !important; }
-      #editorSidebar > section { border-radius:16px !important; }
-      #viewBracketSection { padding:8px !important; }
-      .tournament-paper { min-width:640px !important; padding:12px !important; }
-      .no-print button { min-height:40px; touch-action:manipulation; }
-      .horiz-match-card { width:132px; }
-      #toastBox { bottom:12px; right:12px; }
+      header label[title="自定義底色"], header label[title="自定義文字顏色"] { display: none !important; }
+      #playerListContainer { max-height: 280px !important; }
+      #viewBracketSection { padding: 8px !important; }
+      .tournament-paper { min-width: 640px !important; padding: 12px !important; }
+      .no-print button { min-height: 40px; touch-action: manipulation; }
+      .horiz-match-card { width: 132px; }
+      #toastBox { bottom: 12px; right: 12px; }
     }
     @media print {
-      .local-data-notice, #matchSpotlight { display:none !important; }
+      .local-data-notice, #matchSpotlight { display: none !important; }
     }
   </style>
 </head>
@@ -867,8 +1088,8 @@
         <div class="flex gap-1.5">
           <input type="text" id="viewerShareUrlInput" readonly
             class="flex-1 min-w-0 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-sky-300 focus:outline-none">
-          <button type="button" onclick="copyViewerShareUrl()"
-            class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black shrink-0 flex items-center gap-1.5 transition">
+          <button type="button" onclick="copyViewerShareUrl()" id="btnCopyViewerShareUrl"
+            class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-black shrink-0 flex items-center gap-1.5 transition">
             <i class="fa-solid fa-copy"></i>
             <span>複製連結</span>
           </button>
@@ -884,8 +1105,8 @@
       </div>
 
       <div class="flex items-center justify-between pt-2 border-t border-slate-800 gap-2">
-        <button type="button" onclick="downloadViewerQrPng()"
-          class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition">
+        <button type="button" onclick="downloadViewerQrPng()" id="btnDownloadViewerQr"
+          class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold flex items-center gap-1.5 transition">
           <i class="fa-solid fa-image"></i> 下載 QR 圖片
         </button>
         <div class="flex items-center gap-2">
@@ -3562,7 +3783,7 @@
       `).join('');
     }
 
-    
+
     function getTodayRocDateString() {
       const now = new Date();
       const rocYear = now.getFullYear() - 1911;
@@ -3882,10 +4103,11 @@
         if (encoded.length <= 2400) {
           return `${base}?view=1#snap=${encoded}`;
         }
-        showToast('快照資料較長，已產生精簡觀戰連結（建議搭配 JSON 備份或本機同步）');
-        return `${base}?view=1`;
+        showToast('快照超過網址長度上限，已停止產生分享連結；請改傳 JSON 備份，或取消快照後再分享精簡入口。');
+        return '';
       } catch (e) {
-        return `${base}?view=1`;
+        showToast('無法建立觀戰快照，已停止產生分享連結；請改用 JSON 備份。');
+        return '';
       }
     }
 
@@ -4148,6 +4370,13 @@
       const h = canvas.height;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, w, h);
+      if (!text) {
+        if (noteEl) {
+          noteEl.textContent = '目前沒有可分享的快照連結；請傳送 JSON 備份，或取消快照後再分享精簡入口。';
+          noteEl.classList.remove('hidden');
+        }
+        return;
+      }
 
       const matrix = generateQrMatrix(text);
       if (!matrix) {
@@ -4177,18 +4406,32 @@
     }
 
     function refreshViewerShareLink() {
-      const url = buildViewerShareUrl();
-      const input = document.getElementById('viewerShareUrlInput');
-      const hint = document.getElementById('viewerQrEnvironmentHint');
-      if (input) input.value = url;
-
+      const generatedUrl = buildViewerShareUrl();
       const isFileProtocol = window.location.protocol === 'file:';
-      if (hint) {
-        hint.textContent = isFileProtocol
-          ? '提示：目前為本機開啟（file://），若要讓朋友手機直接開啟，建議將本 HTML 上傳至 GitHub Pages 或網站空間後再分享網址。'
-          : '朋友開啟此連結後將自動進入「選手觀戰（唯讀快照）」模式，可查賽程與名次且無法誤改比數。';
-      }
+      const url = isFileProtocol ? '' : generatedUrl;
+      const input = document.getElementById('viewerShareUrlInput');
+      const hint = document.getElementById('viewerShareEnvironmentHint');
+      const includeSnapshot = Boolean(document.getElementById('shareIncludeSnapshot')?.checked);
+      const hasSnapshot = includeSnapshot && url.includes('#snap=');
+      if (input) input.value = url;
+      const copyButton = document.getElementById('btnCopyViewerShareUrl');
+      if (copyButton) copyButton.disabled = !url;
+      const qrDownloadButton = document.getElementById('btnDownloadViewerQr');
+      if (qrDownloadButton) qrDownloadButton.disabled = !url;
 
+      if (hint) {
+        if (isFileProtocol) {
+          hint.textContent = '目前以 file:// 本機開啟，朋友無法直接開啟此連結；請先將網站部署到可公開存取的網址。';
+        } else if (hasSnapshot) {
+          hint.textContent = '此網址已帶入唯讀賽程快照（分享建立當下狀態）；之後比分不會自動更新，更新賽況時請重新產生分享連結。';
+        } else if (includeSnapshot) {
+          hint.textContent = '快照超過網址長度上限；目前未產生分享連結，也未畫出 QR 碼。請傳送 JSON 備份，或取消快照選項後再分享精簡入口（不含賽況）。';
+        } else {
+          hint.textContent = '此精簡觀戰連結不含本次賽程資料；其他裝置不會看到裁判端的本機賽況。要分享此刻比分，請重新勾選賽程快照。';
+        }
+      }
+      const qrCaption = document.getElementById('viewerQrCaption');
+      if (qrCaption) qrCaption.textContent = !url ? '快照超出長度上限，尚未產生分享連結' : hasSnapshot ? '掃描 QR 碼開啟本次唯讀賽程快照' : '掃描 QR 碼開啟精簡觀戰連結（不含賽況）';
       renderQrToCanvas(url);
     }
 
@@ -4204,6 +4447,10 @@
     function copyViewerShareUrl() {
       const input = document.getElementById('viewerShareUrlInput');
       const val = input?.value || buildViewerShareUrl();
+      if (!val) {
+        showToast('目前沒有可複製的分享連結；請傳送 JSON 備份，或取消快照後重新產生連結。');
+        return;
+      }
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(val).then(() => {
           showToast('已複製選手觀戰連結！');
@@ -4221,7 +4468,10 @@
 
     function downloadViewerQrPng() {
       const canvas = document.getElementById('viewerQrCanvas');
-      if (!canvas) return;
+      if (!canvas || !document.getElementById('viewerShareUrlInput')?.value) {
+        showToast('目前沒有可下載的分享 QR 碼。');
+        return;
+      }
       const link = document.createElement('a');
       const title = (document.getElementById('metaTitle')?.value || '撞球賽程').replace(/[\\/:*?"<>|]/g, '_');
       link.download = `${title}_選手觀戰QR碼.png`;
@@ -4235,7 +4485,7 @@
       setViewerMode(true);
     }
 
-    
+
     // =========================================================================
     // 列印預覽：輸出 PNG / PDF、儲存到裝置、系統轉傳
     // =========================================================================
