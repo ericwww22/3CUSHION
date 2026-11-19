@@ -583,6 +583,124 @@
       .horiz-match-card { width: 132px; }
       #toastBox { bottom: 12px; right: 12px; }
     }
+
+    /* 導覽、按鈕及排行頁互動狀態 */
+    button:not(:disabled), [role="tab"] { transition: color .16s ease, background-color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .12s ease, filter .16s ease; }
+    button:disabled { cursor: not-allowed; opacity: .48; filter: saturate(.55); }
+    button:focus-visible, [role="tab"]:focus-visible, [role="region"][tabindex="0"]:focus-visible { outline: 3px solid var(--accent-gold-bright) !important; outline-offset: 3px; }
+    .main-tab { min-height: 42px; white-space: nowrap; }
+    .main-tab[aria-selected="true"] { font-weight: 900; box-shadow: 0 5px 16px rgba(0, 0, 0, .25); }
+    .orientation-toggle { min-height: 36px; }
+    .orientation-toggle[aria-pressed="true"] { font-weight: 900; box-shadow: 0 3px 10px rgba(0, 0, 0, .22); }
+    @media (hover: hover) and (pointer: fine) {
+      button:not(:disabled):hover { filter: brightness(1.06); }
+      .main-tab:not([aria-selected="true"]):hover { color: var(--accent-gold-bright) !important; }
+    }
+    button:not(:disabled):active { transform: translateY(1px) scale(.985); }
+
+    .player-ranking-section {
+      width: 100%;
+      min-width: 0;
+      padding: clamp(16px, 2.2vw, 26px);
+      color: var(--text-primary);
+      background: linear-gradient(145deg, rgba(19, 37, 29, .98), rgba(11, 24, 19, .98));
+      border: 1px solid var(--border);
+      border-radius: var(--panel-radius);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, .22);
+    }
+    .player-ranking-heading, .ranking-detail-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .player-ranking-heading h2 { display: flex; align-items: center; gap: 9px; margin: 3px 0 4px; color: var(--accent-gold-bright); font-size: clamp(20px, 2.5vw, 26px); font-weight: 900; }
+    .player-ranking-heading h2 i { color: var(--accent-gold); }
+    .player-ranking-kicker { color: var(--accent-green-soft); font-size: 10px; font-weight: 900; letter-spacing: .14em; }
+    .player-ranking-description { margin: 0; color: var(--text-muted); font-size: 12px; }
+    .ranking-reset-button, .ranking-detail-button, .ranking-detail-close {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      min-height: 42px; padding: 8px 12px; color: var(--accent-gold-bright);
+      background: rgba(8, 19, 14, .76); border: 1px solid var(--border-strong); border-radius: 12px;
+      font-size: 12px; font-weight: 800; cursor: pointer;
+    }
+    .ranking-reset-button:hover, .ranking-detail-button:hover, .ranking-detail-close:hover { background: var(--surface-hover); border-color: var(--accent-gold); }
+    .player-ranking-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+    .ranking-summary-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; padding: 13px 15px; background: rgba(6, 17, 13, .62); border: 1px solid var(--border); border-radius: 14px; }
+    .ranking-summary-card span { color: var(--text-muted); font-size: 12px; }
+    .ranking-summary-card strong { color: var(--accent-gold-bright); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 22px; font-weight: 900; }
+    .ranking-toolbar { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(150px, .55fr) minmax(150px, .55fr); align-items: end; gap: 12px; margin: 18px 0 12px; }
+    .ranking-toolbar label { display: flex; flex-direction: column; gap: 6px; min-width: 0; color: var(--text-muted); font-size: 11px; font-weight: 800; }
+    .ranking-toolbar input, .ranking-toolbar select { width: 100%; min-height: 44px; padding: 9px 11px; background: var(--surface-deep); border: 1px solid var(--border-strong); border-radius: 11px; color: var(--text-primary); font-size: 13px; }
+    .ranking-result-summary { min-height: 20px; margin: 0 0 8px; color: var(--text-muted); font-size: 11px; }
+    .ranking-table-scroll { width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 14px; scrollbar-width: thin; scrollbar-color: var(--accent-gold) var(--surface-deep); }
+    .player-ranking-table { width: 100%; min-width: 710px; border-collapse: collapse; text-align: left; font-size: 13px; }
+    .player-ranking-table th { padding: 12px 14px; color: var(--text-muted); background: rgba(5, 16, 12, .88); border-bottom: 1px solid var(--border-strong); font-size: 11px; font-weight: 900; white-space: nowrap; }
+    .player-ranking-table td { padding: 11px 14px; border-bottom: 1px solid rgba(83, 125, 101, .22); vertical-align: middle; }
+    .player-ranking-table tbody tr:last-child td { border-bottom: 0; }
+    .ranking-row { background: rgba(5, 16, 12, .28); transition: background-color .16s ease; }
+    .ranking-row:hover, .ranking-row.is-selected { background: rgba(47, 154, 109, .14); }
+    .ranking-rank-number { color: var(--accent-gold-bright); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 900; }
+    .ranking-prize-dot { margin-left: 5px; color: var(--accent-gold); font-size: 12px; }
+    .ranking-player-name { display: inline-flex; align-items: baseline; gap: 8px; min-height: 40px; padding: 3px 0; color: var(--text-primary); background: transparent; border: 0; font-size: 13px; font-weight: 900; text-align: left; cursor: pointer; }
+    .ranking-player-name:hover { color: var(--accent-gold-bright); }
+    .ranking-player-name[aria-pressed="true"] { color: var(--accent-gold-bright); }
+    .ranking-race-note { color: var(--text-subtle); font-size: 10px; font-weight: 600; white-space: nowrap; }
+    .ranking-record { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 900; white-space: nowrap; }
+    .ranking-win-count { color: var(--accent-green-soft); }
+    .ranking-loss-count { color: #fda4af; }
+    .ranking-record-divider { padding: 0 6px; color: var(--text-subtle); }
+    .ranking-winrate { display: flex; align-items: center; gap: 9px; min-width: 86px; color: var(--text-primary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 800; }
+    .ranking-winrate-track { display: block; width: 46px; height: 5px; overflow: hidden; background: rgba(129, 149, 138, .22); border-radius: 99px; }
+    .ranking-winrate-track > span { display: block; height: 100%; background: var(--accent-green); border-radius: inherit; }
+    .ranking-status { display: inline-flex; align-items: center; padding: 4px 8px; border: 1px solid transparent; border-radius: 99px; font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .ranking-status-active { color: var(--accent-green-soft); background: rgba(47, 154, 109, .12); border-color: rgba(47, 154, 109, .28); }
+    .ranking-status-out { color: #bec8c0; background: rgba(117, 131, 121, .12); border-color: rgba(117, 131, 121, .25); }
+    .ranking-status-noshow { color: #fda4af; background: rgba(190, 45, 63, .12); border-color: rgba(190, 45, 63, .28); }
+    .ranking-detail-button { min-height: 36px; padding: 6px 10px; color: var(--accent-green-soft); font-size: 11px; white-space: nowrap; }
+    .ranking-empty-state { padding: 28px 16px !important; color: var(--text-muted); text-align: center; }
+    .ranking-scroll-hint { display: none; margin: 8px 2px 0; color: var(--text-subtle); font-size: 10px; }
+    .ranking-player-detail { margin-top: 20px; padding: 18px; background: rgba(6, 17, 13, .64); border: 1px solid var(--border-strong); border-radius: 16px; }
+    .ranking-detail-heading h3 { margin: 3px 0 0; color: var(--text-primary); font-size: 17px; font-weight: 900; }
+    .ranking-detail-close { width: 42px; padding: 0; color: var(--text-muted); font-size: 16px; }
+    .ranking-detail-summary { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+    .ranking-detail-summary > span { padding: 6px 10px; color: var(--text-muted); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 999px; font-size: 11px; }
+    .ranking-detail-summary strong { color: var(--accent-gold-bright); }
+    .ranking-match-list { display: grid; gap: 8px; }
+    .ranking-match-card { display: grid; grid-template-columns: 92px minmax(120px, 1fr) minmax(70px, auto) 44px; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(19, 37, 29, .72); border: 1px solid rgba(83, 125, 101, .24); border-radius: 12px; }
+    .ranking-match-number { color: var(--text-subtle); font-size: 10px; }
+    .ranking-match-opponent { min-width: 0; color: var(--text-primary); font-size: 12px; font-weight: 800; overflow-wrap: anywhere; }
+    .ranking-match-score { color: var(--accent-gold-bright); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 900; text-align: right; white-space: nowrap; }
+    .ranking-match-result { padding: 4px 8px; border-radius: 999px; font-size: 10px; font-weight: 900; text-align: center; }
+    .ranking-match-result.is-win { color: var(--accent-green-soft); background: rgba(47, 154, 109, .15); }
+    .ranking-match-result.is-loss { color: #fda4af; background: rgba(190, 45, 63, .14); }
+    .ranking-no-matches { margin: 0; padding: 16px; color: var(--text-muted); background: var(--surface-raised); border-radius: 12px; font-size: 12px; }
+
+    @media (min-width: 768px) and (max-width: 1024px) {
+      #mainTabList { flex-wrap: wrap; }
+      .ranking-toolbar { grid-template-columns: minmax(200px, 1fr) repeat(2, minmax(135px, .55fr)); }
+    }
+    @media (max-width: 767px) {
+      #mainTabList { display: grid; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .main-tab { justify-content: center; min-width: 0; padding-inline: 8px !important; white-space: normal; text-align: center; }
+      #bracketOrientationControls { width: 100%; margin-left: 0; }
+      #bracketOrientationControls .orientation-toggle { flex: 1; justify-content: center; }
+      .player-ranking-section { padding: 14px; }
+      .player-ranking-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .player-ranking-summary { gap: 7px; margin: 14px 0; }
+      .ranking-summary-card { flex-direction: column; align-items: flex-start; gap: 3px; padding: 9px 8px; }
+      .ranking-summary-card span { font-size: 10px; }
+      .ranking-summary-card strong { font-size: 18px; }
+      .ranking-toolbar { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
+      .ranking-toolbar input, .ranking-toolbar select { min-height: 44px; }
+      .player-ranking-table { min-width: 710px; }
+      .ranking-scroll-hint { display: block; }
+      .ranking-player-detail { padding: 13px; }
+      .ranking-match-card { grid-template-columns: 1fr auto; gap: 5px 9px; }
+      .ranking-match-number { grid-column: 1; }
+      .ranking-match-opponent { grid-column: 1; grid-row: 2; }
+      .ranking-match-score { grid-column: 2; grid-row: 1 / span 2; }
+      .ranking-match-result { grid-column: 2; grid-row: 3; justify-self: end; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+
     @media print {
       .local-data-notice, #matchSpotlight { display: none !important; }
     }
@@ -2005,20 +2123,42 @@
     function switchMainTab(tab) {
       const bracketSec = document.getElementById('viewBracketSection');
       const standingsSec = document.getElementById('viewStandingsSection');
-      const btnBracket = document.getElementById('tabBtnBracket');
-      const btnStandings = document.getElementById('tabBtnStandings');
+      const rankingSec = document.getElementById('viewPlayerRankingSection');
+      const orientationControls = document.getElementById('bracketOrientationControls');
+      const tabs = Array.from(document.querySelectorAll('#mainTabList [role="tab"]'));
+      const activeTab = ['standings', 'players'].includes(tab) ? tab : 'bracket';
+      const baseClass = 'main-tab px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition';
 
-      if (tab === 'bracket') {
-        bracketSec.classList.remove('hidden');
-        standingsSec.classList.remove('hidden');
-        btnBracket.className = 'px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition bg-emerald-500 text-slate-950 shadow';
-        btnStandings.className = 'px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-300 hover:bg-slate-800';
-      } else {
-        bracketSec.classList.add('hidden');
-        standingsSec.classList.remove('hidden');
-        btnStandings.className = 'px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition bg-amber-500 text-slate-950 shadow';
-        btnBracket.className = 'px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-300 hover:bg-slate-800';
-      }
+      bracketSec?.classList.toggle('hidden', activeTab !== 'bracket');
+      standingsSec?.classList.toggle('hidden', activeTab === 'players');
+      rankingSec?.classList.toggle('hidden', activeTab !== 'players');
+      orientationControls?.classList.toggle('hidden', activeTab !== 'bracket');
+      if (standingsSec) standingsSec.setAttribute('aria-labelledby', activeTab === 'bracket' ? 'tabBtnBracket' : 'tabBtnStandings');
+
+      tabs.forEach(button => {
+        const isActive = button.dataset.tab === activeTab;
+        button.setAttribute('aria-selected', String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
+        const activeColor = button.dataset.tab === 'standings' ? 'bg-amber-500' : 'bg-emerald-500';
+        button.className = `${baseClass} ${isActive ? `${activeColor} text-slate-950 shadow` : 'text-slate-300 hover:bg-slate-800'}`;
+      });
+    }
+
+    function handleMainTabKeydown(event) {
+      const supportedKeys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+      if (!supportedKeys.includes(event.key)) return;
+      const tabs = Array.from(document.querySelectorAll('#mainTabList [role="tab"]'));
+      const currentIndex = tabs.indexOf(event.target.closest('[role="tab"]'));
+      if (currentIndex < 0 || tabs.length === 0) return;
+
+      event.preventDefault();
+      let nextIndex = currentIndex;
+      if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+      if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      if (event.key === 'Home') nextIndex = 0;
+      if (event.key === 'End') nextIndex = tabs.length - 1;
+      switchMainTab(tabs[nextIndex].dataset.tab);
+      tabs[nextIndex].focus();
     }
 
     function updateByeHint() {
@@ -3122,12 +3262,15 @@
 
       const btnV = document.getElementById('btnViewVertical');
       const btnH = document.getElementById('btnViewHorizontal');
-      const activeClass = 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-emerald-500 text-slate-950 shadow';
-      const inactiveClass = 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white';
+      const activeClass = 'orientation-toggle px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-emerald-500 text-slate-950 shadow';
+      const inactiveClass = 'orientation-toggle px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white';
 
       if (btnV && btnH) {
-        btnV.className = nextMode === 'vertical' ? activeClass : inactiveClass;
-        btnH.className = nextMode === 'horizontal' ? activeClass : inactiveClass;
+        const verticalActive = nextMode === 'vertical';
+        btnV.className = verticalActive ? activeClass : inactiveClass;
+        btnH.className = verticalActive ? inactiveClass : activeClass;
+        btnV.setAttribute('aria-pressed', String(verticalActive));
+        btnH.setAttribute('aria-pressed', String(!verticalActive));
       }
 
       renderAll();
@@ -3830,6 +3973,182 @@
       return list;
     }
 
+    function getPlayerMatchHistory(playerId) {
+      return getAllTournamentMatches()
+        .filter(match => match && match.winnerId && !match.isBye && (match.p1Id === playerId || match.p2Id === playerId))
+        .map(match => {
+          const playerIsP1 = match.p1Id === playerId;
+          const opponent = getPlayer(playerIsP1 ? match.p2Id : match.p1Id);
+          return {
+            matchNo: match.matchNo,
+            opponentName: opponent?.name || '未知對手',
+            result: match.winnerId === playerId ? '勝' : '敗',
+            playerScore: playerIsP1 ? match.s1 : match.s2,
+            opponentScore: playerIsP1 ? match.s2 : match.s1,
+            isWalkover: Boolean(match.isWalkover)
+          };
+        })
+        .sort((a, b) => Number(b.matchNo || 0) - Number(a.matchNo || 0));
+    }
+
+    function renderPlayerRanking() {
+      const tbody = document.getElementById('rankingTableBody');
+      if (!tbody) return;
+
+      const standings = computeTournamentStandings();
+      const searchText = (document.getElementById('rankingSearchInput')?.value || '').trim().toLocaleLowerCase();
+      const filterValue = document.getElementById('rankingFilterSelect')?.value || 'all';
+      const sortValue = document.getElementById('rankingSortSelect')?.value || 'rank';
+      const detailPanel = document.getElementById('rankingPlayerDetail');
+      const selectedPlayerId = detailPanel?.dataset.playerId || '';
+      const rankCompare = (a, b) => (a.rankNum - b.rankNum) || (b.wins - a.wins) || (a.losses - b.losses) || String(a.player.name).localeCompare(String(b.player.name), 'zh-Hant');
+
+      const filtered = standings.filter(item => {
+        const nameMatches = !searchText || String(item.player.name).toLocaleLowerCase().includes(searchText);
+        const statusMatches = filterValue === 'active' ? !item.eliminated && !item.player.noShow
+          : filterValue === 'eliminated' ? item.eliminated && !item.player.noShow
+          : filterValue === 'prize' ? item.isPrizeWinner
+          : filterValue === 'noshow' ? item.player.noShow
+          : true;
+        return nameMatches && statusMatches;
+      });
+
+      filtered.sort((a, b) => {
+        if (sortValue === 'wins') return (b.wins - a.wins) || (a.losses - b.losses) || rankCompare(a, b);
+        if (sortValue === 'winrate') {
+          const aRate = a.wins + a.losses ? a.wins / (a.wins + a.losses) : 0;
+          const bRate = b.wins + b.losses ? b.wins / (b.wins + b.losses) : 0;
+          return (bRate - aRate) || (b.wins - a.wins) || rankCompare(a, b);
+        }
+        return rankCompare(a, b);
+      });
+
+      const totalPlayersEl = document.getElementById('rankingTotalPlayers');
+      const completedMatchesEl = document.getElementById('rankingCompletedMatches');
+      const prizePlayersEl = document.getElementById('rankingPrizePlayers');
+      const completedMatches = getAllTournamentMatches().filter(match => match && match.winnerId && !match.isBye).length;
+      if (totalPlayersEl) totalPlayersEl.textContent = String(state.players.length);
+      if (completedMatchesEl) completedMatchesEl.textContent = String(completedMatches);
+      if (prizePlayersEl) prizePlayersEl.textContent = String(standings.filter(item => item.isPrizeWinner).length);
+
+      const resultSummary = document.getElementById('rankingResultSummary');
+      if (resultSummary) {
+        resultSummary.textContent = filtered.length
+          ? `顯示 ${filtered.length} / ${standings.length} 位球員；勝率以已記錄的勝場與敗場計算。`
+          : '沒有符合條件的球員，請調整搜尋文字或篩選條件。';
+      }
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td class="ranking-empty-state" colspan="6">目前沒有符合條件的球員</td></tr>';
+      } else {
+        tbody.innerHTML = filtered.map(item => {
+          const played = item.wins + item.losses;
+          const winRate = played ? Math.round((item.wins / played) * 100) : 0;
+          const rankText = item.player.noShow || item.rankNum >= 999 ? '—' : `#${item.rankNum}`;
+          const statusClass = item.player.noShow ? 'ranking-status-noshow' : item.eliminated ? 'ranking-status-out' : 'ranking-status-active';
+          const selected = selectedPlayerId === item.player.id;
+          return `
+            <tr class="ranking-row ${selected ? 'is-selected' : ''}">
+              <td><span class="ranking-rank-number">${rankText}</span>${item.isPrizeWinner ? '<span class="ranking-prize-dot" title="目前具得名資格">★</span>' : ''}</td>
+              <td>
+                <button type="button" class="ranking-player-name" data-rank-player="${escapeHtml(item.player.id)}" aria-pressed="${selected}" aria-label="查看${escapeHtml(item.player.name)}的戰績詳情" onclick="selectRankingPlayer(this.dataset.rankPlayer)">
+                  ${escapeHtml(item.player.name)}
+                  <span class="ranking-race-note">搶 ${escapeHtml(item.player.race)} 局</span>
+                </button>
+              </td>
+              <td class="ranking-record"><span class="ranking-win-count">${item.wins}</span><span class="ranking-record-divider">–</span><span class="ranking-loss-count">${item.losses}</span></td>
+              <td><div class="ranking-winrate"><span>${played ? `${winRate}%` : '—'}</span><span class="ranking-winrate-track" aria-hidden="true"><span style="width:${winRate}%"></span></span></div></td>
+              <td><span class="ranking-status ${statusClass}">${escapeHtml(item.statusLabel)}</span></td>
+              <td><button type="button" class="ranking-detail-button" data-rank-player="${escapeHtml(item.player.id)}" onclick="selectRankingPlayer(this.dataset.rankPlayer)">${selected ? '查看中' : '查看紀錄'} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></td>
+            </tr>`;
+        }).join('');
+      }
+
+      const selectedPlayer = selectedPlayerId ? getPlayer(selectedPlayerId) : null;
+      renderPlayerRankingDetail(selectedPlayer, standings);
+    }
+
+    function renderPlayerRankingDetail(player, standings = computeTournamentStandings()) {
+      const panel = document.getElementById('rankingPlayerDetail');
+      if (!panel) return;
+      if (!player) {
+        panel.classList.add('hidden');
+        delete panel.dataset.playerId;
+        return;
+      }
+
+      panel.classList.remove('hidden');
+      const info = standings.find(item => item.player.id === player.id);
+      const title = document.getElementById('rankingDetailTitle');
+      const summary = document.getElementById('rankingDetailSummary');
+      const matchesEl = document.getElementById('rankingDetailMatches');
+      const winRate = info && info.wins + info.losses ? Math.round(info.wins / (info.wins + info.losses) * 100) : 0;
+      if (title) title.textContent = `${player.name}・對戰紀錄`;
+      if (summary && info) {
+        const rankText = player.noShow || info.rankNum >= 999 ? '未到棄權' : `第 ${info.rankNum} 名`;
+        summary.innerHTML = `
+          <span><strong>${escapeHtml(rankText)}</strong></span>
+          <span><strong>${info.wins} 勝 ${info.losses} 敗</strong></span>
+          <span><strong>${info.wins + info.losses ? `${winRate}%` : '尚無勝率'}</strong> 勝率</span>
+          <span>${escapeHtml(info.statusLabel)}</span>`;
+      }
+
+      const history = getPlayerMatchHistory(player.id);
+      if (matchesEl) {
+        matchesEl.innerHTML = history.length ? history.map(match => {
+          const won = match.result === '勝';
+          const score = match.isWalkover
+            ? (won ? '保送勝' : '棄權負')
+            : `${escapeHtml(match.playerScore ?? '—')} : ${escapeHtml(match.opponentScore ?? '—')}`;
+          return `
+            <article class="ranking-match-card">
+              <span class="ranking-match-number">第 ${escapeHtml(match.matchNo ?? '—')} 場</span>
+              <span class="ranking-match-opponent">vs ${escapeHtml(match.opponentName)}</span>
+              <span class="ranking-match-score">${score}</span>
+              <span class="ranking-match-result ${won ? 'is-win' : 'is-loss'}">${match.result}</span>
+            </article>`;
+        }).join('') : '<p class="ranking-no-matches">尚無已完成的球員對戰紀錄；輪空不列入對手紀錄。</p>';
+      }
+    }
+
+    function selectRankingPlayer(playerId) {
+      const player = getPlayer(playerId);
+      const panel = document.getElementById('rankingPlayerDetail');
+      if (!player || !panel) return;
+      panel.dataset.playerId = playerId;
+      renderPlayerRanking();
+      requestAnimationFrame(() => {
+        if (panel.classList.contains('hidden')) return;
+        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        panel.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
+      });
+    }
+
+    function closePlayerRankingDetail() {
+      const panel = document.getElementById('rankingPlayerDetail');
+      if (panel) {
+        panel.classList.add('hidden');
+        delete panel.dataset.playerId;
+      }
+      renderPlayerRanking();
+    }
+
+    function resetPlayerRankingFilters() {
+      const search = document.getElementById('rankingSearchInput');
+      const filter = document.getElementById('rankingFilterSelect');
+      const sort = document.getElementById('rankingSortSelect');
+      const detail = document.getElementById('rankingPlayerDetail');
+      if (search) search.value = '';
+      if (filter) filter.value = 'all';
+      if (sort) sort.value = 'rank';
+      if (detail) {
+        detail.classList.add('hidden');
+        delete detail.dataset.playerId;
+      }
+      renderPlayerRanking();
+      search?.focus();
+    }
+
     function renderDashboardAndStandings() {
       const standings = computeTournamentStandings();
       const totalPlayers = state.players.length;
@@ -3864,6 +4183,7 @@
           </td>
         </tr>
       `).join('');
+      renderPlayerRanking();
     }
 
 
