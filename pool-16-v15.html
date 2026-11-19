@@ -299,6 +299,125 @@
       letter-spacing: 1px;
     }
 
+    /* =========================================
+       橫向全景雙向對稱賽程表樣式（類似上傳參考圖）
+       ========================================= */
+    .horiz-bracket-wrapper {
+      position: relative;
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: 16px 20px;
+      min-width: max-content;
+    }
+
+    .horiz-svg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .horiz-round-col {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 10px;
+    }
+
+    .horiz-match-card {
+      position: relative;
+      width: 122px;
+      border: 1.5px solid currentColor;
+      background-color: rgba(255, 255, 255, 0.72);
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .theme-felt .horiz-match-card,
+    .theme-black .horiz-match-card,
+    .theme-custom .horiz-match-card {
+      background-color: rgba(15, 23, 42, 0.65);
+    }
+
+    .horiz-match-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+    }
+
+    .horiz-match-card.losers-card {
+      background-color: rgba(224, 242, 254, 0.85);
+    }
+
+    .theme-felt .horiz-match-card.losers-card,
+    .theme-black .horiz-match-card.losers-card,
+    .theme-custom .horiz-match-card.losers-card {
+      background-color: rgba(14, 116, 144, 0.35);
+    }
+
+    .horiz-match-card.final-card {
+      background-color: rgba(252, 231, 243, 0.9);
+      border-width: 2px;
+    }
+
+    .theme-felt .horiz-match-card.final-card,
+    .theme-black .horiz-match-card.final-card,
+    .theme-custom .horiz-match-card.final-card {
+      background-color: rgba(190, 24, 93, 0.35);
+    }
+
+    .horiz-slot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      height: 22px;
+      padding: 0 5px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .horiz-slot + .horiz-slot {
+      border-top: 1px solid currentColor;
+    }
+
+    .horiz-slot.winner-slot {
+      background-color: rgba(250, 204, 21, 0.45) !important;
+      font-weight: 900;
+    }
+
+    .horiz-slot.noshow-slot {
+      background-color: rgba(225, 29, 72, 0.25) !important;
+      text-decoration: line-through;
+    }
+
+    .horiz-slot.player-lookup-highlight {
+      outline: 2.5px solid #f59e0b !important;
+      background-color: rgba(251, 191, 36, 0.4) !important;
+    }
+
+    .horiz-match-no {
+      position: relative;
+      z-index: 2;
+      font-size: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 800;
+      padding: 0 3px;
+      opacity: 0.85;
+    }
+
     body.viewer-readonly .paper-box,
     body.viewer-readonly [onclick*="openMatchModalById"] {
       cursor: default !important;
@@ -729,6 +848,20 @@
             class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-300 hover:bg-slate-800">
             <i class="fa-solid fa-ranking-star"></i> 即時戰況與得名榜
           </button>
+
+          <!-- 賽事表觀看方向二擇一切換（直向觀看 / 橫向觀看） -->
+          <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-700/90 ml-1" title="切換賽程表觀看方向">
+            <button type="button" onclick="setBracketOrientation('vertical')" id="btnViewVertical"
+              class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-pink-500 text-white shadow">
+              <i class="fa-solid fa-arrows-up-down"></i>
+              <span>直向觀看</span>
+            </button>
+            <button type="button" onclick="setBracketOrientation('horizontal')" id="btnViewHorizontal"
+              class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white">
+              <i class="fa-solid fa-arrows-left-right"></i>
+              <span>橫向觀看</span>
+            </button>
+          </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-2 text-xs">
@@ -1310,6 +1443,7 @@
 
     const state = {
       format: 'single',
+      orientation: 'vertical',
       theme: 'pink',
       customTheme: {
         bg: '#1e293b',
@@ -2794,10 +2928,299 @@
       root.innerHTML = html;
     }
 
+    function setBracketOrientation(mode) {
+      const nextMode = mode === 'horizontal' ? 'horizontal' : 'vertical';
+      state.orientation = nextMode;
+
+      const btnV = document.getElementById('btnViewVertical');
+      const btnH = document.getElementById('btnViewHorizontal');
+      const activeClass = 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-pink-500 text-white shadow';
+      const inactiveClass = 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white';
+
+      if (btnV && btnH) {
+        btnV.className = nextMode === 'vertical' ? activeClass : inactiveClass;
+        btnH.className = nextMode === 'horizontal' ? activeClass : inactiveClass;
+      }
+
+      renderAll();
+      showToast(nextMode === 'horizontal' ? '已切換為「橫向觀看（雙向樹狀圖）」' : '已切換為「直向觀看（經典紙本金字塔）」');
+    }
+
+    function renderHorizontalMatchCard(match, extraCardClass = '', dropHint = '') {
+      if (!match) {
+        return `<div class="horiz-match-card ${extraCardClass} opacity-60"><div class="horiz-slot text-center justify-center text-[10px]">${dropHint || '待定'}</div></div>`;
+      }
+      const p1 = getPlayer(match.p1Id);
+      const p2 = getPlayer(match.p2Id);
+      const showScore = Boolean(match.winnerId && !match.isBye && !match.isWalkover);
+      const isClickable = !state.readOnlyViewer;
+
+      const renderSlot = (player, sideIdx, scoreVal) => {
+        const isWinner = Boolean(player && match.winnerId === player.id);
+        const isNoShow = Boolean(player && player.noShow);
+        const isWalkoverWin = Boolean(player && match.isWalkover && match.winnerId === player.id);
+        const isHL = Boolean(player && state.highlightedPlayerId === player.id);
+
+        let rightTag = '';
+        if (player) {
+          if (isNoShow) rightTag = `<span class="px-1 rounded bg-rose-600 text-white text-[9px]">未到</span>`;
+          else if (isWalkoverWin) rightTag = `<span class="px-1 rounded bg-emerald-700 text-white text-[9px]">保送</span>`;
+          else if (showScore) rightTag = `<span class="font-mono text-[10px] font-black">${scoreVal}</span>`;
+        } else if (match.isBye && sideIdx === 1) {
+          rightTag = `<span class="text-[9px] opacity-60">輪空</span>`;
+        }
+
+        const labelHtml = player
+          ? `<span class="truncate">${player.name} <span class="opacity-75 font-mono">(${player.race})</span></span>`
+          : `<span class="opacity-45 text-[10px]">${match.isBye && sideIdx === 1 ? '輪空' : (dropHint && sideIdx === 1 ? dropHint : '')}</span>`;
+
+        return `
+          <div class="horiz-slot ${isWinner ? 'winner-slot' : ''} ${isNoShow ? 'noshow-slot' : ''} ${isHL ? 'player-lookup-highlight' : ''}">
+            ${labelHtml}
+            ${rightTag}
+          </div>
+        `;
+      };
+
+      return `
+        <div id="hcard_${match.id}" onclick="openMatchModalById('${match.id}')"
+          class="horiz-match-card ${extraCardClass} ${isClickable ? 'cursor-pointer' : 'cursor-default'}"
+          title="第 ${match.matchNo} 場${isClickable ? '（點擊計分或保送）' : '（唯讀觀戰）'}">
+          ${renderSlot(p1, 0, match.s1)}
+          ${renderSlot(p2, 1, match.s2)}
+        </div>
+      `;
+    }
+
+    function renderHorizontalBracket(root) {
+      if (state.format === 'roundrobin') {
+        renderRoundRobinBracket(root);
+        return;
+      }
+
+      if (state.format === 'single') {
+        const rounds = state.single.rounds || [];
+        if (rounds.length === 0) return;
+
+        let colsHtml = '';
+        rounds.forEach((rm, rIdx) => {
+          const roundLabel = rIdx === rounds.length - 1 ? '決賽' : rIdx === rounds.length - 2 ? '準決賽' : `第${rIdx + 1}輪`;
+          colsHtml += `<div class="horiz-round-col" data-hcol="s_${rIdx}">`;
+          colsHtml += `<div class="text-[10px] font-black text-center opacity-75 mb-1">${roundLabel}</div>`;
+          rm.forEach(m => {
+            colsHtml += `
+              <div class="flex items-center gap-1">
+                ${renderHorizontalMatchCard(m, rIdx === rounds.length - 1 ? 'final-card' : '')}
+                <span class="horiz-match-no">${m.matchNo}</span>
+              </div>
+            `;
+          });
+          colsHtml += `</div>`;
+        });
+
+        if (state.single.thirdPlace) {
+          const tp = state.single.thirdPlace;
+          colsHtml += `
+            <div class="horiz-round-col" data-hcol="s_tp">
+              <div class="text-[10px] font-black text-center opacity-75 mb-1">季軍戰</div>
+              <div class="flex items-center gap-1">
+                ${renderHorizontalMatchCard(tp, 'losers-card')}
+                <span class="horiz-match-no">${tp.matchNo}</span>
+              </div>
+            </div>
+          `;
+        }
+
+        root.innerHTML = `
+          <div id="horizBracketCanvas" class="horiz-bracket-wrapper">
+            <svg id="horizBracketSvg" class="horiz-svg-layer"></svg>
+            ${colsHtml}
+          </div>
+        `;
+        requestAnimationFrame(drawHorizontalBracketLines);
+        return;
+      }
+
+      // 雙敗淘汰制橫向全景（類似上傳圖片：左側敗部往左展開、中間第1輪起點、右側勝部往右展開、最右總決賽）
+      const { winnersRounds, losersRounds, grandFinal, resetFinal } = state.double;
+      if (!winnersRounds || winnersRounds.length === 0) return;
+
+      let leftLosersHtml = '';
+      // 敗部由外到內排列（最左邊是敗部決賽，越靠近中間是敗部第1輪）
+      for (let lr = losersRounds.length - 1; lr >= 0; lr--) {
+        const lrm = losersRounds[lr];
+        leftLosersHtml += `<div class="horiz-round-col" data-hcol="dl_${lr}">`;
+        leftLosersHtml += `<div class="text-[10px] font-black text-center opacity-75 mb-1">敗部 R${lr + 1}</div>`;
+        lrm.forEach(m => {
+          leftLosersHtml += `
+            <div class="flex items-center gap-1">
+              <span class="horiz-match-no">${m.matchNo}</span>
+              ${renderHorizontalMatchCard(m, 'losers-card')}
+            </div>
+          `;
+        });
+        leftLosersHtml += `</div>`;
+      }
+
+      let rightWinnersHtml = '';
+      winnersRounds.forEach((rm, rIdx) => {
+        const label = rIdx === 0 ? '首輪起點' : rIdx === winnersRounds.length - 1 ? '勝部冠軍戰' : `勝部 R${rIdx + 1}`;
+        rightWinnersHtml += `<div class="horiz-round-col" data-hcol="dw_${rIdx}">`;
+        rightWinnersHtml += `<div class="text-[10px] font-black text-center opacity-75 mb-1">${label}</div>`;
+        rm.forEach(m => {
+          rightWinnersHtml += `
+            <div class="flex items-center gap-1">
+              ${renderHorizontalMatchCard(m)}
+              <span class="horiz-match-no">${m.matchNo}</span>
+            </div>
+          `;
+        });
+        rightWinnersHtml += `</div>`;
+      });
+
+      // 最右側總決賽（與加賽）
+      let finalsHtml = `<div class="horiz-round-col" data-hcol="dfinal">`;
+      finalsHtml += `<div class="text-[10px] font-black text-center opacity-75 mb-1">總決賽</div>`;
+      if (grandFinal) {
+        finalsHtml += `
+          <div class="flex items-center gap-1">
+            ${renderHorizontalMatchCard(grandFinal, 'final-card')}
+            <span class="horiz-match-no">${grandFinal.matchNo}</span>
+          </div>
+        `;
+      }
+      if (resetFinal && (resetFinal.p1Id || resetFinal.p2Id || resetFinal.winnerId)) {
+        finalsHtml += `
+          <div class="flex items-center gap-1 mt-3">
+            ${renderHorizontalMatchCard(resetFinal, 'final-card')}
+            <span class="horiz-match-no">${resetFinal.matchNo}</span>
+          </div>
+        `;
+      }
+      finalsHtml += `</div>`;
+
+      root.innerHTML = `
+        <div id="horizBracketCanvas" class="horiz-bracket-wrapper">
+          <svg id="horizBracketSvg" class="horiz-svg-layer"></svg>
+          ${leftLosersHtml}
+          ${rightWinnersHtml}
+          ${finalsHtml}
+        </div>
+      `;
+      requestAnimationFrame(drawHorizontalBracketLines);
+    }
+
+    function drawHorizontalBracketLines() {
+      const container = document.getElementById('horizBracketCanvas');
+      const svg = document.getElementById('horizBracketSvg');
+      if (!container || !svg) return;
+
+      const scale = state.zoom || 1;
+      const cRect = container.getBoundingClientRect();
+      const width = container.offsetWidth;
+      const height = container.offsetHeight;
+
+      svg.setAttribute('width', width);
+      svg.setAttribute('height', height);
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.innerHTML = '';
+
+      const strokeColor = getComputedStyle(container).color || '#334155';
+
+      const connectCards = (fromMatchId, toMatchId, bypassBottom = false) => {
+        const fromEl = document.getElementById(`hcard_${fromMatchId}`);
+        const toEl = document.getElementById(`hcard_${toMatchId}`);
+        if (!fromEl || !toEl) return;
+
+        const r1 = fromEl.getBoundingClientRect();
+        const r2 = toEl.getBoundingClientRect();
+
+        const x1Left = (r1.left - cRect.left) / scale;
+        const x1Right = (r1.right - cRect.left) / scale;
+        const y1Mid = (r1.top + r1.height / 2 - cRect.top) / scale;
+
+        const x2Left = (r2.left - cRect.left) / scale;
+        const x2Right = (r2.right - cRect.left) / scale;
+        const y2Mid = (r2.top + r2.height / 2 - cRect.top) / scale;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        let d = '';
+
+        if (bypassBottom) {
+          // 敗部冠軍（最左）連向最右總決賽時，從底部繞行避免橫穿中間選手卡片
+          const bottomY = height - 6;
+          const startX = x1Left - 10;
+          const endX = x2Left - 12;
+          d = `M ${x1Left} ${y1Mid} H ${startX} V ${bottomY} H ${endX} V ${y2Mid + 8} H ${x2Left}`;
+        } else if (x2Left >= x1Right) {
+          // 向右推進（勝部與單敗）
+          const midX = (x1Right + x2Left) / 2;
+          d = `M ${x1Right} ${y1Mid} H ${midX} V ${y2Mid} H ${x2Left}`;
+        } else {
+          // 向左推進（雙敗敗部往左展開）
+          const midX = (x1Left + x2Right) / 2;
+          d = `M ${x1Left} ${y1Mid} H ${midX} V ${y2Mid} H ${x2Right}`;
+        }
+
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', strokeColor);
+        path.setAttribute('stroke-width', '1.3');
+        path.setAttribute('stroke-opacity', '0.65');
+        path.setAttribute('fill', 'none');
+        svg.appendChild(path);
+      };
+
+      if (state.format === 'single') {
+        const rounds = state.single.rounds || [];
+        for (let r = 0; r < rounds.length - 1; r++) {
+          const curr = rounds[r];
+          const next = rounds[r + 1];
+          for (let m = 0; m < next.length; m++) {
+            if (curr[m * 2]) connectCards(curr[m * 2].id, next[m].id);
+            if (curr[m * 2 + 1]) connectCards(curr[m * 2 + 1].id, next[m].id);
+          }
+        }
+      } else if (state.format === 'double') {
+        const { winnersRounds, losersRounds, grandFinal, resetFinal } = state.double;
+        // 勝部連線（向右）
+        for (let r = 0; r < winnersRounds.length - 1; r++) {
+          const curr = winnersRounds[r];
+          const next = winnersRounds[r + 1];
+          for (let m = 0; m < next.length; m++) {
+            if (curr[m * 2]) connectCards(curr[m * 2].id, next[m].id);
+            if (curr[m * 2 + 1]) connectCards(curr[m * 2 + 1].id, next[m].id);
+          }
+        }
+        // 敗部連線（向左）
+        for (let lr = 0; lr < losersRounds.length - 1; lr++) {
+          const currL = losersRounds[lr];
+          const nextL = losersRounds[lr + 1];
+          for (let lm = 0; lm < nextL.length; lm++) {
+            if (currL.length === nextL.length) {
+              if (currL[lm]) connectCards(currL[lm].id, nextL[lm].id);
+            } else {
+              if (currL[lm * 2]) connectCards(currL[lm * 2].id, nextL[lm].id);
+              if (currL[lm * 2 + 1]) connectCards(currL[lm * 2 + 1].id, nextL[lm].id);
+            }
+          }
+        }
+        // 勝部冠軍 -> 總決賽；敗部冠軍 -> 總決賽（底部繞行連線）
+        const wFinal = winnersRounds[winnersRounds.length - 1]?.[0];
+        const lFinal = losersRounds[losersRounds.length - 1]?.[0];
+        if (wFinal && grandFinal) connectCards(wFinal.id, grandFinal.id, false);
+        if (lFinal && grandFinal) connectCards(lFinal.id, grandFinal.id, true);
+        if (grandFinal && resetFinal && (resetFinal.p1Id || resetFinal.p2Id || resetFinal.winnerId)) {
+          connectCards(grandFinal.id, resetFinal.id, false);
+        }
+      }
+    }
+
     function renderAll() {
       const root = document.getElementById('bracketRenderRoot');
       if (!root) return;
-      if (state.format === 'single') {
+      if (state.orientation === 'horizontal') {
+        renderHorizontalBracket(root);
+      } else if (state.format === 'single') {
         renderSingleEliminationBracket(root);
       } else if (state.format === 'double') {
         renderDoubleEliminationBracket(root);
@@ -3230,6 +3653,7 @@
       return {
         v: 5,
         format: state.format,
+        orientation: state.orientation,
         theme: state.theme,
         customTheme: state.customTheme,
         zoom: state.zoom,
@@ -3288,6 +3712,18 @@
         const fgInput = document.getElementById('customPaperFgInput');
         if (bgInput) bgInput.value = state.customTheme.bg;
         if (fgInput) fgInput.value = state.customTheme.fg;
+      }
+
+      if (payload.orientation && ['vertical', 'horizontal'].includes(payload.orientation)) {
+        state.orientation = payload.orientation;
+        const btnV = document.getElementById('btnViewVertical');
+        const btnH = document.getElementById('btnViewHorizontal');
+        const activeClass = 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition bg-pink-500 text-white shadow';
+        const inactiveClass = 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition text-slate-300 hover:text-white';
+        if (btnV && btnH) {
+          btnV.className = payload.orientation === 'vertical' ? activeClass : inactiveClass;
+          btnH.className = payload.orientation === 'horizontal' ? activeClass : inactiveClass;
+        }
       }
 
       if (payload.theme && ['pink', 'felt', 'white', 'black', 'custom'].includes(payload.theme)) {
@@ -4448,6 +4884,12 @@
       closeEventSettingsModal();
       showToast('已重新鎖定裁判控制台與賽事設定（再次切換或開啟需輸入帳號密碼）');
     }
+
+    window.addEventListener('resize', () => {
+      if (state.orientation === 'horizontal') {
+        requestAnimationFrame(drawHorizontalBracketLines);
+      }
+    });
 
     // 支援 Esc 關閉彈窗
     document.addEventListener('keydown', (e) => {
